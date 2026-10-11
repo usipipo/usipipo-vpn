@@ -1,0 +1,66 @@
+name: Android CI - Build APK
+
+on:
+  push:
+    branches: ["main", "master", "develop"]
+  pull_request:
+    branches: ["main", "master", "develop"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Test and build debug APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+
+      # Desde la API 37 la plataforma se publica con versión menor incluida:
+      # el paquete es platforms;android-37.0 (no existe platforms;android-37).
+      # AGP 9.3 usa build-tools 36.0.0 por defecto.
+      - name: Install Android SDK platform and build-tools
+        run: sdkmanager "platforms;android-37.0" "build-tools;36.0.0"
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Run unit tests
+        run: ./gradlew --no-daemon testDebugUnitTest
+
+      - name: Build debug APK
+        run: ./gradlew --no-daemon assembleDebug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: usipipo-vpn-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload test reports if tests fail
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: usipipo-vpn-test-reports
+          path: app/build/reports/tests/
+          if-no-files-found: ignore
+          retention-days: 7

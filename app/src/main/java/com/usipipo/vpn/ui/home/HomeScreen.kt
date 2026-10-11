@@ -1,0 +1,318 @@
+package com.usipipo.vpn.ui.home
+
+import android.app.Activity
+import android.net.VpnService
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.usipipo.vpn.R
+import com.usipipo.vpn.domain.SavedConfig
+import com.usipipo.vpn.domain.TunnelState
+import com.usipipo.vpn.domain.isActive
+import com.usipipo.vpn.ui.components.ConnectButton
+
+@Composable
+fun HomeScreen(
+    vm: HomeViewModel,
+    onImport: () -> Unit,
+    onAbout: () -> Unit,
+) {
+    val state by vm.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val snackbar = remember { SnackbarHostState() }
+    var pendingDelete by remember { mutableStateOf<SavedConfig?>(null) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) vm.connectSelected() else vm.onPermissionDenied()
+    }
+
+    val messageText = state.message?.let { stringResource(messageRes(it)) }
+    LaunchedEffect(messageText) {
+        if (messageText != null) {
+            snackbar.showSnackbar(messageText)
+            vm.dismissMessage()
+        }
+    }
+
+    fun onToggle() {
+        if (state.tunnel.isActive) {
+            vm.disconnect()
+            return
+        }
+        // Android pide el permiso de VPN la primera vez; después prepare() devuelve null.
+        val intent = VpnService.prepare(context)
+        if (intent == null) vm.connectSelected() else permissionLauncher.launch(intent)
+    }
+
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = { SnackbarHost(snackbar) },
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = 20.dp,
+                end = 20.dp,
+                top = padding.calculateTopPadding() + 8.dp,
+                bottom = padding.calculateBottomPadding() + 24.dp,
+            ),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            item { Header(onAbout = onAbout) }
+            item {
+                ConnectSection(
+                    tunnel = state.tunnel,
+                    enabled = state.selectedId != null,
+                    onClick = { onToggle() },
+                )
+            }
+            item { ConfigsHeader(onImport = onImport) }
+
+            if (state.configs.isEmpty()) {
+                item { EmptyCard() }
+            } else {
+                items(state.configs, key = { it.id }) { config ->
+                    ConfigCard(
+                        config = config,
+                        selected = config.id == state.selectedId,
+                        selectEnabled = !state.tunnel.isActive,
+                        onSelect = { vm.select(config.id) },
+                        onDelete = { pendingDelete = config },
+                    )
+                }
+            }
+        }
+    }
+
+    pendingDelete?.let { config ->
+        AlertDialog(
+            onDismissRequest = { pendingDelete = null },
+            title = { Text(stringResource(R.string.delete_title)) },
+            text = { Text(stringResource(R.string.delete_body, config.name)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    vm.delete(config.id)
+                    pendingDelete = null
+                }) { Text(stringResource(R.string.delete)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingDelete = null }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        )
+    }
+}
+
+@StringRes
+private fun messageRes(message: HomeMessage): Int = when (message) {
+    HomeMessage.PermissionDenied -> R.string.msg_permission_denied
+    HomeMessage.ConfigUnreadable -> R.string.msg_config_unreadable
+}
+
+@Composable
+private fun Header(onAbout: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = stringResource(R.string.app_name),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+        IconButton(onClick = onAbout) {
+            Icon(Icons.Default.Info, contentDescription = stringResource(R.string.cd_about))
+        }
+    }
+}
+
+@Composable
+private fun ConnectSection(tunnel: TunnelState, enabled: Boolean, onClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        ConnectButton(state = tunnel, enabled = enabled, onClick = onClick)
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = statusLabel(tunnel),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+        if (tunnel is TunnelState.NoResponse) {
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = stringResource(
+                    R.string.hint_no_response,
+                    stringResource(R.string.support_email),
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+            )
+        }
+    }
+}
+
+@Composable
+private fun statusLabel(tunnel: TunnelState): String = stringResource(
+    when (tunnel) {
+        TunnelState.Disconnected -> R.string.status_disconnected
+        is TunnelState.Connecting -> R.string.status_connecting
+        is TunnelState.Connected -> R.string.status_connected
+        is TunnelState.NoResponse -> R.string.status_no_response
+        is TunnelState.Failed -> R.string.status_failed
+    },
+)
+
+@Composable
+private fun ConfigsHeader(onImport: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = stringResource(R.string.configs_title),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+        FilledTonalButton(onClick = onImport) {
+            Icon(Icons.Default.Add, contentDescription = null)
+            Spacer(Modifier.width(8.dp))
+            Text(stringResource(R.string.import_action))
+        }
+    }
+}
+
+@Composable
+private fun EmptyCard() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+    ) {
+        Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(
+                text = stringResource(R.string.empty_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Text(
+                text = stringResource(R.string.empty_body),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ConfigCard(
+    config: SavedConfig,
+    selected: Boolean,
+    selectEnabled: Boolean,
+    onSelect: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(
+            width = if (selected) 2.dp else 1.dp,
+            color = if (selected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.outline,
+        ),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 56.dp)
+                .selectable(
+                    selected = selected,
+                    enabled = selectEnabled,
+                    role = Role.RadioButton,
+                    onClick = onSelect,
+                )
+                .padding(start = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            RadioButton(
+                selected = selected,
+                onClick = null,
+                enabled = selectEnabled,
+                colors = RadioButtonDefaults.colors(
+                    selectedColor = MaterialTheme.colorScheme.secondary,
+                ),
+            )
+            Text(
+                text = config.name,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 12.dp),
+            )
+            IconButton(onClick = onDelete) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = stringResource(R.string.cd_delete, config.name),
+                )
+            }
+        }
+    }
+}

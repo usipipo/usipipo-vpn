@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Solo la carpeta de informes de diagnóstico, nada más de la caché. -->
+    <cache-path
+        name="reports"
+        path="reports/" />
+</paths>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">uSipipo VPN</string>
+
+    <!-- Inicio -->
+    <string name="connect">Conectar</string>
+    <string name="disconnect">Desconectar</string>
+    <string name="status_disconnected">Desconectado</string>
+    <string name="status_connecting">Conectando…</string>
+    <string name="status_connected">Conectado</string>
+    <string name="status_no_response">Sin respuesta del servidor</string>
+    <string name="status_failed">No se pudo conectar</string>
+    <string name="hint_no_response">Revisa tu conexión a internet o escribe a %1$s</string>
+    <string name="configs_title">Configuraciones</string>
+    <string name="import_action">Importar</string>
+    <string name="empty_title">Aún no tienes configuraciones</string>
+    <string name="empty_body">Importa el archivo .conf o escanea el QR que generó tu servidor.</string>
+    <string name="delete_title">¿Eliminar configuración?</string>
+    <string name="delete_body">Se borrará «%1$s» de este dispositivo.</string>
+    <string name="delete">Eliminar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="msg_permission_denied">Se necesita el permiso de VPN para conectar.</string>
+    <string name="msg_config_unreadable">No se pudo abrir la configuración guardada.</string>
+
+    <!-- Importar -->
+    <string name="import_title">Importar configuración</string>
+    <string name="pick_file">Elegir archivo .conf</string>
+    <string name="scan_qr">Escanear código QR</string>
+    <string name="scan_prompt">Apunta al código QR de tu configuración</string>
+    <string name="name_label">Nombre</string>
+    <string name="save">Guardar</string>
+    <string name="err_invalid_config">Configuración no válida</string>
+    <string name="err_too_large">El archivo es demasiado grande</string>
+    <string name="err_read_failed">No se pudo leer el archivo</string>
+    <string name="err_name_empty">Escribe un nombre</string>
+    <string name="err_name_duplicate">Ya existe una configuración con ese nombre</string>
+    <string name="err_save_failed">No se pudo guardar la configuración</string>
+
+    <!-- Acerca de -->
+    <string name="about_title">Acerca de</string>
+    <string name="version_label">Versión %1$s</string>
+    <string name="support_label">Soporte</string>
+    <string name="support_email">usipipo@gmail.com</string>
+    <string name="send_email">Escribir a soporte</string>
+
+    <!-- Accesibilidad -->
+    <string name="cd_back">Atrás</string>
+    <string name="cd_about">Acerca de</string>
+    <string name="cd_delete">Eliminar %1$s</string>
+
+    <!-- Diagnóstico y ajustes avanzados -->
+    <string name="diag_open">Diagnóstico y ajustes avanzados</string>
+    <string name="diag_title">Diagnóstico y ajustes avanzados</string>
+    <string name="diag_crash_banner">La app se cerró inesperadamente la última vez. El detalle está en el registro.</string>
+    <string name="diag_crash_dismiss">Entendido</string>
+    <string name="diag_info_title">Información</string>
+    <string name="info_app">Aplicación</string>
+    <string name="info_android">Android</string>
+    <string name="info_device">Dispositivo</string>
+    <string name="info_abi">Arquitectura</string>
+    <string name="info_tunnel">Estado del túnel</string>
+    <string name="info_vpn_permission">Permiso de VPN</string>
+    <string name="info_configs">Configuraciones guardadas</string>
+    <string name="perm_granted">Concedido</string>
+    <string name="perm_pending">Pendiente</string>
+    <string name="diag_verbose_title">Modo detallado</string>
+    <string name="diag_verbose_body">Guarda más información y adjunta logcat al enviar. Úsalo solo para investigar un fallo.</string>
+    <string name="diag_log_title">Registro</string>
+    <string name="diag_log_meta">%1$d líneas · %2$s</string>
+    <string name="diag_log_empty">Aún no hay registros</string>
+    <string name="diag_refresh">Actualizar</string>
+    <string name="diag_send">Enviar por correo</string>
+    <string name="diag_clear">Borrar registro</string>
+    <string name="diag_preparing">Preparando informe…</string>
+    <string name="diag_send_title">¿Enviar informe?</string>
+    <string name="diag_send_body">Se adjuntará un archivo con la información del dispositivo y el registro (y logcat si el modo detallado está activo). No incluye claves ni el contenido de tus configuraciones.</string>
+    <string name="diag_send_confirm">Continuar</string>
+    <string name="diag_clear_title">¿Borrar el registro?</string>
+    <string name="diag_clear_body">Se eliminarán todos los mensajes guardados en este dispositivo.</string>
+    <string name="diag_no_mail">No se encontró una app de correo</string>
+    <string name="diag_report_failed">No se pudo preparar el informe</string>
+    <string name="report_subject">uSipipo VPN – informe de diagnóstico (v%1$s)</string>
+    <string name="report_intro">Informe de diagnóstico de uSipipo VPN. Si no ves el adjunto, cuéntame qué pasó y vuelve a intentarlo.</string>
+</resources>

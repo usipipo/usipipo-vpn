@@ -179,10 +179,34 @@ vez (o el run se reintenta), la release se actualiza con el nuevo adjunto en lug
 quedar rota. Si los secretos de firma faltan o la etiqueta no tiene el formato `vX.Y.Z`, el
 workflow falla sin publicar nada: nunca se distribuye una APK sin firmar como release.
 
-También puedes lanzar el workflow a mano (pestaña **Actions** → **Release firmada** →
-**Run workflow**). En ese caso compila la variante release **sin firmar** y solo la deja como
-artefacto del run, para comprobar que la compilación de release funciona; no crea ninguna
-release.
+### 3. O lanzar la release sin escribir la versión a mano (recomendado)
+
+En la pestaña **Actions** → **Release firmada** → **Run workflow** (sin etiqueta), el
+workflow calcula solo la versión y la publica firmada: no hay que teclear ni el número de
+versión ni crear la etiqueta.
+
+### 4. Versionado dinámico: la versión sale del historial
+
+La versión nunca se escribe a mano: la calcula `scripts/next-version.sh` a partir de las
+etiquetas `vX.Y.Z` y de los commits convencionales que las siguen (las reglas exactas están
+en la cabecera del script, y `scripts/next-version.test.sh` las prueba).
+
+- **Sin ninguna etiqueta `vX.Y.Z`, la versión es la inicial: `0.1.0`** (y se queda así hasta
+  que exista una etiqueta base).
+- Con etiqueta base (la más alta por semver, no por fecha), se cuentan los commits desde
+  ella y manda el cambio más grande del conjunto:
+
+| Commits desde la etiqueta base | Siguiente versión |
+|---|---|
+| uno con `!` (`feat!:`) o pie `BREAKING CHANGE:` | salto mayor (salvo en 0.x: salta el menor, para no llegar a 1.0.0 solo) |
+| cualquier `feat:` | salto menor |
+| cualquier `fix:` | salto de parche |
+| solo `docs:`, `chore:`, `ci:`, `test:`… | salto de parche |
+
+Así, la primera release del repositorio es `v0.1.0` y las siguientes se numeran solas según
+lo que se vaya cometiendo. Si la etiqueta calculada ya existe, el workflow falla con un
+mensaje claro en lugar de republicar. El `versionCode` se deriva de la versión con
+`major×1.000.000 + minor×1.000 + patch`, sin colisiones entre versiones distintas.
 
 > **La primera APK firmada no se instala encima de la de depuración.** La app que has estado
 > probando está firmada con el keystore de depuración de Android y la release usa tu keystore

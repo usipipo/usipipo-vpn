@@ -13,3 +13,5 @@
 *.jks
 *.keystore
 keystore.properties
+.worktrees/
+/.superpowers/

@@ -112,10 +112,62 @@ ese enlace siempre lleva la versión más reciente de `main`.
 3. Cuando termine correctamente, baja hasta **Artifacts** y descarga `usipipo-vpn-debug-apk`.
 4. Descomprime el artefacto y encontrarás la APK para instalar en un dispositivo Android.
 
-La APK es de **depuración** y no está firmada para distribución pública. La firma de una versión
-`release` debe configurarse aparte mediante secretos de GitHub y un keystore privado; no guardes
-el keystore ni sus contraseñas en el repositorio.
+La APK es de **depuración** y no está firmada para distribución pública. Si quieres publicar
+una versión `release` firmada que cualquiera pueda descargar e instalar, sigue la sección
+«Release firmada» de abajo. El keystore y sus contraseñas nunca se guardan en el repositorio:
+viven en secretos de GitHub.
 
 > Nota: el proyecto declara `compileSdk = 37`. El workflow instala la plataforma Android 37;
 > si esa plataforma aún no estuviera disponible en el SDK de GitHub Actions, habrá que ajustar
 > `compileSdk` a una plataforma disponible o actualizar el entorno de compilación.
+
+## Release firmada
+
+Las versiones que se distribuyen (instalables en cualquier teléfono, no solo para probar) se
+publican con una **etiqueta** `vX.Y.Z`. El workflow `.github/workflows/release.yml` compila la
+variante release, la firma con tu keystore y la publica en
+[Releases](https://github.com/usipipo/usipipo-vpn/releases) con la APK adjunta
+(`app-release.apk`) y las notas generadas automáticamente. El `versionName` y el `versionCode`
+se calculan solos a partir de la etiqueta (`v0.2.3` → `0.2.3` / `203`).
+
+### 1. Configurar la firma (solo la primera vez)
+
+En tu máquina, dentro de la carpeta del repositorio, ejecuta el asistente:
+
+```bash
+scripts/setup-release-signing.sh
+```
+
+Necesitas `keytool` (viene con el JDK 17) y la CLI de GitHub `gh` con la sesión iniciada
+(`gh auth login`). El asistente te pregunta la ruta del keystore (por defecto
+`~/usipipo-release.jks`), el alias de la clave (`release`) y las contraseñas (no se muestran
+por pantalla ni se guardan en el historial del shell); después genera el keystore con
+`keytool`, lo convierte a base64 y guarda los cuatro secretos del repositorio
+(`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`,
+`ANDROID_KEY_PASSWORD`) con `gh secret set`.
+
+**Guarda una copia de seguridad del keystore y de sus contraseñas.** Si se pierden no podrás
+publicar actualizaciones que se instalen encima de las anteriores: Android exige que todas las
+versiones de una app vengan firmadas con el mismo certificado.
+
+### 2. Crear y subir la etiqueta
+
+```bash
+git tag v0.2.0
+git push origin v0.2.0
+```
+
+Al subir la etiqueta se dispara el workflow y, si termina bien, la release aparece en la
+página de Releases con la APK firmada lista para descargar. Si los secretos de firma faltan o
+la etiqueta no tiene el formato `vX.Y.Z`, el workflow falla sin publicar nada: nunca se
+distribuye una APK sin firmar como release.
+
+También puedes lanzar el workflow a mano (pestaña **Actions** → **Release firmada** →
+**Run workflow**). En ese caso compila la variante release **sin firmar** y solo la deja como
+artefacto del run, para comprobar que la compilación de release funciona; no crea ninguna
+release.
+
+> **La primera APK firmada no se instala encima de la de depuración.** La app que has estado
+> probando está firmada con el keystore de depuración de Android y la release usa tu keystore
+> propio; Android rechaza el cambio de certificado. Desinstala la app una vez y a partir de
+> ahí las actualizaciones firmadas se instalan sin problemas.

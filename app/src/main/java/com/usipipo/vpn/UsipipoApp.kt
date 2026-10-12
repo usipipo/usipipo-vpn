@@ -30,5 +30,9 @@ class UsipipoApp : Application() {
         }
         CrashHandler.install(settings)
         AppLog.i("App", "Inicio · ${DeviceInfo.collect(this).summary}")
+
+        // Comprobación silenciosa de actualizaciones: como máximo una vez cada 24 h.
+        container.checkForUpdatesOnStartup()
+        AppLog.i("Actualizar", "Comprobación automática al arrancar (versión ${container.currentVersion})")
     }
 }

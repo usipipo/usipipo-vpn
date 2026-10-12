@@ -103,22 +103,26 @@ igual que `diagnostics/`.
 
 ```
 app/src/main/java/com/usipipo/vpn/update/
-├── Version.kt                 value class Version(major, minor, patch) con
-│                              Version.parse(String) y compare(a, b): Int
+├── Version.kt                 data class Version(major, minor, patch) con
+│                              Version.parse(String); comparación por componentes
 ├── ReleaseInfo.kt             data class ReleaseInfo(version: Version, htmlUrl: String, name: String?)
 ├── ReleaseParser.kt           fun parse(json: String): ReleaseInfo?  (puro, sin org.json)
 ├── ReleaseSource.kt           interface ReleaseSource { suspend fun latest(): ReleaseInfo? }
 │                              + GitHubReleaseSource (HttpURLConnection, corrutinas)
-├── UpdateStateStore.kt        interface UpdateStateStore { skippedVersion, lastCheckAt, ... }
+├── UpdateStateStore.kt        interface UpdateStateStore { skippedVersion, lastCheckAt }
 │                              + PrefsUpdateStateStore (SharedPreferences)
 ├── UpdateChecker.kt           class UpdateChecker(source, store, clock) con
-│                              suspend fun check(force: Boolean): UpdateStatus
+│                              suspend fun check(currentVersion, force): UpdateStatus
 ├── UpdateStatus.kt            sealed interface: UpToDate | UpdateAvailable(info) |
 │                              Postponed | Failed | SkippedThrottled
 ```
 
 `UpdateStatus` tipado y estable; la UI solo consume ese sellado. La fuente de red y el reloj se
-inyectan, de modo que las pruebas no tocan red ni calendario real.
+inyectan, de modo que las pruebas no tocan red ni calendario real. `Version` es `data class` y no
+`value class` porque un `value class` solo admite un parámetro en el constructor primario y hace
+falta guardar tres componentes. La versión instalada entra por parámetro (`currentVersion`):
+resolverla desde el sistema es dependencia de plataforma, y así el núcleo se mantiene puro y se
+prueba en la JVM.
 
 Integración:
 

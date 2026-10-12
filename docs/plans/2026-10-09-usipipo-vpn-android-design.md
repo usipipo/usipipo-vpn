@@ -30,6 +30,12 @@ App Android nativa en Kotlin, minimalista: importar el `.conf` generado por Wire
 
 **Base:** Kotlin, Jetpack Compose con Material 3, un solo módulo, estructura UI → ViewModel → repositorio.
 
+**Desvío consciente (subsistema de actualización):** el estado de la comprobación de
+actualizaciones (`UpdateStatus`) vive en `AppContainer` en lugar de en un ViewModel propio,
+porque lo comparten Inicio y «Acerca de» sin añadir navegación ni duplicar el orquestador.
+Coste aceptado: si otra pantalla necesitase compartir estado, copiar este patrón sube el
+acoplamiento.
+
 **Componentes:**
 - **TunnelManager:** envuelve el motor de WireGuard; conecta, desconecta y expone el estado.
 - **ConfigStore:** guarda las configuraciones cifradas con Android Keystore.

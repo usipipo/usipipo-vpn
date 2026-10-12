@@ -57,8 +57,16 @@ Contexto y restricciones:
 - **R4.** `versionName` y `versionCode` se inyectan desde la etiqueta
   (`-PVERSION_NAME=...`, `-PVERSION_CODE=...`) y, si no se pasan, se mantienen los valores
   por defecto de `app/build.gradle.kts` (0.1.0 / 1), de modo que los build sin etiqueta no
-  cambian. `versionCode` se calcula como `major * 10000 + minor * 100 + patch`
-  (por ejemplo `v0.2.3` → 203).
+  cambian. `versionCode` se calcula como `major * 1_000_000 + minor * 1_000 + patch`
+  (por ejemplo `v0.2.3` → 2003); cada componente debe ser menor que 1000, y si no lo es el
+  job falla con un mensaje claro. La aritmética usa `10#` para que un componente con cero
+  inicial (`v1.08.3`) no se interprete en octal.
+  *Enmienda 2026-10-12 (ronda de revisión, ruling R1): la fórmula original
+  `major * 10000 + minor * 100 + patch` (`v0.2.3` → 203) producía colisiones entre
+  versiones distintas (`v0.0.100` y `v0.1.0` daban ambas 100; `v1.100.0` y `v2.0.0`, 20000)
+  y la aritmética bash sin `10#` rompía el job con ceros iniciales (`v1.08.3` → «value too
+  great for base»). La fórmula nueva no colisiona mientras cada componente sea < 1000 y el
+  resultado máximo (999.999.999) queda por debajo del límite de Android (2.100.000.000).*
 - **R5.** El workflow publica una release de GitHub con la APK firmada
   (`app-release.apk`) adjunta y notas generadas automáticamente.
 - **R6.** Se entrega un script wizard interactivo (`scripts/setup-release-signing.sh`) que el

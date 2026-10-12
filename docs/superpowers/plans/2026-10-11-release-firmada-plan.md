@@ -30,12 +30,12 @@
    - Sin etiqueta (disparo manual): `assembleRelease` **sin** firma; solo se sube artefacto
      (`actions/upload-artifact@v4`); no se crea release.
    - Con etiqueta `vX.Y.Z`: paso de shell que calcula `VERSION_NAME` (quitando la `v`) y
-     `VERSION_CODE` (`major*10000 + minor*100 + patch`); si faltan los 4 secretos
+     `VERSION_CODE` (`major*1_000_000 + minor*1_000 + patch`, con `10#` y rechazo de
+     componentes >= 1000 — ver «Enmienda» al final); si faltan los 4 secretos
      (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`,
      `ANDROID_KEY_PASSWORD`) el job **falla** con `::error::` claro; si están, decodifica el
      keystore a `$RUNNER_TEMP/release.jks`, compila con las variables de entorno de firma y
-     `gh release create "$TAG" app/build/outputs/apk/release/app-release.apk
-     --title "uSipipo VPN $VERSION_NAME" --generate-notes` con `GH_TOKEN`.
+     publica con `gh` (`release view` → `upload --clobber` si ya existe, `create` si no).
    - La etiqueta debe validar el formato `vX.Y.Z`; si no, error claro.
 
 3. **`app/build.gradle.kts`** (modificar, solo lo imprescindible) — R3, R4:
@@ -85,5 +85,19 @@
 - Nombre de la APK release sin firmar: AGP la llama `app-release-unsigned.apk`; por eso el
   artefacto se sube con glob `app/build/outputs/apk/release/*.apk` y solo la release
   publicada usa la ruta exacta `app-release.apk` (firmada).
-- `versionCode` grande sigue holgado: el máximo de Android es 2.100.000.000 y
-  `v10.20.30` da 104.030.
+- `versionCode` grande sigue holgado: el máximo de Android es 2.100.000.000 y, con la
+  fórmula `major*1_000_000 + minor*1_000 + patch` y el guardián de componentes < 1000, el
+  valor más alto posible es 999.999.999 (`v999.999.999`).
+
+## Enmienda (ronda de revisión 1, 2026-10-12)
+
+La revisión del subsistema corrigió, con el visto bueno del controlador (ruling R1), la
+fórmula de `versionCode` documentada aquí originalmente (`major*10000 + minor*100 + patch`,
+`v10.20.30` → 104.030): esa fórmula producía colisiones (`v0.0.100` == `v0.1.0`) y la
+aritmética bash sin `10#` rompía con ceros iniciales (`v1.08.3`). Queda sustituida por
+`major*1_000_000 + minor*1_000 + patch` con `10#` y rechazo de componentes >= 1000
+(`v0.2.3` → 2003, `v10.20.30` → 10.020.030). El spec R4 se enmendó en el mismo commit.
+La revisión añadió además: puerta de pruebas unitarias antes de publicar, verificación de
+la firma con `apksigner`, publicación idempotente (`gh release view` → `upload --clobber`),
+recuperación del asistente con `--solo-secretos` y `keytool` leyendo contraseñas por
+variables de entorno (`-storepass:env`).

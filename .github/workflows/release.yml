@@ -1,0 +1,142 @@
+name: Release firmada
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Compilar y publicar la release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+
+      # Desde la API 37 la plataforma se publica con versión menor incluida:
+      # el paquete es platforms;android-37.0 (no existe platforms;android-37).
+      # AGP 9.3 usa build-tools 36.0.0 por defecto.
+      - name: Install Android SDK platform and build-tools
+        run: sdkmanager "platforms;android-37.0" "build-tools;36.0.0"
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      # ---------------------------------------------------------------
+      # Camino con etiqueta vX.Y.Z: versión desde la etiqueta, firma y release.
+      # ---------------------------------------------------------------
+
+      - name: Calcular VERSION_NAME y VERSION_CODE desde la etiqueta
+        id: version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF#refs/tags/}"
+          VERSION_NAME="${TAG#v}"
+          if ! printf '%s' "$VERSION_NAME" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::La etiqueta \"$TAG\" no tiene el formato vX.Y.Z (por ejemplo v0.2.3)."
+            exit 1
+          fi
+          MAJOR="${VERSION_NAME%%.*}"
+          REST="${VERSION_NAME#*.}"
+          MINOR="${REST%%.*}"
+          PATCH="${REST#*.}"
+          VERSION_CODE=$(( MAJOR * 10000 + MINOR * 100 + PATCH ))
+          {
+            echo "tag=$TAG"
+            echo "version_name=$VERSION_NAME"
+            echo "version_code=$VERSION_CODE"
+          } >> "$GITHUB_OUTPUT"
+          echo "Etiqueta $TAG → versionName=$VERSION_NAME versionCode=$VERSION_CODE"
+
+      - name: Comprobar los secretos de firma
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          missing=()
+          [ -n "${ANDROID_KEYSTORE_BASE64:-}" ] || missing+=("ANDROID_KEYSTORE_BASE64")
+          [ -n "${ANDROID_KEYSTORE_PASSWORD:-}" ] || missing+=("ANDROID_KEYSTORE_PASSWORD")
+          [ -n "${ANDROID_KEY_ALIAS:-}" ] || missing+=("ANDROID_KEY_ALIAS")
+          [ -n "${ANDROID_KEY_PASSWORD:-}" ] || missing+=("ANDROID_KEY_PASSWORD")
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "::error::Faltan secretos de firma para publicar la release: ${missing[*]}."
+            echo "::error::Ejecuta scripts/setup-release-signing.sh en tu máquina (o añádelos en Settings → Secrets and variables → Actions). No se publica nada sin firma."
+            exit 1
+          fi
+          echo "Los cuatro secretos de firma están presentes."
+
+      - name: Decodificar el keystore
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          if [ ! -s "$RUNNER_TEMP/release.jks" ]; then
+            echo "::error::El keystore decodificado está vacío; revisa el secreto ANDROID_KEYSTORE_BASE64."
+            exit 1
+          fi
+          echo "Keystore decodificado en $RUNNER_TEMP/release.jks"
+
+      - name: Compilar la APK release firmada (etiqueta)
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          ANDROID_KEYSTORE_FILE: ${{ runner.temp }}/release.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          VERSION_NAME: ${{ steps.version.outputs.version_name }}
+          VERSION_CODE: ${{ steps.version.outputs.version_code }}
+        run: ./gradlew --no-daemon assembleRelease "-PVERSION_NAME=$VERSION_NAME" "-PVERSION_CODE=$VERSION_CODE"
+
+      # ---------------------------------------------------------------
+      # Camino sin etiqueta (workflow_dispatch): release SIN firma, solo artefacto.
+      # ---------------------------------------------------------------
+
+      - name: Compilar la APK release sin firmar (disparo manual)
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        run: ./gradlew --no-daemon assembleRelease
+
+      - name: Subir la APK como artefacto del run
+        uses: actions/upload-artifact@v4
+        with:
+          name: usipipo-vpn-release-apk
+          path: app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Crear la release de GitHub con la APK firmada
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          APK="app/build/outputs/apk/release/app-release.apk"
+          test -f "$APK"
+          gh release create "${{ steps.version.outputs.tag }}" "$APK" \
+            --title "uSipipo VPN ${{ steps.version.outputs.version_name }}" \
+            --generate-notes

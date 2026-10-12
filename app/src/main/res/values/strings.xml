@@ -48,6 +48,19 @@
     <string name="cd_about">Acerca de</string>
     <string name="cd_delete">Eliminar %1$s</string>
 
+    <!-- Actualizaciones -->
+    <string name="update_title">Nueva versión disponible</string>
+    <string name="update_body">La versión %1$s ya está publicada. Puedes descargarla desde GitHub.</string>
+    <string name="update_download">Descargar</string>
+    <string name="update_later">Más tarde</string>
+    <string name="update_cd_icon">Icono de actualización</string>
+    <string name="about_check_updates">Buscar actualizaciones</string>
+    <string name="update_checking">Comprobando…</string>
+    <string name="update_status_ok">Estás en la última versión</string>
+    <string name="update_status_postponed">Esa versión la dejaste para más tarde</string>
+    <string name="update_status_error">No se pudo comprobar si hay actualizaciones</string>
+    <string name="update_no_browser">No se encontró un navegador para abrir la descarga</string>
+
     <!-- Diagnóstico y ajustes avanzados -->
     <string name="diag_open">Diagnóstico y ajustes avanzados</string>
     <string name="diag_title">Diagnóstico y ajustes avanzados</string>

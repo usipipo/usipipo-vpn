@@ -45,7 +45,10 @@ class ReleaseParserTest {
         val json = "{\"tag_name\":\"v0.1.1\",\"name\":null," +
             "\"html_url\":\"https://example.test/releases/v0.1.1\"}"
 
-        assertNull(ReleaseParser.parse(json)?.name)
+        val release = ReleaseParser.parse(json)
+
+        assertEquals(Version(0, 1, 1), release?.version)
+        assertNull(release?.name)
     }
 
     @Test

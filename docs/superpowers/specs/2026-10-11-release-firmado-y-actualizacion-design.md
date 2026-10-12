@@ -188,7 +188,21 @@ end-to-end se hace con el run de Actions y una etiqueta de prueba.
   en el README.
 - El repositorio pasa de privado a público.
 
-## 9. Fuera de alcance
+## 9. Versionado dinámico
+
+La versión de cada release se deriva del historial de git mediante
+`scripts/next-version.sh`; nunca se escribe a mano.
+
+- Sin ninguna etiqueta `vX.Y.Z`, la versión es la inicial `0.1.0`.
+- Con etiqueta base (la más alta por semver), se cuentan los commits convencionales desde
+  ella y manda el cambio más grande: `!`/`BREAKING CHANGE` → mayor (en 0.x salta el menor);
+  si no, `feat:` → menor; si no, `fix:` o el resto → parche.
+- El camino `workflow_dispatch` de `release.yml` calcula la versión, crea la etiqueta
+  `vX.Y.Z` con la API de GitHub (para no auto-dispararse) y publica firmada; si la etiqueta
+  calculada ya existe, falla sin republicar.
+- Las reglas viven en la cabecera del script y se prueban en `scripts/next-version.test.sh`.
+
+## 10. Fuera de alcance
 
 - Descarga e instalación de la APK desde la app (permiso de orígenes desconocidos,
   `FileProvider`).

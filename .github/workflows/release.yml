@@ -32,6 +32,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          # Historial completo. El camino dinámico calcula la versión con
+          # scripts/next-version.sh, que necesita las etiquetas Y los commits que
+          # hay desde la etiqueta base: con el fetch-depth por defecto (1) esos
+          # commits no están en el clon y el salto saldría siempre a parche.
+          fetch-depth: 0
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -51,6 +57,34 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
+      # ---------------------------------------------------------------
+      # Camino dinámico (workflow_dispatch, sin etiqueta): la versión se
+      # calcula sola desde el historial con scripts/next-version.sh. Se
+      # calcula antes de las pruebas para fallar rápido si la etiqueta de
+      # esa versión ya existe (no se republica).
+      # ---------------------------------------------------------------
+
+      - name: Calcular la siguiente versión desde el historial
+        if: env.IS_TAG != 'true'
+        run: |
+          set -euo pipefail
+          # El checkout ya trae el historial completo; esto asegura además las
+          # etiquetas si alguien rebaja la profundidad del checkout.
+          git fetch --tags --force
+          VERSION_NAME="$(scripts/next-version.sh)"
+          VERSION_CODE="$(scripts/next-version.sh --code)"
+          TAG="v$VERSION_NAME"
+          echo "Versión calculada desde el historial: $TAG (versionName=$VERSION_NAME versionCode=$VERSION_CODE)"
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "::error::La etiqueta $TAG ya existe: no se republica. La versión se deriva del historial de commits y ese número ya está tomado; si quieres volver a publicarla, sube la etiqueta a mano."
+            exit 1
+          fi
+          {
+            echo "VERSION_NAME=$VERSION_NAME"
+            echo "VERSION_CODE=$VERSION_CODE"
+            echo "TAG=$TAG"
+          } >> "$GITHUB_ENV"
+
       # Las etiquetas no disparan android-ci.yml: sin esta puerta, una release podría
       # publicarse con las pruebas en rojo.
       - name: Run unit tests
@@ -61,7 +95,6 @@ jobs:
       # ---------------------------------------------------------------
 
       - name: Calcular VERSION_NAME y VERSION_CODE desde la etiqueta
-        id: version
         if: env.IS_TAG == 'true'
         run: |
           set -euo pipefail
@@ -86,14 +119,15 @@ jobs:
           done
           VERSION_CODE=$(( 10#$MAJOR * 1000000 + 10#$MINOR * 1000 + 10#$PATCH ))
           {
-            echo "tag=$TAG"
-            echo "version_name=$VERSION_NAME"
-            echo "version_code=$VERSION_CODE"
-          } >> "$GITHUB_OUTPUT"
+            echo "VERSION_NAME=$VERSION_NAME"
+            echo "VERSION_CODE=$VERSION_CODE"
+            echo "TAG=$TAG"
+          } >> "$GITHUB_ENV"
           echo "Etiqueta $TAG → versionName=$VERSION_NAME versionCode=$VERSION_CODE"
 
+      # Los dos caminos acaban publicando una release firmada, así que las guardas
+      # de secretos, la firma y la verificación corren en los dos.
       - name: Comprobar los secretos de firma
-        if: env.IS_TAG == 'true'
         run: |
           set -euo pipefail
           missing=()
@@ -109,7 +143,6 @@ jobs:
           echo "Los cuatro secretos de firma están presentes."
 
       - name: Decodificar el keystore
-        if: env.IS_TAG == 'true'
         run: |
           set -euo pipefail
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
@@ -119,26 +152,16 @@ jobs:
           fi
           echo "Keystore decodificado en $RUNNER_TEMP/release.jks"
 
-      - name: Compilar la APK release firmada (etiqueta)
-        if: env.IS_TAG == 'true'
+      - name: Compilar la APK release firmada
         env:
           ANDROID_KEYSTORE_FILE: ${{ runner.temp }}/release.jks
-          VERSION_NAME: ${{ steps.version.outputs.version_name }}
-          VERSION_CODE: ${{ steps.version.outputs.version_code }}
+          VERSION_NAME: ${{ env.VERSION_NAME }}
+          VERSION_CODE: ${{ env.VERSION_CODE }}
         run: ./gradlew --no-daemon assembleRelease "-PVERSION_NAME=$VERSION_NAME" "-PVERSION_CODE=$VERSION_CODE"
-
-      # ---------------------------------------------------------------
-      # Camino sin etiqueta (workflow_dispatch): release SIN firma, solo artefacto.
-      # ---------------------------------------------------------------
-
-      - name: Compilar la APK release sin firmar (disparo manual)
-        if: env.IS_TAG != 'true'
-        run: ./gradlew --no-daemon assembleRelease
 
       # La firma se comprueba antes de publicar: la promesa de no distribuir nunca
       # una APK sin firmar no puede descansar solo en que existan los secretos.
       - name: Verificar la firma de la APK
-        if: env.IS_TAG == 'true'
         run: |
           set -euo pipefail
           APK="app/build/outputs/apk/release/app-release.apk"
@@ -156,8 +179,8 @@ jobs:
           "$APKSIGNER" verify --print-certs "$APK"
           echo "APK firmada y verificada con $APKSIGNER."
 
-      # El artefacto se sube DESPUÉS de verificar la firma: en el camino con
-      # etiqueta, una APK sin firmar aborta el job antes de llegar aquí.
+      # El artefacto se sube DESPUÉS de verificar la firma: una APK sin firmar
+      # aborta el job antes de llegar aquí.
       - name: Subir la APK como artefacto del run
         uses: actions/upload-artifact@v4
         with:
@@ -166,14 +189,34 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      - name: Publicar la release con la APK firmada
-        if: env.IS_TAG == 'true'
+      # ---------------------------------------------------------------
+      # Camino dinámico: la etiqueta calculada se crea aquí, con la APK ya
+      # firmada y verificada, para no dejar etiquetas huérfanas si el build
+      # falla. Se crea con la API de GitHub en lugar de con git push para que
+      # el run no se vuelva a disparar a sí mismo al empujar la etiqueta.
+      # ---------------------------------------------------------------
+
+      - name: Crear la etiqueta vX.Y.Z calculada
+        if: env.IS_TAG != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          TAG="${{ steps.version.outputs.tag }}"
-          VERSION_NAME="${{ steps.version.outputs.version_name }}"
+          REPO="${{ github.repository }}"
+          SHA="${{ github.sha }}"
+          echo "Creando la etiqueta $TAG en el commit $SHA..."
+          if ! gh api --method POST "repos/$REPO/git/refs" \
+               -f "ref=refs/tags/$TAG" -f "sha=$SHA" >/dev/null; then
+            echo "::error::No se pudo crear la etiqueta $TAG. Si alguien la ha creado mientras tanto, no se republica: la versión se deriva del historial y ese número ya está tomado."
+            exit 1
+          fi
+          echo "Etiqueta $TAG creada."
+
+      - name: Publicar la release con la APK firmada
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
           REPO="${{ github.repository }}"
           APK="app/build/outputs/apk/release/app-release.apk"
           if [ ! -f "$APK" ]; then
@@ -185,7 +228,15 @@ jobs:
             # dejar el job roto para siempre.
             gh release upload "$TAG" "$APK" --repo "$REPO" --clobber
           else
-            gh release create "$TAG" "$APK" --repo "$REPO" \
+            # --target solo en el camino dinámico, donde la etiqueta recién creada
+            # apunta a este commit. En el camino por etiqueta no se pasa:
+            # github.sha puede ser el commit etiquetado o el objeto tag anotado,
+            # y gh release create ya resuelve por su cuenta la referencia vX.Y.Z.
+            ARGS=("create" "$TAG" "$APK" --repo "$REPO")
+            if [ "$IS_TAG" != 'true' ]; then
+              ARGS+=(--target "$GITHUB_SHA")
+            fi
+            gh release "${ARGS[@]}" \
               --title "uSipipo VPN $VERSION_NAME" \
               --generate-notes
           fi

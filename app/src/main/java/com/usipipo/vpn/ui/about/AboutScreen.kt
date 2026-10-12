@@ -39,7 +39,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.usipipo.vpn.R
+import com.usipipo.vpn.diagnostics.AppLog
 import com.usipipo.vpn.update.UpdateStatus
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 @Composable
@@ -114,8 +116,17 @@ fun AboutScreen(
                 onClick = {
                     checking = true
                     scope.launch {
-                        val status = runCatching { onCheckUpdates() }
-                            .getOrDefault(UpdateStatus.Failed)
+                        val status = try {
+                            onCheckUpdates()
+                        } catch (e: CancellationException) {
+                            // Cancelar no es un fallo: se relanza sin alertar al usuario,
+                            // igual que UpdateChecker.check y AppContainer.checkForUpdates.
+                            checking = false
+                            throw e
+                        } catch (e: Exception) {
+                            AppLog.w("Actualizar", "La comprobación manual de actualizaciones falló", e)
+                            UpdateStatus.Failed
+                        }
                         checking = false
                         val message = when (status) {
                             // Disponible: lo avisa la ventana de actualización.

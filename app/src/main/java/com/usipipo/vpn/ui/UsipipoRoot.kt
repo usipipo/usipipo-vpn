@@ -37,8 +37,8 @@ fun UsipipoRoot(container: AppContainer) {
     val updateStatus by container.updateStatus.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    // Versión cuya ventana se cerró con atrás o toque fuera: no queda pospuesta.
-    var dismissedUpdate by rememberSaveable { mutableStateOf<String?>(null) }
+    // Versión cuya ventana ya se cerró (descarte o descarga): no reaparece.
+    var handledUpdate by rememberSaveable { mutableStateOf<String?>(null) }
 
     BackHandler(enabled = screen != Screen.Home) {
         screen = if (screen == Screen.Diagnostics) Screen.About else Screen.Home
@@ -61,7 +61,7 @@ fun UsipipoRoot(container: AppContainer) {
             onDiagnostics = { screen = Screen.Diagnostics },
             onCheckUpdates = {
                 // La comprobación manual siempre vuelve a mostrar la ventana si hay release.
-                dismissedUpdate = null
+                handledUpdate = null
                 container.checkForUpdates(force = true)
             },
         )
@@ -73,12 +73,17 @@ fun UsipipoRoot(container: AppContainer) {
     }
 
     val available = updateStatus as? UpdateStatus.UpdateAvailable
-    if (available != null && dismissedUpdate != available.info.version.toString()) {
+    if (available != null && handledUpdate != available.info.version.toString()) {
         UpdateDialog(
             info = available.info,
-            onDownload = { openRelease(context, available.info.htmlUrl) },
+            onDownload = {
+                // Descargar también cierra la ventana: no se pospone la versión (R12 solo
+                // pospone con «Más tarde»), pero al volver del navegador no reaparece.
+                handledUpdate = available.info.version.toString()
+                openRelease(context, available.info.htmlUrl)
+            },
             onPostpone = { container.postponeUpdate(available.info.version) },
-            onDismiss = { dismissedUpdate = available.info.version.toString() },
+            onDismiss = { handledUpdate = available.info.version.toString() },
         )
     }
 }

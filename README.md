@@ -183,7 +183,9 @@ workflow falla sin publicar nada: nunca se distribuye una APK sin firmar como re
 
 En la pestaña **Actions** → **Release firmada** → **Run workflow** (sin etiqueta), el
 workflow calcula solo la versión y la publica firmada: no hay que teclear ni el número de
-versión ni crear la etiqueta.
+versión ni crear la etiqueta. Lanzarlo así publica una **release real y firmada**, así que
+exige los cuatro secretos de firma configurados (ver sección 1): ya no produce una
+compilación sin firmar con solo el artefacto.
 
 ### 4. Versionado dinámico: la versión sale del historial
 

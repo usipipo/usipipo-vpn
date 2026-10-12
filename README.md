@@ -62,8 +62,9 @@ app/src/main/java/com/usipipo/vpn/
 ## Qué NO incluye (según el diseño)
 
 Estadísticas en pantalla, conexión automática, acceso a "VPN siempre activa", pegar texto,
-split tunneling, ícono definitivo, firma de release, minificación y todo el **modo administrador**
+split tunneling, ícono definitivo, minificación y todo el **modo administrador**
 (fase 2: servicio en el VPS dentro del túnel + clave Ed25519 del Keystore).
+La firma de la versión `release` ya está resuelta (ver «Release firmada»).
 
 ## Supuestos que elegí yo (cámbialos si no te sirven)
 
@@ -127,8 +128,10 @@ Las versiones que se distribuyen (instalables en cualquier teléfono, no solo pa
 publican con una **etiqueta** `vX.Y.Z`. El workflow `.github/workflows/release.yml` compila la
 variante release, la firma con tu keystore y la publica en
 [Releases](https://github.com/usipipo/usipipo-vpn/releases) con la APK adjunta
-(`app-release.apk`) y las notas generadas automáticamente. El `versionName` y el `versionCode`
-se calculan solos a partir de la etiqueta (`v0.2.3` → `0.2.3` / `203`).
+(`app-release.apk`) y las notas generadas automáticamente. Antes de publicar, el workflow
+ejecuta las pruebas unitarias y verifica la firma con `apksigner`. El `versionName` y el
+`versionCode` se calculan solos a partir de la etiqueta (`v0.2.3` → `0.2.3` / `2003`, con
+`major×1.000.000 + minor×1.000 + patch`; cada número debe ser menor que 1000).
 
 ### 1. Configurar la firma (solo la primera vez)
 
@@ -140,15 +143,24 @@ scripts/setup-release-signing.sh
 
 Necesitas `keytool` (viene con el JDK 17) y la CLI de GitHub `gh` con la sesión iniciada
 (`gh auth login`). El asistente te pregunta la ruta del keystore (por defecto
-`~/usipipo-release.jks`), el alias de la clave (`release`) y las contraseñas (no se muestran
-por pantalla ni se guardan en el historial del shell); después genera el keystore con
-`keytool`, lo convierte a base64 y guarda los cuatro secretos del repositorio
-(`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`,
-`ANDROID_KEY_PASSWORD`) con `gh secret set`.
+`~/usipipo-release.jks`), el alias de la clave (`release`) y las contraseñas; ninguna se
+muestra por pantalla, se guarda en el historial del shell ni viaja por la línea de comandos
+(`keytool` las lee de variables de entorno con `-storepass:env` y `gh` las recibe por
+stdin). Después genera el keystore, lo convierte a base64 y guarda los cuatro secretos del
+repositorio (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`,
+`ANDROID_KEY_PASSWORD`).
 
 **Guarda una copia de seguridad del keystore y de sus contraseñas.** Si se pierden no podrás
 publicar actualizaciones que se instalen encima de las anteriores: Android exige que todas las
 versiones de una app vengan firmadas con el mismo certificado.
+
+Si algo queda a medias (por ejemplo, falla uno de los `gh secret set`), vuelve a ejecutar el
+asistente con `--solo-secretos`: reutiliza el keystore que ya tienes y vuelve a subir los
+cuatro secretos sin generar uno nuevo:
+
+```bash
+scripts/setup-release-signing.sh --solo-secretos
+```
 
 ### 2. Crear y subir la etiqueta
 
@@ -158,9 +170,10 @@ git push origin v0.2.0
 ```
 
 Al subir la etiqueta se dispara el workflow y, si termina bien, la release aparece en la
-página de Releases con la APK firmada lista para descargar. Si los secretos de firma faltan o
-la etiqueta no tiene el formato `vX.Y.Z`, el workflow falla sin publicar nada: nunca se
-distribuye una APK sin firmar como release.
+página de Releases con la APK firmada lista para descargar. Si subes la misma etiqueta otra
+vez (o el run se reintenta), la release se actualiza con el nuevo adjunto en lugar de
+quedar rota. Si los secretos de firma faltan o la etiqueta no tiene el formato `vX.Y.Z`, el
+workflow falla sin publicar nada: nunca se distribuye una APK sin firmar como release.
 
 También puedes lanzar el workflow a mano (pestaña **Actions** → **Release firmada** →
 **Run workflow**). En ese caso compila la variante release **sin firmar** y solo la deja como

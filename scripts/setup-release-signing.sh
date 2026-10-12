@@ -4,10 +4,18 @@
 #
 # Genera un keystore de release con keytool, lo convierte a base64 y guarda los cuatro
 # secretos del repositorio con `gh secret set`. Ninguna contraseña se muestra por
-# pantalla ni pasa por argv: se envían a GitHub por stdin.
+# pantalla, se guarda en el historial del shell ni viaja por argv: keytool las lee de
+# variables de entorno (-storepass:env / -keypass:env) y gh las recibe por stdin.
+#
+# Uso:
+#   scripts/setup-release-signing.sh                 generar keystore + subir secretos
+#   scripts/setup-release-signing.sh --solo-secretos re-subir los secretos desde un
+#                                                   keystore ya existente (recuperación
+#                                                   si algo falló a mitad, p. ej. un
+#                                                   gh secret set que no llegó a guardarse)
 #
 # Requisitos: keytool (viene con el JDK 17) y gh (CLI de GitHub) con sesión iniciada.
-# Uso:        bash scripts/setup-release-signing.sh   (desde la carpeta del repositorio)
+# Se ejecuta desde la carpeta del repositorio.
 #
 # El keystore generado es un .jks: ya está cubierto por *.jks en .gitignore. Guarda
 # copia de seguridad del fichero y de sus contraseñas: sin ellos no podrás publicar
@@ -18,6 +26,9 @@ set -euo pipefail
 readonly DNAME="CN=uSipipo VPN, O=usipipo, C=ES"
 readonly DEFAULT_STORE="$HOME/usipipo-release.jks"
 readonly DEFAULT_ALIAS="release"
+# Nombres de las variables de entorno que leerá keytool con :env (nunca por argv).
+readonly ENV_STORE_PASS="USIPIPO_STORE_PASS"
+readonly ENV_KEY_PASS="USIPIPO_KEY_PASS"
 
 # Único fichero temporal: el base64 del keystore. Se borra siempre al salir.
 TMP_B64=""
@@ -31,11 +42,43 @@ trap cleanup EXIT
 say() { printf '%s\n' "$*"; }
 die() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 
+usage() {
+  say "Uso: $0 [--solo-secretos]"
+  say ""
+  say "  --solo-secretos   No genera keystore: reutiliza uno existente y vuelve a subir"
+  say "                   los cuatro secretos a GitHub. Sirve para recuperarse de un"
+  say "                   fallo parcial (por ejemplo, un gh secret set que falló a mitad"
+  say "                   dejaba el asistente bloqueado en el «ya existe el keystore»)."
+  say "  -h, --help        Muestra esta ayuda."
+}
+
+# --- 0. Argumentos -------------------------------------------------------------
+
+ONLY_SECRETS=0
+for arg in "$@"; do
+  case "$arg" in
+    --solo-secretos) ONLY_SECRETS=1 ;;
+    -h|--help) usage; exit 0 ;;
+    "")
+      ;;
+    *)
+      printf 'ERROR: argumento no reconocido: %s\n' "$arg" >&2
+      usage >&2
+      exit 2
+      ;;
+  esac
+done
+
 say "=== Asistente de firma de releases de uSipipo VPN ==="
 say ""
-say "Vas a generar un keystore de release y a guardar sus datos como secretos de GitHub."
-say "El keystore no se sube al repositorio; solo se guarda en tu máquina y en GitHub"
-say "como secreto (en base64)."
+if [ "$ONLY_SECRETS" -eq 1 ]; then
+  say "Modo --solo-secretos: se reutiliza un keystore existente y se vuelven a subir los"
+  say "secretos a GitHub. No se genera ningún keystore nuevo."
+else
+  say "Vas a generar un keystore de release y a guardar sus datos como secretos de GitHub."
+  say "El keystore no se sube al repositorio; solo se guarda en tu máquina y en GitHub"
+  say "como secreto (en base64)."
+fi
 say ""
 
 # --- 1. Comprobar herramientas ------------------------------------------------
@@ -80,14 +123,21 @@ STORE="${STORE:-$DEFAULT_STORE}"
 read -rp "Alias de la clave [$DEFAULT_ALIAS]: " ALIAS
 ALIAS="${ALIAS:-$DEFAULT_ALIAS}"
 
-if [ -e "$STORE" ]; then
-  say ""
-  say "Ya existe un keystore en: $STORE"
-  say "No se ha generado uno nuevo ni se han tocado los secretos."
-  say "Si quieres empezar de cero, borra ese fichero (¡y todas sus copias!) o indica"
-  say "otra ruta. Ten en cuenta que las actualizaciones deben firmarse con el mismo"
-  say "certificado que la primera release publicada."
-  exit 0
+if [ "$ONLY_SECRETS" -eq 1 ]; then
+  if [ ! -f "$STORE" ]; then
+    die "No existe un keystore en '$STORE'. Ejecuta el asistente sin --solo-secretos para generarlo."
+  fi
+else
+  if [ -e "$STORE" ]; then
+    say ""
+    say "Ya existe un keystore en: $STORE"
+    say "No se ha generado uno nuevo ni se han tocado los secretos."
+    say "Si quieres empezar de cero, borra ese fichero (¡y todas sus copias!) o indica"
+    say "otra ruta. Ten en cuenta que las actualizaciones deben firmarse con el mismo"
+    say "certificado que la primera release publicada."
+    say "Si solo quieres volver a subir los secretos de ese keystore, usa --solo-secretos."
+    exit 0
+  fi
 fi
 
 # --- 3. Contraseñas (nunca se muestran) ---------------------------------------
@@ -127,25 +177,39 @@ while true; do
 done
 unset STORE_PASS2 KEY_PASS2
 
-# --- 4. Generar el keystore ----------------------------------------------------
+# --- 4. Generar el keystore (salvo en modo --solo-secretos) --------------------
 
-say ""
-say "Generando el keystore (RSA 2048, válido 10000 días) en:"
-say "  $STORE"
-say "Certificado: $DNAME"
+# Las contraseñas se pasan a keytool por variables de entorno (-storepass:env /
+# -keypass:env), nunca por argv, para que no sean visibles en ps.
+export "$ENV_STORE_PASS=$STORE_PASS"
+export "$ENV_KEY_PASS=$KEY_PASS"
 
-mkdir -p "$(dirname "$STORE")"
-keytool -genkeypair -v \
-  -keystore "$STORE" \
-  -alias "$ALIAS" \
-  -keyalg RSA -keysize 2048 -validity 10000 \
-  -storepass "$STORE_PASS" -keypass "$KEY_PASS" \
-  -dname "$DNAME" >/dev/null || die "keytool no pudo generar el keystore. No se ha tocado nada."
+if [ "$ONLY_SECRETS" -eq 0 ]; then
+  say ""
+  say "Generando el keystore (RSA 2048, válido 10000 días) en:"
+  say "  $STORE"
+  say "Certificado: $DNAME"
 
-keytool -list -v -keystore "$STORE" -storepass "$STORE_PASS" -alias "$ALIAS" >/dev/null \
-  || die "El keystore se generó pero no se puede leer con esa contraseña. No se ha tocado nada."
+  mkdir -p "$(dirname "$STORE")"
+  keytool -genkeypair -v \
+    -keystore "$STORE" \
+    -alias "$ALIAS" \
+    -keyalg RSA -keysize 2048 -validity 10000 \
+    -storepass:env "$ENV_STORE_PASS" \
+    -keypass:env "$ENV_KEY_PASS" \
+    -dname "$DNAME" >/dev/null || die "keytool no pudo generar el keystore. No se ha tocado nada."
+else
+  say ""
+  say "Usando el keystore existente en: $STORE"
+fi
 
-say "Keystore generado y verificado."
+keytool -list -v -keystore "$STORE" -alias "$ALIAS" -storepass:env "$ENV_STORE_PASS" >/dev/null \
+  || die "No se puede leer el keystore con esa contraseña. No se ha tocado nada."
+
+say "Keystore verificado."
+
+# Las contraseñas ya no hacen falta como variables de entorno.
+unset "$ENV_STORE_PASS" "$ENV_KEY_PASS"
 
 # --- 5. Base64 y secretos -------------------------------------------------------
 
@@ -156,7 +220,7 @@ TMP_B64=$(mktemp "${TMPDIR:-/tmp}/usipipo-release-jks.XXXXXX")
 if base64 -w0 </dev/null >/dev/null 2>&1; then
   base64 -w0 "$STORE" > "$TMP_B64"
 else
-  # macOS/BSD: base64 no acepta -w0; se quitan los salt de línea.
+  # macOS/BSD: base64 no acepta -w0; se quitan los saltos de línea.
   base64 "$STORE" | tr -d '\n' > "$TMP_B64"
 fi
 [ -s "$TMP_B64" ] || die "La conversión a base64 falló."
@@ -164,13 +228,13 @@ fi
 set_secret() {
   local name="$1"
   if ! gh secret set "$name" --repo "$REPO"; then
-    die "No se pudo guardar el secreto $name. Vuelve a ejecutar el asistente."
+    die "No se pudo guardar el secreto $name. Vuelve a ejecutar el asistente con --solo-secretos."
   fi
 }
 
 # Los secretos se envían por stdin: la contraseña no queda en el historial del shell.
 gh secret set ANDROID_KEYSTORE_BASE64 --repo "$REPO" < "$TMP_B64" \
-  || die "No se pudo guardar el secreto ANDROID_KEYSTORE_BASE64. Vuelve a ejecutar el asistente."
+  || die "No se pudo guardar el secreto ANDROID_KEYSTORE_BASE64. Vuelve a ejecutar el asistente con --solo-secretos."
 printf '%s' "$STORE_PASS" | set_secret ANDROID_KEYSTORE_PASSWORD
 printf '%s' "$ALIAS" | set_secret ANDROID_KEY_ALIAS
 printf '%s' "$KEY_PASS" | set_secret ANDROID_KEY_PASSWORD
@@ -193,5 +257,6 @@ say "  2. Crea y sube la etiqueta de la versión, por ejemplo:"
 say ""
 say "       git tag v0.2.0 && git push origin v0.2.0"
 say ""
-say "     GitHub Actions compilará la APK release firmada y la publicará en Releases"
-say "     (https://github.com/$REPO/releases) con las notas generadas automáticamente."
+say "     GitHub Actions compilará la APK release firmada, verificará la firma con"
+say "     apksigner y la publicará en Releases (https://github.com/$REPO/releases)"
+say "     con las notas generadas automáticamente."

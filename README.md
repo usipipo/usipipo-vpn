@@ -100,6 +100,13 @@ GitHub Actions ejecutará las pruebas unitarias y compilará la APK de depuraci�
 
 ### Descargar la APK
 
+**Descarga directa (release `latest`):** en cada push a `main` que compile correctamente, el
+workflow publica una [release `latest`](https://github.com/usipipo/usipipo-vpn/releases/latest)
+con la APK adjunta (`usipipo-vpn-debug.apk`). Se actualiza sola en cada compilación, así que
+ese enlace siempre lleva la versión más reciente de `main`.
+
+**O desde el run de Actions:**
+
 1. Sube el proyecto a un repositorio de GitHub.
 2. Abre la pestaña **Actions** y entra en la ejecución más reciente de **Android CI - Build APK**.
 3. Cuando termine correctamente, baja hasta **Artifacts** y descarga `usipipo-vpn-debug-apk`.

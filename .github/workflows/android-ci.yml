@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: android-${{ github.workflow }}-${{ github.ref }}
@@ -55,6 +55,27 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 14
+
+      # Release "latest" con la APK para poder descargarla desde la página del
+      # repositorio (se actualiza en cada push a main). La APK es de depuración.
+      - name: Publish GitHub Release with APK
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          test -f "$APK"
+          cp "$APK" usipipo-vpn-debug.apk
+          NOTES=$(printf 'Compilación automática de main (run #%s).\n\nAPK de depuración para probar en el dispositivo. No está firmada para distribución pública.' "${{ github.run_number }}")
+          if gh release view latest --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release upload latest usipipo-vpn-debug.apk --repo "${{ github.repository }}" --clobber
+          else
+            gh release create latest usipipo-vpn-debug.apk \
+              --repo "${{ github.repository }}" \
+              --title "uSipipo VPN 0.1.0 · última compilación de main" \
+              --notes "$NOTES"
+          fi
 
       - name: Upload test reports if tests fail
         if: failure()

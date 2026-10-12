@@ -7,10 +7,6 @@ import android.content.SharedPreferences
 interface UpdateStateStore {
     var skippedVersion: String?
     var lastCheckAt: Long
-
-    fun markSkipped(version: String)
-    fun markChecked(at: Long)
-    fun clear()
 }
 
 /** Implementación sobre SharedPreferences: sobrevive a reinicios de la app. */
@@ -27,18 +23,6 @@ class PrefsUpdateStateStore(private val prefs: SharedPreferences) : UpdateStateS
         set(value) {
             prefs.edit().putLong(KEY_LAST_CHECK, value).apply()
         }
-
-    override fun markSkipped(version: String) {
-        skippedVersion = version
-    }
-
-    override fun markChecked(at: Long) {
-        lastCheckAt = at
-    }
-
-    override fun clear() {
-        prefs.edit().remove(KEY_SKIPPED).remove(KEY_LAST_CHECK).apply()
-    }
 
     companion object {
         private const val PREFS_NAME = "updates"

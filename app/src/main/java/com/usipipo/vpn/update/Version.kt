@@ -37,7 +37,5 @@ data class Version(val major: Int, val minor: Int, val patch: Int) : Comparable<
             }
             return Version(componentes[0], componentes[1], componentes[2])
         }
-
-        fun compare(a: Version, b: Version): Int = a.compareTo(b)
     }
 }

@@ -19,26 +19,19 @@ class UpdateCheckerTest {
 
     /** Mismo contrato que PrefsUpdateStateStore, sin Android. */
     private class FakeStore(
-        override var skippedVersion: String? = null,
-        override var lastCheckAt: Long = 0L,
+        skipped: String? = null,
+        checkAt: Long = 0L,
     ) : UpdateStateStore {
-        val markSkippedCalls = mutableListOf<String>()
-        val markCheckedCalls = mutableListOf<Long>()
+        override var skippedVersion: String? = skipped
 
-        override fun markSkipped(version: String) {
-            markSkippedCalls += version
-            skippedVersion = version
-        }
+        override var lastCheckAt: Long = checkAt
+            set(value) {
+                field = value
+                lastCheckWrites += value
+            }
 
-        override fun markChecked(at: Long) {
-            markCheckedCalls += at
-            lastCheckAt = at
-        }
-
-        override fun clear() {
-            skippedVersion = null
-            lastCheckAt = 0L
-        }
+        /** Las marcas que el checker ha escrito, en orden. */
+        val lastCheckWrites = mutableListOf<Long>()
     }
 
     private val ahora = 1_700_000_000_000L
@@ -57,7 +50,7 @@ class UpdateCheckerTest {
         val result = checker(store = store).check(currentVersion = "0.1.0")
 
         assertEquals(UpdateStatus.UpdateAvailable(nueva), result)
-        assertEquals(listOf(ahora), store.markCheckedCalls)
+        assertEquals(listOf(ahora), store.lastCheckWrites)
     }
 
     @Test
@@ -84,14 +77,14 @@ class UpdateCheckerTest {
 
     @Test
     fun `una version pospuesta no vuelve a avisar`() = runTest {
-        val store = FakeStore(skippedVersion = "0.2.0")
+        val store = FakeStore(skipped = "0.2.0")
 
         assertEquals(UpdateStatus.Postponed, checker(store = store).check(currentVersion = "0.1.0"))
     }
 
     @Test
     fun `una version superior a la pospuesta si avisa`() = runTest {
-        val store = FakeStore(skippedVersion = "0.1.5")
+        val store = FakeStore(skipped = "0.1.5")
         val source = FakeSource(nueva)
 
         assertEquals(UpdateStatus.UpdateAvailable(nueva), checker(source = source, store = store).check(currentVersion = "0.1.0"))
@@ -100,17 +93,17 @@ class UpdateCheckerTest {
     @Test
     fun `el throttle de 24 horas corta la comprobacion`() = runTest {
         val source = FakeSource(nueva)
-        val store = FakeStore(lastCheckAt = ahora - 60 * 60 * 1000L)
+        val store = FakeStore(checkAt = ahora - 60 * 60 * 1000L)
 
         assertEquals(UpdateStatus.SkippedThrottled, checker(source = source, store = store).check(currentVersion = "0.1.0"))
         assertEquals(0, source.calls)
-        assertTrue(store.markCheckedCalls.isEmpty())
+        assertTrue(store.lastCheckWrites.isEmpty())
     }
 
     @Test
     fun `pasado el throttle se vuelve a comprobar`() = runTest {
         val source = FakeSource(nueva)
-        val store = FakeStore(lastCheckAt = ahora - 25 * 60 * 60 * 1000L)
+        val store = FakeStore(checkAt = ahora - 25 * 60 * 60 * 1000L)
 
         assertEquals(UpdateStatus.UpdateAvailable(nueva), checker(source = source, store = store).check(currentVersion = "0.1.0"))
         assertEquals(1, source.calls)
@@ -119,18 +112,18 @@ class UpdateCheckerTest {
     @Test
     fun `force ignora el throttle y refresca la marca`() = runTest {
         val source = FakeSource(nueva)
-        val store = FakeStore(lastCheckAt = ahora)
+        val store = FakeStore(checkAt = ahora)
 
         val result = checker(source = source, store = store).check(currentVersion = "0.1.0", force = true)
 
         assertEquals(UpdateStatus.UpdateAvailable(nueva), result)
         assertEquals(1, source.calls)
-        assertEquals(listOf(ahora), store.markCheckedCalls)
+        assertEquals(listOf(ahora), store.lastCheckWrites)
     }
 
     @Test
     fun `la primera comprobacion nunca esta frenada`() = runTest {
-        val store = FakeStore(lastCheckAt = 0L)
+        val store = FakeStore(checkAt = 0L)
 
         assertEquals(UpdateStatus.UpdateAvailable(nueva), checker(store = store).check(currentVersion = "0.1.0"))
     }
@@ -141,7 +134,7 @@ class UpdateCheckerTest {
         val store = FakeStore()
 
         assertEquals(UpdateStatus.Failed, checker(source = source, store = store).check(currentVersion = "0.1.0"))
-        assertTrue(store.markCheckedCalls.isEmpty())
+        assertTrue(store.lastCheckWrites.isEmpty())
     }
 
     @Test

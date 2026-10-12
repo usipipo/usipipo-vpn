@@ -37,6 +37,9 @@ fun UsipipoRoot(container: AppContainer) {
     val updateStatus by container.updateStatus.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
+    // Versión cuya ventana se cerró con atrás o toque fuera: no queda pospuesta.
+    var dismissedUpdate by rememberSaveable { mutableStateOf<String?>(null) }
+
     BackHandler(enabled = screen != Screen.Home) {
         screen = if (screen == Screen.Diagnostics) Screen.About else Screen.Home
     }
@@ -56,7 +59,11 @@ fun UsipipoRoot(container: AppContainer) {
         Screen.About -> AboutScreen(
             onBack = { screen = Screen.Home },
             onDiagnostics = { screen = Screen.Diagnostics },
-            onCheckUpdates = { container.checkForUpdates(force = true) },
+            onCheckUpdates = {
+                // La comprobación manual siempre vuelve a mostrar la ventana si hay release.
+                dismissedUpdate = null
+                container.checkForUpdates(force = true)
+            },
         )
 
         Screen.Diagnostics -> DiagnosticsScreen(
@@ -66,11 +73,12 @@ fun UsipipoRoot(container: AppContainer) {
     }
 
     val available = updateStatus as? UpdateStatus.UpdateAvailable
-    if (available != null) {
+    if (available != null && dismissedUpdate != available.info.version.toString()) {
         UpdateDialog(
             info = available.info,
             onDownload = { openRelease(context, available.info.htmlUrl) },
             onPostpone = { container.postponeUpdate(available.info.version) },
+            onDismiss = { dismissedUpdate = available.info.version.toString() },
         )
     }
 }

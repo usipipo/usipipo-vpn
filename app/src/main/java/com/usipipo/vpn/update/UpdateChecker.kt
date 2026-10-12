@@ -44,7 +44,7 @@ class UpdateChecker(
             return UpdateStatus.Failed
         }
 
-        store.markChecked(clock())
+        store.lastCheckAt = clock()
 
         return when {
             release.version <= installed -> UpdateStatus.UpToDate

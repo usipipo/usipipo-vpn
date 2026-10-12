@@ -14,14 +14,11 @@ interface ReleaseSource {
 }
 
 /** Consulta la API pública de GitHub. Sin credenciales: solo funciona en repos públicos. */
-class GitHubReleaseSource(
-    private val owner: String = OWNER,
-    private val repo: String = REPO,
-) : ReleaseSource {
+class GitHubReleaseSource : ReleaseSource {
 
     override suspend fun latest(): ReleaseInfo? = withContext(Dispatchers.IO) {
         val connection = try {
-            val url = URL("$API_BASE/repos/$owner/$repo/releases/latest")
+            val url = URL("$API_BASE/repos/$OWNER/$REPO/releases/latest")
             (url.openConnection() as HttpURLConnection).apply {
                 requestMethod = "GET"
                 connectTimeout = CONNECT_TIMEOUT_MS

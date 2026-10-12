@@ -18,15 +18,19 @@ import com.usipipo.vpn.update.ReleaseInfo
 /**
  * Ventana de actualización: muestra la versión nueva y deja elegir entre descargarla
  * o posponer el aviso. Hereda los colores del tema (claro y oscuro).
+ *
+ * [onDismiss] es el descarte pasivo (botón atrás o toque fuera): solo cierra la ventana.
+ * Posponer la versión es cosa explícita del botón «Más tarde» ([onPostpone]).
  */
 @Composable
 fun UpdateDialog(
     info: ReleaseInfo,
     onDownload: () -> Unit,
     onPostpone: () -> Unit,
+    onDismiss: () -> Unit,
 ) {
     AlertDialog(
-        onDismissRequest = onPostpone,
+        onDismissRequest = onDismiss,
         icon = {
             Icon(
                 painter = painterResource(R.drawable.ic_update),

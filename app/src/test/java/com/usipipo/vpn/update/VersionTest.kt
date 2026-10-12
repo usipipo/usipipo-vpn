@@ -61,13 +61,6 @@ class VersionTest {
     }
 
     @Test
-    fun `compare devuelve signo coherente`() {
-        assertTrue(Version.compare(Version(1, 0, 0), Version(0, 9, 9)) > 0)
-        assertTrue(Version.compare(Version(0, 1, 0), Version(0, 1, 1)) < 0)
-        assertEquals(0, Version.compare(Version(2, 3, 4), Version(2, 3, 4)))
-    }
-
-    @Test
     fun `toString devuelve el formato completo`() {
         assertEquals("1.2.3", Version(1, 2, 3).toString())
     }

@@ -101,22 +101,26 @@ GitHub Actions ejecutará las pruebas unitarias y compilará la APK de depuraci�
 
 ### Descargar la APK
 
-**Descarga directa (release `latest`):** en cada push a `main` que compile correctamente, el
-workflow publica una [release `latest`](https://github.com/usipipo/usipipo-vpn/releases/latest)
-con la APK adjunta (`usipipo-vpn-debug.apk`). Se actualiza sola en cada compilación, así que
-ese enlace siempre lleva la versión más reciente de `main`.
+**Versión para distribuir (firmada):** las releases se crean al subir una etiqueta `vX.Y.Z`
+(firmadas con el keystore de release y publicadas por `.github/workflows/release.yml`). Aparecen
+en la [página de Releases](https://github.com/usipipo/usipipo-vpn/releases) con la APK
+`app-release.apk` adjunta; el funcionamiento está explicado en «Release firmada», más abajo.
 
-**O desde el run de Actions:**
+**Sin esperar a una release, desde el run de Actions:**
 
-1. Sube el proyecto a un repositorio de GitHub.
-2. Abre la pestaña **Actions** y entra en la ejecución más reciente de **Android CI - Build APK**.
-3. Cuando termine correctamente, baja hasta **Artifacts** y descarga `usipipo-vpn-debug-apk`.
-4. Descomprime el artefacto y encontrarás la APK para instalar en un dispositivo Android.
+1. Abre la pestaña **Actions** y entra en la ejecución más reciente de **Android CI - Build APK**.
+2. Cuando termine correctamente, baja hasta **Artifacts** y descarga `usipipo-vpn-debug-apk`.
+3. Descomprime el artefacto y encontrarás la APK para instalar en un dispositivo Android.
+   El artefacto se conserva 14 días.
 
-La APK es de **depuración** y no está firmada para distribución pública. Si quieres publicar
-una versión `release` firmada que cualquiera pueda descargar e instalar, sigue la sección
-«Release firmada» de abajo. El keystore y sus contraseñas nunca se guardan en el repositorio:
-viven en secretos de GitHub.
+La APK del artefacto es de **depuración** y no está firmada para distribución pública. El
+keystore de release y sus contraseñas nunca se guardan en el repositorio: viven en secretos de
+GitHub.
+
+> **Ojo con el cambio de certificado:** la APK de depuración está firmada con el keystore de
+> depuración de Android y la APK de release con el keystore de release. La primera APK firmada
+> **no** se instala encima de la de depuración: desinstálala una vez (se avisa también en
+> «Release firmada»).
 
 > Nota: el proyecto declara `compileSdk = 37`. El workflow instala la plataforma Android 37;
 > si esa plataforma aún no estuviera disponible en el SDK de GitHub Actions, habrá que ajustar

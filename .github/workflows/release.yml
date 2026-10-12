@@ -135,14 +135,6 @@ jobs:
         if: env.IS_TAG != 'true'
         run: ./gradlew --no-daemon assembleRelease
 
-      - name: Subir la APK como artefacto del run
-        uses: actions/upload-artifact@v4
-        with:
-          name: usipipo-vpn-release-apk
-          path: app/build/outputs/apk/release/*.apk
-          if-no-files-found: error
-          retention-days: 14
-
       # La firma se comprueba antes de publicar: la promesa de no distribuir nunca
       # una APK sin firmar no puede descansar solo en que existan los secretos.
       - name: Verificar la firma de la APK
@@ -154,13 +146,25 @@ jobs:
             echo "::error::No se encontró la APK firmada en $APK."
             exit 1
           fi
-          APKSIGNER="${ANDROID_HOME:-$ANDROID_SDK_ROOT}/build-tools/36.0.0/apksigner"
-          if [ ! -x "$APKSIGNER" ]; then
-            echo "::error::No se encontró apksigner en $APKSIGNER."
+          SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          # Última build-tools disponible: no se fija una versión concreta.
+          APKSIGNER=$(ls -1 "$SDK"/build-tools/*/apksigner 2>/dev/null | sort -V | tail -n 1 || true)
+          if [ -z "$APKSIGNER" ] || [ ! -x "$APKSIGNER" ]; then
+            echo "::error::No se encontró apksigner bajo $SDK/build-tools/."
             exit 1
           fi
           "$APKSIGNER" verify --print-certs "$APK"
-          echo "APK firmada y verificada con apksigner."
+          echo "APK firmada y verificada con $APKSIGNER."
+
+      # El artefacto se sube DESPUÉS de verificar la firma: en el camino con
+      # etiqueta, una APK sin firmar aborta el job antes de llegar aquí.
+      - name: Subir la APK como artefacto del run
+        uses: actions/upload-artifact@v4
+        with:
+          name: usipipo-vpn-release-apk
+          path: app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Publicar la release con la APK firmada
         if: env.IS_TAG == 'true'

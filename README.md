@@ -171,21 +171,21 @@ Ahora guárdalo como secreto del repositorio:
 3. *Name*: `GH_PAT`. *Secret*: pega el token que acabas de copiar.
 4. **Add secret**.
 
-**Paso 2. Crea los dos secretos con las contraseñas del keystore.**
+**Paso 2. Crea el secreto con la contraseña del keystore.**
 
-El generador necesita dos contraseñas —la del almacén y la de la clave— y **no** se piden
-en el formulario: las guardas tú antes, como dos secretos de repositorio de solo
-escritura, con los valores que tú elijas:
+El generador necesita una sola contraseña —la del almacén— y **no** se pide en el
+formulario: la guardas tú antes, como un secreto de repositorio de solo escritura, con el
+valor que tú elijas. La clave de dentro hereda esa misma contraseña, así que solo hay una
+que recordar y guardar:
 
 1. **Settings** → **Secrets and variables** → **Actions** → **New repository secret**.
-2. *Name*: `TMP_STORE_PASSWORD`. *Secret*: la contraseña del keystore. **Add secret**.
-3. Otra vez **New repository secret**: *Name*: `TMP_KEY_PASSWORD`. *Secret*: la contraseña
-   de la clave (puede ser la misma que la del almacén). **Add secret**.
+2. *Name*: `TMP_STORE_PASSWORD`. *Secret*: la contraseña del keystore (mínimo 6 caracteres,
+   que es lo que exige `keytool`). **Add secret**.
 
-Elige contraseñas fuertes y **guárdalas en tu gestor de contraseñas**: GitHub no vuelve a
-mostrar el valor de un secreto después de guardarlo, así que nadie podrá leerlas por la
-web. El workflow las usa al ejecutarse y **borra los dos secretos temporales cuando
-termina**, para que no se queden en el repositorio.
+Elige una contraseña fuerte y **guárdala en tu gestor de contraseñas**: GitHub no vuelve a
+mostrar el valor de un secreto después de guardarlo, así que nadie podrá leerla por la web.
+El workflow la usa al ejecutarse y **borra el secreto temporal cuando termina**, para que
+no se quede en el repositorio.
 
 **Paso 3. Lanza el workflow «Generar keystore de release».**
 
@@ -200,12 +200,11 @@ termina**, para que no se queden en el repositorio.
 
 3. Pulsa **Run workflow**.
 
-El workflow (`.github/workflows/generate-keystore.yml`) lee las contraseñas de los dos
-secretos temporales, genera el keystore en el runner, lo borra de ahí, crea los cuatro
-secretos finales, borra los temporales y verifica al final que todo existe. Las
-contraseñas nunca se imprimen en los logs ni viajan por la línea de comandos. Si algo
-falla, no crea nada y puedes volver a lanzarlo: espera a que la ejecución se ponga
-**verde** antes de seguir.
+El workflow (`.github/workflows/generate-keystore.yml`) lee la contraseña del secreto
+temporal, genera el keystore en el runner, lo borra de ahí, crea los cuatro secretos
+finales, borra el temporal y verifica al final que todo existe. La contraseña nunca se
+imprime en los logs ni viaja por la línea de comandos. Si algo falla, no crea nada y puedes
+volver a lanzarlo: espera a que la ejecución se ponga **verde** antes de seguir.
 
 **Paso 4. Comprueba que están los cuatro secretos.**
 
@@ -222,12 +221,12 @@ bórralo. Después, en **Settings** → **Secrets and variables** → **Actions*
 el secreto `GH_PAT`. Si alguna vez hay que regenerar los secretos, repites los pasos 1 y 2
 con un token nuevo.
 
-Los secretos `TMP_STORE_PASSWORD` y `TMP_KEY_PASSWORD` ya los borra el propio workflow al
-terminar. Si el registro de la ejecución avisó de que no pudo borrarlos, bórralos a mano en
-**Settings** → **Secrets and variables** → **Actions**.
+El secreto `TMP_STORE_PASSWORD` ya lo borra el propio workflow al terminar. Si el registro
+de la ejecución avisó de que no pudo borrarlo, bórralo a mano en **Settings** →
+**Secrets and variables** → **Actions**.
 
 **Guarda una copia de seguridad (no te la saltes).** Copia el contenido del secreto
-`ANDROID_KEYSTORE_BASE64` (el keystore convertido a base64) y las dos contraseñas (las que
+`ANDROID_KEYSTORE_BASE64` (el keystore convertido a base64) y la contraseña (la que
 elegiste en el paso 2) en tu gestor de contraseñas. Si se pierden, **no podrás publicar
 actualizaciones que se instalen encima de las anteriores**: Android exige que todas las
 versiones de una app vengan firmadas con el mismo certificado. El fichero del keystore

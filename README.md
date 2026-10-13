@@ -139,28 +139,120 @@ ejecuta las pruebas unitarias y verifica la firma con `apksigner`. El `versionNa
 
 ### 1. Configurar la firma (solo la primera vez)
 
-En tu máquina, dentro de la carpeta del repositorio, ejecuta el asistente:
+Hay dos caminos para crear el keystore de release y sus cuatro secretos. El recomendado
+**no instala nada en tu máquina**: el keystore se genera en un runner de GitHub Actions y
+todo se hace desde la web. El asistente de siempre, con un script local, queda como
+alternativa para quien ya tenga un JDK instalado (al final de esta sección).
+
+> **No hace falta poner el repositorio en privado.** Las contraseñas nunca se teclean en
+> el formulario del workflow ni aparecen en los logs: se guardan antes como secretos de
+> repositorio de solo escritura. Por eso todo el proceso funciona con el repositorio
+> público.
+
+#### Camino recomendado: desde la web, sin instalar nada
+
+**Paso 1. Crea un token temporal (PAT) y guárdalo como secreto `GH_PAT`.**
+
+El `GITHUB_TOKEN` automático de los workflows no puede crear secretos de repositorio, así
+que hace falta un token personal que se usa **una sola vez** y se revoca al final.
+
+1. En GitHub, arriba a la derecha, tu foto de perfil → **Settings**.
+2. En el menú lateral, baja hasta el final → **Developer settings**.
+3. **Personal access tokens** → **Fine-grained tokens** → **Generate new token**.
+4. *Repository access*: **Only select repositories** → marca **usipipo-vpn** (solo ese).
+5. *Repository permissions*: busca **Secrets** y ponlo en **Read and write**.
+6. Pulsa **Generate token** y **copia el token** (empieza por `github_pat_`). Solo se
+   muestra una vez; tenlo a mano un momento.
+
+Ahora guárdalo como secreto del repositorio:
+
+1. Entra en el repositorio → **Settings** → **Secrets and variables** → **Actions**.
+2. **New repository secret**.
+3. *Name*: `GH_PAT`. *Secret*: pega el token que acabas de copiar.
+4. **Add secret**.
+
+**Paso 2. Crea los dos secretos con las contraseñas del keystore.**
+
+El generador necesita dos contraseñas —la del almacén y la de la clave— y **no** se piden
+en el formulario: las guardas tú antes, como dos secretos de repositorio de solo
+escritura, con los valores que tú elijas:
+
+1. **Settings** → **Secrets and variables** → **Actions** → **New repository secret**.
+2. *Name*: `TMP_STORE_PASSWORD`. *Secret*: la contraseña del keystore. **Add secret**.
+3. Otra vez **New repository secret**: *Name*: `TMP_KEY_PASSWORD`. *Secret*: la contraseña
+   de la clave (puede ser la misma que la del almacén). **Add secret**.
+
+Elige contraseñas fuertes y **guárdalas en tu gestor de contraseñas**: GitHub no vuelve a
+mostrar el valor de un secreto después de guardarlo, así que nadie podrá leerlas por la
+web. El workflow las usa al ejecutarse y **borra los dos secretos temporales cuando
+termina**, para que no se queden en el repositorio.
+
+**Paso 3. Lanza el workflow «Generar keystore de release».**
+
+1. Pestaña **Actions** → **Generar keystore de release** → **Run workflow**.
+2. Rellena el formulario con solo tres campos:
+
+   | Campo | Qué poner |
+   |---|---|
+   | `key_alias` | `release` (ya viene puesto) |
+   | `validity_days` | `10000` (unos 27 años de validez) |
+   | `confirm` | `GENERAR`, exactamente así y en mayúsculas |
+
+3. Pulsa **Run workflow**.
+
+El workflow (`.github/workflows/generate-keystore.yml`) lee las contraseñas de los dos
+secretos temporales, genera el keystore en el runner, lo borra de ahí, crea los cuatro
+secretos finales, borra los temporales y verifica al final que todo existe. Las
+contraseñas nunca se imprimen en los logs ni viajan por la línea de comandos. Si algo
+falla, no crea nada y puedes volver a lanzarlo: espera a que la ejecución se ponga
+**verde** antes de seguir.
+
+**Paso 4. Comprueba que están los cuatro secretos.**
+
+Vuelve a **Settings** → **Secrets and variables** → **Actions**. Deben aparecer
+`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` y
+`ANDROID_KEY_PASSWORD`. Con esos cuatro ya se puede publicar una release firmada
+(sección 2).
+
+**Paso 5. Revoca el token y borra el secreto `GH_PAT`.**
+
+Ya no hacen falta. Vuelve a **Settings** → **Developer settings** →
+**Personal access tokens** → **Fine-grained tokens**, busca el que acabas de crear y
+bórralo. Después, en **Settings** → **Secrets and variables** → **Actions**, borra también
+el secreto `GH_PAT`. Si alguna vez hay que regenerar los secretos, repites los pasos 1 y 2
+con un token nuevo.
+
+Los secretos `TMP_STORE_PASSWORD` y `TMP_KEY_PASSWORD` ya los borra el propio workflow al
+terminar. Si el registro de la ejecución avisó de que no pudo borrarlos, bórralos a mano en
+**Settings** → **Secrets and variables** → **Actions**.
+
+**Guarda una copia de seguridad (no te la saltes).** Copia el contenido del secreto
+`ANDROID_KEYSTORE_BASE64` (el keystore convertido a base64) y las dos contraseñas (las que
+elegiste en el paso 2) en tu gestor de contraseñas. Si se pierden, **no podrás publicar
+actualizaciones que se instalen encima de las anteriores**: Android exige que todas las
+versiones de una app vengan firmadas con el mismo certificado. El fichero del keystore
+solo existió en el runner, que se borra al terminar: **su única copia es ese secreto**.
+
+#### Alternativa: el asistente local (si tienes JDK)
+
+Si en tu máquina tienes `keytool` (viene con el JDK 17) y la CLI de GitHub `gh` con la
+sesión iniciada (`gh auth login`), dentro de la carpeta del repositorio ejecuta el
+asistente:
 
 ```bash
 scripts/setup-release-signing.sh
 ```
 
-Necesitas `keytool` (viene con el JDK 17) y la CLI de GitHub `gh` con la sesión iniciada
-(`gh auth login`). El asistente te pregunta la ruta del keystore (por defecto
-`~/usipipo-release.jks`), el alias de la clave (`release`) y las contraseñas; ninguna se
-muestra por pantalla, se guarda en el historial del shell ni viaja por la línea de comandos
-(`keytool` las lee de variables de entorno con `-storepass:env` y `gh` las recibe por
-stdin). Después genera el keystore, lo convierte a base64 y guarda los cuatro secretos del
-repositorio (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`,
-`ANDROID_KEY_PASSWORD`).
+Te pregunta la ruta del keystore (por defecto `~/usipipo-release.jks`), el alias de la
+clave (`release`) y las contraseñas; ninguna se muestra por pantalla, se guarda en el
+historial del shell ni viaja por la línea de comandos (`keytool` las lee de variables de
+entorno con `-storepass:env` y `gh` las recibe por stdin). Después genera el keystore, lo
+convierte a base64 y guarda los cuatro secretos del repositorio. Aquí sí te queda una
+copia del fichero en tu disco: guárdala también a buen recaudo.
 
-**Guarda una copia de seguridad del keystore y de sus contraseñas.** Si se pierden no podrás
-publicar actualizaciones que se instalen encima de las anteriores: Android exige que todas las
-versiones de una app vengan firmadas con el mismo certificado.
-
-Si algo queda a medias (por ejemplo, falla uno de los `gh secret set`), vuelve a ejecutar el
-asistente con `--solo-secretos`: reutiliza el keystore que ya tienes y vuelve a subir los
-cuatro secretos sin generar uno nuevo:
+Si algo queda a medias (por ejemplo, falla uno de los `gh secret set`), vuelve a ejecutar
+el asistente con `--solo-secretos`: reutiliza el keystore que ya tienes y vuelve a subir
+los cuatro secretos sin generar uno nuevo:
 
 ```bash
 scripts/setup-release-signing.sh --solo-secretos

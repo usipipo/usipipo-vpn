@@ -83,6 +83,17 @@ Contexto y restricciones:
   `scripts/setup-release-signing.sh` queda como alternativa para quien sí tenga un JDK en
   su máquina y prefiera no pasar por Actions. En ningún caso una contraseña ni material de
   clave se imprime en logs, viaja por argv o se escribe en ficheros temporales sin borrado.
+  *Enmienda 2026-10-12 (segunda ronda): el repositorio vuelve a ser público y los inputs
+  de un `workflow_dispatch` son visibles en el payload público del run, así que las
+  contraseñas dejan de ser inputs del formulario. El usuario las crea antes en la web como
+  dos secretos write-only, `TMP_STORE_PASSWORD` y `TMP_KEY_PASSWORD`; el workflow las lee
+  de esos secretos (y falla con mensaje claro antes de generar nada si falta cualquiera de
+  los dos), las exporta como variables de entorno del paso (`STORE_PASSWORD` /
+  `KEY_PASSWORD`) y las borra con `gh secret delete` usando el PAT después de comprobar
+  los cuatro secretos finales, en modo best-effort: si el borrado falla el run sigue
+  correcto y el resumen avisa de que hay que eliminarlas a mano. Los únicos inputs del
+  dispatch quedan `key_alias` (por defecto `release`), `validity_days` (por defecto
+  `10000`) y `confirm` (obligatorio, exactamente `GENERAR`).*
 - **R7.** El repositorio pasa a público (`gh repo edit --visibility public`).
 
 ### 3.2 Actualización desde la app

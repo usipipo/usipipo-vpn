@@ -69,10 +69,20 @@ Contexto y restricciones:
   resultado máximo (999.999.999) queda por debajo del límite de Android (2.100.000.000).*
 - **R5.** El workflow publica una release de GitHub con la APK firmada
   (`app-release.apk`) adjunta y notas generadas automáticamente.
-- **R6.** Se entrega un script wizard interactivo (`scripts/setup-release-signing.sh`) que el
-  usuario ejecuta en su máquina para: generar el keystore con `keytool`, convertirlo a base64
-  y guardar los cuatro secretos con `gh secret set`. Ninguna contraseña ni material de clave
-  pasa por el asistente ni por el chat.
+- **R6.** El keystore de release se genera con el workflow
+  `.github/workflows/generate-keystore.yml` (disparo `workflow_dispatch`), que corre en el
+  runner con JDK 17 y no necesita ninguna herramienta local: `keytool` lo genera con
+  `-storepass:env`/`-keypass:env` (las contraseñas entran por variables de entorno, nunca
+  por argv ni interpoladas en el script), se codifica en base64 y se guardan los cuatro
+  secretos con `gh secret set NAME --repo "$GITHUB_REPOSITORY"` leyendo de ficheros o de
+  stdin; al final `gh secret list` comprueba que los cuatro existen y un `trap … EXIT` borra
+  el keystore y su base64 del runner. Para escribir secretos hace falta un token fino
+  (PAT) con *Repository permissions → Secrets: Read and write* guardado una sola vez como
+  secreto `GH_PAT`, porque el `GITHUB_TOKEN` automático no puede crearlos; el usuario lo
+  revoca al terminar. Este workflow es el camino principal. El script wizard interactivo
+  `scripts/setup-release-signing.sh` queda como alternativa para quien sí tenga un JDK en
+  su máquina y prefiera no pasar por Actions. En ningún caso una contraseña ni material de
+  clave se imprime en logs, viaja por argv o se escribe en ficheros temporales sin borrado.
 - **R7.** El repositorio pasa a público (`gh repo edit --visibility public`).
 
 ### 3.2 Actualización desde la app

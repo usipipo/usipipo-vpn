@@ -139,28 +139,102 @@ ejecuta las pruebas unitarias y verifica la firma con `apksigner`. El `versionNa
 
 ### 1. Configurar la firma (solo la primera vez)
 
-En tu máquina, dentro de la carpeta del repositorio, ejecuta el asistente:
+Hay dos caminos para crear el keystore de release y sus cuatro secretos. El recomendado
+**no instala nada en tu máquina**: el keystore se genera en un runner de GitHub Actions y
+todo se hace desde la web. El asistente de siempre, con un script local, queda como
+alternativa para quien ya tenga un JDK instalado (al final de esta sección).
+
+> **El repositorio tiene que estar PRIVADO mientras haces esto.** Las contraseñas se
+> escriben en el formulario de lanzamiento del workflow y **son visibles para cualquier
+> persona con acceso al repositorio**: con permiso de lectura y el enlace de la ejecución
+> se ven tal cual se teclearon. Si el repositorio está público, hazlo privado antes de
+> seguir; quien coordina lo vuelve a público cuando termines.
+
+#### Camino recomendado: desde la web, sin instalar nada
+
+**Paso 1. Crea un token temporal (PAT) en GitHub.**
+
+El `GITHUB_TOKEN` automático de los workflows no puede crear secretos de repositorio, así
+que hace falta un token personal que se usa **una sola vez** y se revoca al final.
+
+1. En GitHub, arriba a la derecha, tu foto de perfil → **Settings**.
+2. En el menú lateral, baja hasta el final → **Developer settings**.
+3. **Personal access tokens** → **Fine-grained tokens** → **Generate new token**.
+4. *Repository access*: **Only select repositories** → marca **usipipo-vpn** (solo ese).
+5. *Repository permissions*: busca **Secrets** y ponlo en **Read and write**.
+6. Pulsa **Generate token** y **copia el token** (empieza por `github_pat_`). Solo se
+   muestra una vez; tenlo a mano un momento.
+
+**Paso 2. Guárdalo como secreto del repositorio `GH_PAT`.**
+
+1. Entra en el repositorio → **Settings** → **Secrets and variables** → **Actions**.
+2. **New repository secret**.
+3. *Name*: `GH_PAT`. *Secret*: pega el token que acabas de copiar.
+4. **Add secret**.
+
+**Paso 3. Lanza el workflow «Generar keystore de release».**
+
+1. Pestaña **Actions** → **Generar keystore de release** → **Run workflow**.
+2. Rellena el formulario:
+
+   | Campo | Qué poner |
+   |---|---|
+   | `key_alias` | `release` (ya viene puesto) |
+   | `store_password` | una contraseña fuerte; **guárdala en tu gestor de contraseñas** |
+   | `key_password` | la misma u otra distinta; también la guardas |
+   | `validity_days` | `10000` (unos 27 años de validez) |
+   | `confirm` | `GENERAR`, exactamente así y en mayúsculas |
+
+3. Comprueba una última vez que el repositorio está privado y pulsa **Run workflow**.
+
+El workflow (`.github/workflows/generate-keystore.yml`) genera el keystore en el runner,
+lo borra de ahí, crea los cuatro secretos y verifica al final que existen. Las contraseñas
+nunca se imprimen en los logs ni viajan por la línea de comandos. Si algo falla, no crea
+nada y puedes volver a lanzarlo: espera a que la ejecución se ponga **verde** antes de
+seguir.
+
+**Paso 4. Comprueba que están los cuatro secretos.**
+
+Vuelve a **Settings** → **Secrets and variables** → **Actions**. Deben aparecer
+`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` y
+`ANDROID_KEY_PASSWORD`. Con esos cuatro ya se puede publicar una release firmada
+(sección 2).
+
+**Paso 5. Revoca el token y borra el secreto `GH_PAT`.**
+
+Ya no hacen falta. Vuelve a **Settings** → **Developer settings** →
+**Personal access tokens** → **Fine-grained tokens**, busca el que acabas de crear y
+bórralo. Después, en **Settings** → **Secrets and variables** → **Actions**, borra también
+el secreto `GH_PAT`. Si alguna vez hay que regenerar los secretos, repites los pasos 1 y 2
+con un token nuevo.
+
+**Guarda una copia de seguridad (no te la saltes).** Copia el contenido del secreto
+`ANDROID_KEYSTORE_BASE64` (el keystore convertido a base64) y las dos contraseñas en tu
+gestor de contraseñas. Si se pierden, **no podrás publicar actualizaciones que se instalen
+encima de las anteriores**: Android exige que todas las versiones de una app vengan
+firmadas con el mismo certificado. El fichero del keystore solo existió en el runner, que
+se borra al terminar: **su única copia es ese secreto**.
+
+#### Alternativa: el asistente local (si tienes JDK)
+
+Si en tu máquina tienes `keytool` (viene con el JDK 17) y la CLI de GitHub `gh` con la
+sesión iniciada (`gh auth login`), dentro de la carpeta del repositorio ejecuta el
+asistente:
 
 ```bash
 scripts/setup-release-signing.sh
 ```
 
-Necesitas `keytool` (viene con el JDK 17) y la CLI de GitHub `gh` con la sesión iniciada
-(`gh auth login`). El asistente te pregunta la ruta del keystore (por defecto
-`~/usipipo-release.jks`), el alias de la clave (`release`) y las contraseñas; ninguna se
-muestra por pantalla, se guarda en el historial del shell ni viaja por la línea de comandos
-(`keytool` las lee de variables de entorno con `-storepass:env` y `gh` las recibe por
-stdin). Después genera el keystore, lo convierte a base64 y guarda los cuatro secretos del
-repositorio (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`,
-`ANDROID_KEY_PASSWORD`).
+Te pregunta la ruta del keystore (por defecto `~/usipipo-release.jks`), el alias de la
+clave (`release`) y las contraseñas; ninguna se muestra por pantalla, se guarda en el
+historial del shell ni viaja por la línea de comandos (`keytool` las lee de variables de
+entorno con `-storepass:env` y `gh` las recibe por stdin). Después genera el keystore, lo
+convierte a base64 y guarda los cuatro secretos del repositorio. Aquí sí te queda una
+copia del fichero en tu disco: guárdala también a buen recaudo.
 
-**Guarda una copia de seguridad del keystore y de sus contraseñas.** Si se pierden no podrás
-publicar actualizaciones que se instalen encima de las anteriores: Android exige que todas las
-versiones de una app vengan firmadas con el mismo certificado.
-
-Si algo queda a medias (por ejemplo, falla uno de los `gh secret set`), vuelve a ejecutar el
-asistente con `--solo-secretos`: reutiliza el keystore que ya tienes y vuelve a subir los
-cuatro secretos sin generar uno nuevo:
+Si algo queda a medias (por ejemplo, falla uno de los `gh secret set`), vuelve a ejecutar
+el asistente con `--solo-secretos`: reutiliza el keystore que ya tienes y vuelve a subir
+los cuatro secretos sin generar uno nuevo:
 
 ```bash
 scripts/setup-release-signing.sh --solo-secretos

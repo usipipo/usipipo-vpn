@@ -375,7 +375,7 @@ sleep 15 && gh run list --workflow "Android CI - Build APK" --branch feat/atmosf
 gh run watch <id-mostrado> --exit-status
 ```
 
-Esperado: `success`; `testDebugUnitTest` incluye `AtmosphereTest` con 5 tests en verde y los tests existentes siguen pasando. Si CI falla: corregir, commit nuevo (nunca amend sobre lo ya empujado), push y repetir.
+Esperado: `success`; `testDebugUnitTest` incluye `AtmosphereTest` con 4 tests en verde y los tests existentes siguen pasando. Si CI falla: corregir, commit nuevo (nunca amend sobre lo ya empujado), push y repetir.
 
 ---
 

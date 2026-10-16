@@ -10,6 +10,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
+import androidx.compose.ui.text.font.FontWeight
+import com.usipipo.vpn.R
 
 // Paleta de azules pastel (ver docs/plans/2026-10-09-usipipo-vpn-android-design.md, sección 5).
 private val Navy = Color(0xFF0B2545)
@@ -55,18 +60,74 @@ private val DarkColors = darkColorScheme(
 data class StatusColors(val idle: Color, val connected: Color, val error: Color)
 
 private val LightStatus = StatusColors(
-    idle = Color(0xFFA8CCFF),
-    connected = Color(0xFF6FA8FF),
-    error = Color(0xFFF4A3A3),
+    idle = Color(AtmospherePalette.BUTTON_LIGHT_IDLE),
+    connected = Color(AtmospherePalette.BUTTON_LIGHT_CONNECTED),
+    error = Color(AtmospherePalette.BUTTON_LIGHT_ERROR),
 )
 
 private val DarkStatus = StatusColors(
-    idle = Color(0xFF8DBBFF),
-    connected = Color(0xFF6FA8FF),
-    error = Color(0xFFF4A3A3),
+    idle = Color(AtmospherePalette.BUTTON_DARK_IDLE),
+    connected = Color(AtmospherePalette.BUTTON_DARK_CONNECTED),
+    error = Color(AtmospherePalette.BUTTON_DARK_ERROR),
 )
 
 val LocalStatusColors = staticCompositionLocalOf { LightStatus }
+
+// Manrope variable: los cinco pesos usan el mismo archivo con distinto eje `wght`.
+private val Manrope = FontFamily(
+    Font(R.font.manrope, weight = FontWeight.Normal, variationSettings = FontVariation.Settings(FontVariation.weight(400))),
+    Font(R.font.manrope, weight = FontWeight.Medium, variationSettings = FontVariation.Settings(FontVariation.weight(500))),
+    Font(R.font.manrope, weight = FontWeight.SemiBold, variationSettings = FontVariation.Settings(FontVariation.weight(600))),
+    Font(R.font.manrope, weight = FontWeight.Bold, variationSettings = FontVariation.Settings(FontVariation.weight(700))),
+    Font(R.font.manrope, weight = FontWeight.ExtraBold, variationSettings = FontVariation.Settings(FontVariation.weight(800))),
+)
+
+private val UsipipoTypography = Typography().run {
+    copy(
+        titleLarge = titleLarge.copy(fontFamily = Manrope, fontWeight = FontWeight.ExtraBold),
+        headlineSmall = headlineSmall.copy(fontFamily = Manrope, fontWeight = FontWeight.SemiBold),
+        titleMedium = titleMedium.copy(fontFamily = Manrope, fontWeight = FontWeight.SemiBold),
+        bodyLarge = bodyLarge.copy(fontFamily = Manrope),
+        bodyMedium = bodyMedium.copy(fontFamily = Manrope),
+        labelLarge = labelLarge.copy(fontFamily = Manrope, fontWeight = FontWeight.SemiBold),
+        labelSmall = labelSmall.copy(fontFamily = Manrope, fontWeight = FontWeight.SemiBold),
+    )
+}
+
+/** Degradado de fondo (arriba → abajo) de una fase del ambiente. */
+@Immutable
+data class Atmosphere(val top: Color, val bottom: Color)
+
+@Immutable
+data class AtmosphereColors(
+    val calm: Atmosphere,
+    val drifting: Atmosphere,
+    val flowing: Atmosphere,
+    val alert: Atmosphere,
+) {
+    fun forPhase(phase: AtmospherePhase): Atmosphere = when (phase) {
+        AtmospherePhase.Calm -> calm
+        AtmospherePhase.Drifting -> drifting
+        AtmospherePhase.Flowing -> flowing
+        AtmospherePhase.Alert -> alert
+    }
+}
+
+private val LightAtmosphere = AtmosphereColors(
+    calm = Atmosphere(Color(AtmospherePalette.LIGHT_CALM_TOP), Color(AtmospherePalette.LIGHT_CALM_BOTTOM)),
+    drifting = Atmosphere(Color(AtmospherePalette.LIGHT_DRIFTING_TOP), Color(AtmospherePalette.LIGHT_DRIFTING_BOTTOM)),
+    flowing = Atmosphere(Color(AtmospherePalette.LIGHT_FLOWING_TOP), Color(AtmospherePalette.LIGHT_FLOWING_BOTTOM)),
+    alert = Atmosphere(Color(AtmospherePalette.LIGHT_ALERT_TOP), Color(AtmospherePalette.LIGHT_ALERT_BOTTOM)),
+)
+
+private val DarkAtmosphere = AtmosphereColors(
+    calm = Atmosphere(Color(AtmospherePalette.DARK_CALM_TOP), Color(AtmospherePalette.DARK_CALM_BOTTOM)),
+    drifting = Atmosphere(Color(AtmospherePalette.DARK_DRIFTING_TOP), Color(AtmospherePalette.DARK_DRIFTING_BOTTOM)),
+    flowing = Atmosphere(Color(AtmospherePalette.DARK_FLOWING_TOP), Color(AtmospherePalette.DARK_FLOWING_BOTTOM)),
+    alert = Atmosphere(Color(AtmospherePalette.DARK_ALERT_TOP), Color(AtmospherePalette.DARK_ALERT_BOTTOM)),
+)
+
+val LocalAtmosphere = staticCompositionLocalOf { LightAtmosphere }
 
 @Composable
 fun UsipipoTheme(
@@ -75,10 +136,11 @@ fun UsipipoTheme(
 ) {
     CompositionLocalProvider(
         LocalStatusColors provides if (darkTheme) DarkStatus else LightStatus,
+        LocalAtmosphere provides if (darkTheme) DarkAtmosphere else LightAtmosphere,
     ) {
         MaterialTheme(
             colorScheme = if (darkTheme) DarkColors else LightColors,
-            typography = Typography(),
+            typography = UsipipoTypography,
             content = content,
         )
     }

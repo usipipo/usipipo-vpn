@@ -1,6 +1,5 @@
 package com.usipipo.vpn.ui.components
 
-import android.provider.Settings
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -18,13 +17,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -32,6 +29,7 @@ import com.usipipo.vpn.R
 import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.domain.isActive
 import com.usipipo.vpn.ui.theme.LocalStatusColors
+import com.usipipo.vpn.ui.theme.rememberReduceMotion
 
 @Composable
 fun ConnectButton(
@@ -105,16 +103,4 @@ private fun PulseRing(color: Color, animate: Boolean) {
             }
             .background(color.copy(alpha = 0.35f), CircleShape),
     )
-}
-
-@Composable
-private fun rememberReduceMotion(): Boolean {
-    val context = LocalContext.current
-    return remember {
-        Settings.Global.getFloat(
-            context.contentResolver,
-            Settings.Global.ANIMATOR_DURATION_SCALE,
-            1f,
-        ) == 0f
-    }
 }

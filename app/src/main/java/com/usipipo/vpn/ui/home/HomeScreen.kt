@@ -179,12 +179,22 @@ private fun HomeBackground(
     content: @Composable () -> Unit,
 ) {
     val atmosphere = LocalAtmosphere.current.forPhase(phase)
-    val spec = tween<Color>(durationMillis = 600)
-    val top = if (reduceMotion) atmosphere.top else animateColorAsState(atmosphere.top, spec, label = "atmosphereTop").value
-    val bottom = if (reduceMotion) atmosphere.bottom else animateColorAsState(atmosphere.bottom, spec, label = "atmosphereBottom").value
-    Box(modifier = Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(top, bottom)))) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        GradientLayer(top = atmosphere.top, bottom = atmosphere.bottom, reduceMotion = reduceMotion)
         content()
     }
+}
+
+@Composable
+private fun GradientLayer(top: Color, bottom: Color, reduceMotion: Boolean) {
+    val spec = tween<Color>(durationMillis = 600)
+    val animatedTop = if (reduceMotion) top else animateColorAsState(top, spec, label = "atmosphereTop").value
+    val animatedBottom = if (reduceMotion) bottom else animateColorAsState(bottom, spec, label = "atmosphereBottom").value
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Brush.verticalGradient(listOf(animatedTop, animatedBottom))),
+    )
 }
 
 @StringRes

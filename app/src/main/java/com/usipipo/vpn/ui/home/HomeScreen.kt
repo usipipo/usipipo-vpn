@@ -1,12 +1,17 @@
 package com.usipipo.vpn.ui.home
 
 import android.app.Activity
+import android.content.res.Configuration
 import android.net.VpnService
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -36,6 +41,7 @@ import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -46,11 +52,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.usipipo.vpn.R
@@ -58,6 +67,11 @@ import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.domain.isActive
 import com.usipipo.vpn.ui.components.ConnectButton
+import com.usipipo.vpn.ui.theme.AtmospherePhase
+import com.usipipo.vpn.ui.theme.LocalAtmosphere
+import com.usipipo.vpn.ui.theme.UsipipoTheme
+import com.usipipo.vpn.ui.theme.atmospherePhase
+import com.usipipo.vpn.ui.theme.rememberReduceMotion
 
 @Composable
 fun HomeScreen(
@@ -94,41 +108,45 @@ fun HomeScreen(
         if (intent == null) vm.connectSelected() else permissionLauncher.launch(intent)
     }
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        snackbarHost = { SnackbarHost(snackbar) },
-    ) { padding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                start = 20.dp,
-                end = 20.dp,
-                top = padding.calculateTopPadding() + 8.dp,
-                bottom = padding.calculateBottomPadding() + 24.dp,
-            ),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            item { Header(onAbout = onAbout) }
-            item {
-                ConnectSection(
-                    tunnel = state.tunnel,
-                    enabled = state.selectedId != null,
-                    onClick = { onToggle() },
-                )
-            }
-            item { ConfigsHeader(onImport = onImport) }
-
-            if (state.configs.isEmpty()) {
-                item { EmptyCard() }
-            } else {
-                items(state.configs, key = { it.id }) { config ->
-                    ConfigCard(
-                        config = config,
-                        selected = config.id == state.selectedId,
-                        selectEnabled = !state.tunnel.isActive,
-                        onSelect = { vm.select(config.id) },
-                        onDelete = { pendingDelete = config },
+    val reduceMotion = rememberReduceMotion()
+    val phase = atmospherePhase(state.tunnel)
+    HomeBackground(phase = phase, reduceMotion = reduceMotion) {
+        Scaffold(
+            containerColor = Color.Transparent,
+            snackbarHost = { SnackbarHost(snackbar) },
+        ) { padding ->
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = 20.dp,
+                    end = 20.dp,
+                    top = padding.calculateTopPadding() + 8.dp,
+                    bottom = padding.calculateBottomPadding() + 24.dp,
+                ),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                item { Header(onAbout = onAbout) }
+                item {
+                    ConnectSection(
+                        tunnel = state.tunnel,
+                        enabled = state.selectedId != null,
+                        onClick = { onToggle() },
                     )
+                }
+                item { ConfigsHeader(onImport = onImport) }
+
+                if (state.configs.isEmpty()) {
+                    item { EmptyCard() }
+                } else {
+                    items(state.configs, key = { it.id }) { config ->
+                        ConfigCard(
+                            config = config,
+                            selected = config.id == state.selectedId,
+                            selectEnabled = !state.tunnel.isActive,
+                            onSelect = { vm.select(config.id) },
+                            onDelete = { pendingDelete = config },
+                        )
+                    }
                 }
             }
         }
@@ -151,6 +169,21 @@ fun HomeScreen(
                 }
             },
         )
+    }
+}
+
+@Composable
+private fun HomeBackground(
+    phase: AtmospherePhase,
+    reduceMotion: Boolean = rememberReduceMotion(),
+    content: @Composable () -> Unit,
+) {
+    val atmosphere = LocalAtmosphere.current.forPhase(phase)
+    val spec = tween<Color>(durationMillis = 600)
+    val top = if (reduceMotion) atmosphere.top else animateColorAsState(atmosphere.top, spec, label = "atmosphereTop").value
+    val bottom = if (reduceMotion) atmosphere.bottom else animateColorAsState(atmosphere.bottom, spec, label = "atmosphereBottom").value
+    Box(modifier = Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(top, bottom)))) {
+        content()
     }
 }
 
@@ -191,7 +224,7 @@ private fun ConnectSection(tunnel: TunnelState, enabled: Boolean, onClick: () ->
         Spacer(Modifier.height(12.dp))
         Text(
             text = statusLabel(tunnel),
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onBackground,
         )
         if (tunnel is TunnelState.NoResponse) {
@@ -314,5 +347,68 @@ private fun ConfigCard(
                 )
             }
         }
+    }
+}
+
+@Preview(name = "Fondo tranquilo")
+@Preview(name = "Fondo tranquilo oscuro", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewFondoTranquilo() {
+    UsipipoTheme {
+        Surface {
+            HomeBackground(phase = AtmospherePhase.Calm, reduceMotion = true) {
+                PreviewBackgroundContent()
+            }
+        }
+    }
+}
+
+@Preview(name = "Fondo derivando")
+@Preview(name = "Fondo derivando oscuro", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewFondoDerivando() {
+    UsipipoTheme {
+        Surface {
+            HomeBackground(phase = AtmospherePhase.Drifting, reduceMotion = true) {
+                PreviewBackgroundContent()
+            }
+        }
+    }
+}
+
+@Preview(name = "Fondo fluyendo")
+@Preview(name = "Fondo fluyendo oscuro", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewFondoFluyendo() {
+    UsipipoTheme {
+        Surface {
+            HomeBackground(phase = AtmospherePhase.Flowing, reduceMotion = true) {
+                PreviewBackgroundContent()
+            }
+        }
+    }
+}
+
+@Preview(name = "Fondo alerta")
+@Preview(name = "Fondo alerta oscuro", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewFondoAlerta() {
+    UsipipoTheme {
+        Surface {
+            HomeBackground(phase = AtmospherePhase.Alert, reduceMotion = true) {
+                PreviewBackgroundContent()
+            }
+        }
+    }
+}
+
+@Composable
+private fun PreviewBackgroundContent() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(
+            text = stringResource(R.string.status_connected),
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
     }
 }

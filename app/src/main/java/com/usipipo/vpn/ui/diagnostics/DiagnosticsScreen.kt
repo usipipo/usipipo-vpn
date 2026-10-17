@@ -1,7 +1,6 @@
 package com.usipipo.vpn.ui.diagnostics
 
 import android.content.ActivityNotFoundException
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
@@ -119,19 +119,22 @@ fun DiagnosticsScreen(vm: DiagnosticsViewModel, onBack: () -> Unit) {
                 )
             }
 
-            if (ui.crashPending) {
-                CrashBanner(onDismiss = vm::dismissCrashNotice)
-            }
-
+            SectionHeader(stringResource(R.string.diag_info_title))
             InfoCard(rows = ui.infoRows)
 
+            SectionHeader(stringResource(R.string.diag_verbose_title))
             VerboseRow(checked = ui.verbose, onChange = vm::setVerbose)
 
+            SectionHeader(stringResource(R.string.diag_log_title))
             LogCard(
                 lines = ui.logLines,
                 sizeBytes = ui.logSizeBytes,
                 onRefresh = vm::refresh,
             )
+
+            if (ui.crashPending) {
+                CrashBanner(onDismiss = vm::dismissCrashNotice)
+            }
 
             Button(
                 onClick = { confirmSend = true },
@@ -208,6 +211,7 @@ private fun CrashBanner(onDismiss: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.error),
+        shape = RoundedCornerShape(20.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
@@ -226,18 +230,22 @@ private fun CrashBanner(onDismiss: () -> Unit) {
 }
 
 @Composable
+private fun SectionHeader(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onBackground,
+    )
+}
+
+@Composable
 private fun InfoCard(rows: List<Pair<String, String>>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        shape = RoundedCornerShape(20.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(
-                text = stringResource(R.string.diag_info_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
             rows.forEach { (label, value) ->
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(
@@ -264,8 +272,8 @@ private fun InfoCard(rows: List<Pair<String, String>>) {
 private fun VerboseRow(checked: Boolean, onChange: (Boolean) -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        shape = RoundedCornerShape(20.dp),
     ) {
         Row(
             modifier = Modifier
@@ -276,11 +284,6 @@ private fun VerboseRow(checked: Boolean, onChange: (Boolean) -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.diag_verbose_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
                 Text(
                     text = stringResource(R.string.diag_verbose_body),
                     style = MaterialTheme.typography.bodyMedium,
@@ -302,8 +305,8 @@ private fun LogCard(lines: List<String>, sizeBytes: Long, onRefresh: () -> Unit)
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        shape = RoundedCornerShape(20.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(
@@ -312,11 +315,6 @@ private fun LogCard(lines: List<String>, sizeBytes: Long, onRefresh: () -> Unit)
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column {
-                    Text(
-                        text = stringResource(R.string.diag_log_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
                     Text(
                         text = stringResource(R.string.diag_log_meta, lines.size, formatSize(sizeBytes)),
                         style = MaterialTheme.typography.bodySmall,

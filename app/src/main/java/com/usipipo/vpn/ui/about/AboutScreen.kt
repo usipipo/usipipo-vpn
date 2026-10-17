@@ -14,8 +14,11 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -35,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -86,84 +90,135 @@ fun AboutScreen(
                 )
             }
 
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            Text(
-                text = stringResource(R.string.version_label, version),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
-                text = stringResource(R.string.support_label),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            Text(
-                text = stringResource(R.string.support_email),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            FilledTonalButton(
-                onClick = { openSupportEmail(context) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 56.dp),
-            ) { Text(stringResource(R.string.send_email)) }
-            FilledTonalButton(
-                onClick = {
-                    checking = true
-                    scope.launch {
-                        val status = try {
-                            onCheckUpdates()
-                        } catch (e: CancellationException) {
-                            // Cancelar no es un fallo: se relanza sin alertar al usuario,
-                            // igual que UpdateChecker.check y AppContainer.checkForUpdates.
-                            checking = false
-                            throw e
-                        } catch (e: Exception) {
-                            AppLog.w("Actualizar", "La comprobación manual de actualizaciones falló", e)
-                            UpdateStatus.Failed
-                        }
-                        checking = false
-                        val message = when (status) {
-                            // Disponible: lo avisa la ventana de actualización.
-                            is UpdateStatus.UpdateAvailable -> null
-                            UpdateStatus.UpToDate -> upToDateMessage
-                            UpdateStatus.Postponed -> postponedMessage
-                            UpdateStatus.SkippedThrottled -> upToDateMessage
-                            UpdateStatus.Failed -> errorMessage
-                        }
-                        if (message != null) snackbar.showSnackbar(message)
-                    }
-                },
-                enabled = !checking,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 56.dp),
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                if (checking) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onPrimary,
+                Icon(
+                    painter = painterResource(R.drawable.ic_launcher_foreground),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.size(96.dp),
+                )
+                Text(
+                    text = stringResource(R.string.app_name),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+                Text(
+                    text = stringResource(R.string.version_label, version),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            SectionHeader(text = stringResource(R.string.support_label))
+            Card(
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                ),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = stringResource(R.string.support_email),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
-                    Spacer(Modifier.width(12.dp))
-                    Text(stringResource(R.string.update_checking))
-                } else {
-                    Text(stringResource(R.string.about_check_updates))
+                    FilledTonalButton(
+                        onClick = { openSupportEmail(context) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 56.dp),
+                    ) { Text(stringResource(R.string.send_email)) }
                 }
             }
-            OutlinedButton(
-                onClick = onDiagnostics,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 56.dp),
-            ) { Text(stringResource(R.string.diag_open)) }
+
+            SectionHeader(text = stringResource(R.string.about_updates_title))
+            Card(
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                ),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    FilledTonalButton(
+                        onClick = {
+                            checking = true
+                            scope.launch {
+                                val status = try {
+                                    onCheckUpdates()
+                                } catch (e: CancellationException) {
+                                    // Cancelar no es un fallo: se relanza sin alertar al usuario,
+                                    // igual que UpdateChecker.check y AppContainer.checkForUpdates.
+                                    checking = false
+                                    throw e
+                                } catch (e: Exception) {
+                                    AppLog.w("Actualizar", "La comprobación manual de actualizaciones falló", e)
+                                    UpdateStatus.Failed
+                                }
+                                checking = false
+                                val message = when (status) {
+                                    // Disponible: lo avisa la ventana de actualización.
+                                    is UpdateStatus.UpdateAvailable -> null
+                                    UpdateStatus.UpToDate -> upToDateMessage
+                                    UpdateStatus.Postponed -> postponedMessage
+                                    UpdateStatus.SkippedThrottled -> upToDateMessage
+                                    UpdateStatus.Failed -> errorMessage
+                                }
+                                if (message != null) snackbar.showSnackbar(message)
+                            }
+                        },
+                        enabled = !checking,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 56.dp),
+                    ) {
+                        if (checking) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Text(stringResource(R.string.update_checking))
+                        } else {
+                            Text(stringResource(R.string.about_check_updates))
+                        }
+                    }
+                }
+            }
+
+            SectionHeader(text = stringResource(R.string.about_advanced_title))
+            Card(
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                ),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    OutlinedButton(
+                        onClick = onDiagnostics,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 56.dp),
+                    ) { Text(stringResource(R.string.diag_open)) }
+                }
+            }
         }
     }
+}
+
+@Composable
+private fun SectionHeader(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onBackground,
+    )
 }
 
 private fun openSupportEmail(context: Context) {

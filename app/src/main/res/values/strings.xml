@@ -12,6 +12,7 @@
     <string name="status_failed">No se pudo conectar</string>
     <string name="hint_no_response">Revisa tu conexión a internet o escribe a %1$s</string>
     <string name="configs_title">Configuraciones</string>
+    <string name="config_active">Activo</string>
     <string name="import_action">Importar</string>
     <string name="empty_title">Aún no tienes configuraciones</string>
     <string name="empty_body">Importa el archivo .conf o escanea el QR que generó tu servidor.</string>
@@ -39,6 +40,8 @@
     <!-- Acerca de -->
     <string name="about_title">Acerca de</string>
     <string name="version_label">Versión %1$s</string>
+    <string name="about_updates_title">Actualizaciones</string>
+    <string name="about_advanced_title">Avanzado</string>
     <string name="support_label">Soporte</string>
     <string name="support_email">usipipo@gmail.com</string>
     <string name="send_email">Escribir a soporte</string>

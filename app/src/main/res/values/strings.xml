@@ -40,6 +40,8 @@
     <!-- Acerca de -->
     <string name="about_title">Acerca de</string>
     <string name="version_label">Versión %1$s</string>
+    <string name="about_updates_title">Actualizaciones</string>
+    <string name="about_advanced_title">Avanzado</string>
     <string name="support_label">Soporte</string>
     <string name="support_email">usipipo@gmail.com</string>
     <string name="send_email">Escribir a soporte</string>

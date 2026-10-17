@@ -5,12 +5,22 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
@@ -25,6 +35,7 @@ import com.usipipo.vpn.ui.home.HomeScreen
 import com.usipipo.vpn.ui.home.HomeViewModel
 import com.usipipo.vpn.ui.importer.ImportScreen
 import com.usipipo.vpn.ui.importer.ImportViewModel
+import com.usipipo.vpn.ui.theme.rememberReduceMotion
 import com.usipipo.vpn.ui.update.UpdateDialog
 import com.usipipo.vpn.update.UpdateStatus
 
@@ -44,32 +55,50 @@ fun UsipipoRoot(container: AppContainer) {
         screen = if (screen == Screen.Diagnostics) Screen.About else Screen.Home
     }
 
-    when (screen) {
-        Screen.Home -> HomeScreen(
-            vm = homeViewModel(container),
-            onImport = { screen = Screen.Import },
-            onAbout = { screen = Screen.About },
-        )
+    val reduceMotion = rememberReduceMotion()
 
-        Screen.Import -> ImportScreen(
-            vm = importViewModel(container),
-            onBack = { screen = Screen.Home },
-        )
+    AnimatedContent(
+        targetState = screen,
+        transitionSpec = {
+            if (reduceMotion) {
+                EnterTransition.None togetherWith ExitTransition.None
+            } else {
+                val direction = if (targetState.ordinal > initialState.ordinal) 1 else -1
+                val spec = tween<IntOffset>(durationMillis = 250)
+                val fade = tween<Float>(durationMillis = 250)
+                (slideInHorizontally(spec) { it / 8 * direction } + fadeIn(fade)) togetherWith
+                    (slideOutHorizontally(spec) { -it / 8 * direction } + fadeOut(fade))
+            }
+        },
+        label = "screen",
+    ) { target ->
+        when (target) {
+            Screen.Home -> HomeScreen(
+                vm = homeViewModel(container),
+                onImport = { screen = Screen.Import },
+                onAbout = { screen = Screen.About },
+            )
 
-        Screen.About -> AboutScreen(
-            onBack = { screen = Screen.Home },
-            onDiagnostics = { screen = Screen.Diagnostics },
-            onCheckUpdates = {
-                // La comprobación manual siempre vuelve a mostrar la ventana si hay release.
-                handledUpdate = null
-                container.checkForUpdates(force = true)
-            },
-        )
+            Screen.Import -> ImportScreen(
+                vm = importViewModel(container),
+                onBack = { screen = Screen.Home },
+            )
 
-        Screen.Diagnostics -> DiagnosticsScreen(
-            vm = diagnosticsViewModel(container),
-            onBack = { screen = Screen.About },
-        )
+            Screen.About -> AboutScreen(
+                onBack = { screen = Screen.Home },
+                onDiagnostics = { screen = Screen.Diagnostics },
+                onCheckUpdates = {
+                    // La comprobación manual siempre vuelve a mostrar la ventana si hay release.
+                    handledUpdate = null
+                    container.checkForUpdates(force = true)
+                },
+            )
+
+            Screen.Diagnostics -> DiagnosticsScreen(
+                vm = diagnosticsViewModel(container),
+                onBack = { screen = Screen.About },
+            )
+        }
     }
 
     val available = updateStatus as? UpdateStatus.UpdateAvailable

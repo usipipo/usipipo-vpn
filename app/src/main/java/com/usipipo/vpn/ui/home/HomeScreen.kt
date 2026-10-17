@@ -8,7 +8,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -142,10 +141,12 @@ fun HomeScreen(
                         onClick = { onToggle() },
                     )
                 }
-                item { ConfigsHeader(onImport = onImport) }
+                item {
+                    ConfigsHeader(onImport = onImport, showImport = state.configs.isNotEmpty())
+                }
 
                 if (state.configs.isEmpty()) {
-                    item { EmptyCard() }
+                    item { EmptyState(onImport = onImport) }
                 } else {
                     items(state.configs, key = { it.id }) { config ->
                         ConfigCard(
@@ -273,7 +274,7 @@ private fun statusLabel(tunnel: TunnelState): String = stringResource(
 )
 
 @Composable
-private fun ConfigsHeader(onImport: () -> Unit) {
+private fun ConfigsHeader(onImport: () -> Unit, showImport: Boolean) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -284,32 +285,49 @@ private fun ConfigsHeader(onImport: () -> Unit) {
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground,
         )
-        FilledTonalButton(onClick = onImport) {
-            Icon(Icons.Default.Add, contentDescription = null)
-            Spacer(Modifier.width(8.dp))
-            Text(stringResource(R.string.import_action))
+        if (showImport) {
+            FilledTonalButton(onClick = onImport) {
+                Icon(Icons.Default.Add, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text(stringResource(R.string.import_action))
+            }
         }
     }
 }
 
 @Composable
-private fun EmptyCard() {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+private fun EmptyState(onImport: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(
-                text = stringResource(R.string.empty_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Text(
-                text = stringResource(R.string.empty_body),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+        Icon(
+            painter = painterResource(R.drawable.ic_empty_shield),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(96.dp),
+        )
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = stringResource(R.string.empty_title),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = stringResource(R.string.empty_body),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(16.dp))
+        FilledTonalButton(onClick = onImport) {
+            Icon(Icons.Default.Add, contentDescription = null)
+            Spacer(Modifier.width(8.dp))
+            Text(stringResource(R.string.import_action))
         }
     }
 }
@@ -471,5 +489,16 @@ private fun PreviewBackgroundContent() {
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onBackground,
         )
+    }
+}
+
+@Preview(name = "Estado vacío")
+@Preview(name = "Estado vacío oscuro", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewVacio() {
+    UsipipoTheme {
+        HomeBackground(phase = AtmospherePhase.Calm, reduceMotion = true) {
+            EmptyState(onImport = {})
+        }
     }
 }

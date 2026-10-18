@@ -1,5 +1,6 @@
 package com.usipipo.vpn.ui.configs
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,13 +9,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Default
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -27,7 +29,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -72,7 +75,7 @@ fun ConfigsScreen(vm: HomeViewModel, onImport: () -> Unit) {
                     color = MaterialTheme.colorScheme.onBackground,
                 )
                 IconButton(onClick = onImport) {
-                    Icon(Default.Add, contentDescription = stringResource(R.string.add_config))
+                    Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_config))
                 }
             }
 
@@ -104,7 +107,7 @@ fun ConfigsScreen(vm: HomeViewModel, onImport: () -> Unit) {
                     .fillMaxWidth()
                     .heightIn(min = 56.dp),
             ) {
-                Icon(Default.Add, contentDescription = null)
+                Icon(Icons.Default.Add, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
                 Text(stringResource(R.string.add_config))
             }

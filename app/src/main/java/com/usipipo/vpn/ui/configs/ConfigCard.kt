@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,9 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Delete
+import androidx.compose.material.icons.filled.Star as FilledStar
+import androidx.compose.material.icons.outlined.Star as OutlinedStar
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,10 +27,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberSwipeToDismissBoxState
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -72,7 +73,7 @@ internal fun ConfigCard(
                 contentAlignment = Alignment.CenterEnd,
             ) {
                 Icon(
-                    imageVector = Icons.Default.Delete,
+                    imageVector = Delete,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onError,
                     modifier = Modifier.padding(end = 24.dp),
@@ -136,7 +137,7 @@ internal fun ConfigCard(
                 }
                 IconButton(onClick = onToggleFavorite) {
                     Icon(
-                        imageVector = if (config.favorite) Icons.Filled.Star else Icons.Outlined.Star,
+                        imageVector = if (config.favorite) FilledStar else OutlinedStar,
                         contentDescription = stringResource(
                             if (config.favorite) R.string.cd_favorite_remove else R.string.cd_favorite_add,
                             config.name,

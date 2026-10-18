@@ -117,7 +117,7 @@ fun UsipipoRoot(container: AppContainer) {
                 }
             }
 
-            if (!isImeVisible) {
+            if (!WindowInsets.isImeVisible) {
                 UsipipoBottomBar(tab = tab, onTabClick = { tab = it })
             }
         }

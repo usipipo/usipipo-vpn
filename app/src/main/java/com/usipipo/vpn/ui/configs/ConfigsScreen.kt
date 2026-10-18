@@ -37,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.TextAlign
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -76,7 +75,7 @@ fun ConfigsScreen(vm: HomeViewModel, onImport: () -> Unit) {
                     color = MaterialTheme.colorScheme.onBackground,
                 )
                 IconButton(onClick = onImport) {
-                    Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_config))
+                    Icon(painter = painterResource(R.drawable.ic_add), contentDescription = stringResource(R.string.add_config))
                 }
             }
 
@@ -108,7 +107,7 @@ fun ConfigsScreen(vm: HomeViewModel, onImport: () -> Unit) {
                     .fillMaxWidth()
                     .heightIn(min = 56.dp),
             ) {
-                Icon(Icons.Default.Add, contentDescription = null)
+                Icon(painter = painterResource(R.drawable.ic_add), contentDescription = null)
                 Spacer(Modifier.width(8.dp))
                 Text(stringResource(R.string.add_config))
             }

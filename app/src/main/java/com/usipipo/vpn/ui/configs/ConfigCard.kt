@@ -15,9 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.filled.Delete as FilledDelete
-import androidx.compose.material.icons.filled.Star as FilledStar
-import androidx.compose.material.icons.outlined.Star as OutlinedStar
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,7 +36,6 @@ import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.TextOverflow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.usipipo.vpn.R
@@ -76,7 +72,7 @@ internal fun ConfigCard(
                 contentAlignment = Alignment.CenterEnd,
             ) {
                 Icon(
-                    imageVector = FilledDelete,
+                    painter = painterResource(R.drawable.ic_delete),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onError,
                     modifier = Modifier.padding(end = 24.dp),
@@ -117,7 +113,6 @@ internal fun ConfigCard(
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         text = stringResource(R.string.protocol_wireguard),
@@ -140,7 +135,7 @@ internal fun ConfigCard(
                 }
                 IconButton(onClick = onToggleFavorite) {
                     Icon(
-                        imageVector = if (config.favorite) FilledStar else OutlinedStar,
+                        painter = painterResource(if (config.favorite) R.drawable.ic_star_filled else R.drawable.ic_star),
                         contentDescription = stringResource(
                             if (config.favorite) R.string.cd_favorite_remove else R.string.cd_favorite_add,
                             config.name,

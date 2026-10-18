@@ -13,10 +13,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.weight
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.AutoMirrored
-import androidx.compose.material.icons.Filled
-import androidx.compose.material3.BackHandler
+import androidx.compose.activity.compose.BackHandler
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon

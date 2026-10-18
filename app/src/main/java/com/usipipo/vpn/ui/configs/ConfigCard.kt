@@ -11,13 +11,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star as FilledStar
-import androidx.compose.material.icons.outlined.Star as OutlinedStar
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -75,7 +72,7 @@ internal fun ConfigCard(
                 contentAlignment = Alignment.CenterEnd,
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.ic_delete),
+                    imageVector = Icons.Default.Delete,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onError,
                     modifier = Modifier.padding(end = 24.dp),
@@ -139,7 +136,7 @@ internal fun ConfigCard(
                 }
                 IconButton(onClick = onToggleFavorite) {
                     Icon(
-                        imageVector = if (config.favorite) FilledStar else OutlinedStar,
+                        imageVector = if (config.favorite) Icons.Filled.Star else Icons.Outlined.Star,
                         contentDescription = stringResource(
                             if (config.favorite) R.string.cd_favorite_remove else R.string.cd_favorite_add,
                             config.name,

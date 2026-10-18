@@ -31,6 +31,14 @@
     <string name="nav_import">Importar</string>
     <string name="nav_diagnostics">Diagnóstico</string>
 
+    <string name="tab_my_profiles">Mis perfiles</string>
+    <string name="tab_favorites">Favoritos</string>
+    <string name="add_config">Añadir configuración</string>
+    <string name="favorites_empty_title">Aún no tienes favoritos</string>
+    <string name="favorites_empty_body">Marca con la estrella los perfiles que más usas.</string>
+    <string name="cd_favorite_add">Marcar %1$s como favorito</string>
+    <string name="cd_favorite_remove">Quitar %1$s de favoritos</string>
+
     <!-- Importar -->
     <string name="import_title">Importar configuración</string>
     <string name="pick_file">Elegir archivo .conf</string>

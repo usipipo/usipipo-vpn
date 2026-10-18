@@ -88,7 +88,7 @@ fun DetailsScreen(
             ) {
                 IconButton(onClick = onClose) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        imageVector = Icons.Default.ArrowBack,
                         contentDescription = stringResource(R.string.cd_back),
                     )
                 }

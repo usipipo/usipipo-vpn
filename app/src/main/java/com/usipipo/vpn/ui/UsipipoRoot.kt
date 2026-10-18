@@ -37,6 +37,7 @@ import com.usipipo.vpn.R
 import com.usipipo.vpn.diagnostics.AppLog
 import com.usipipo.vpn.ui.components.UsipipoBottomBar
 import com.usipipo.vpn.ui.configs.ConfigsScreen
+import com.usipipo.vpn.ui.details.StatsUiState
 import com.usipipo.vpn.ui.diagnostics.DiagnosticsScreen
 import com.usipipo.vpn.ui.diagnostics.DiagnosticsViewModel
 import com.usipipo.vpn.ui.home.HomeScreen
@@ -89,8 +90,10 @@ fun UsipipoRoot(container: AppContainer) {
                 when (target) {
                     MainTab.Home -> HomeScreen(
                         vm = homeViewModel(container),
+                        stats = StatsUiState(),
                         onImport = { tab = MainTab.Import },
                         onOpenConfigs = { tab = MainTab.Configs },
+                        onOpenDetails = {},
                     )
 
                     MainTab.Configs -> ConfigsScreen(

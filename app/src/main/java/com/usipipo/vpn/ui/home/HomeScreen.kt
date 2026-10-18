@@ -60,6 +60,7 @@ import com.usipipo.vpn.ui.components.AppHeader
 import com.usipipo.vpn.ui.components.ConnectButton
 import com.usipipo.vpn.ui.components.IconTile
 import com.usipipo.vpn.ui.components.UsipipoCard
+import com.usipipo.vpn.ui.details.StatsUiState
 import com.usipipo.vpn.ui.theme.AtmospherePhase
 import com.usipipo.vpn.ui.theme.LocalAtmosphere
 import com.usipipo.vpn.ui.theme.UsipipoTheme
@@ -69,8 +70,10 @@ import com.usipipo.vpn.ui.theme.rememberReduceMotion
 @Composable
 fun HomeScreen(
     vm: HomeViewModel,
+    stats: StatsUiState,
     onImport: () -> Unit,
     onOpenConfigs: () -> Unit,
+    onOpenDetails: () -> Unit,
 ) {
     val state by vm.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -127,6 +130,13 @@ fun HomeScreen(
                     EmptyState(onImport = onImport)
                 } else {
                     ProfileCard(config = selected, onClick = onOpenConfigs)
+                    (state.tunnel as? TunnelState.Connected)?.let { connected ->
+                        ConnectionStats(
+                            sinceMs = connected.sinceMs,
+                            stats = stats,
+                            onOpenDetails = onOpenDetails,
+                        )
+                    }
                 }
             }
         }

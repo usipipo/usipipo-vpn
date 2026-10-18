@@ -15,8 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Delete
+import androidx.compose.material.icons.filled.Delete as FilledDelete
 import androidx.compose.material.icons.filled.Star as FilledStar
 import androidx.compose.material.icons.outlined.Star as OutlinedStar
 import androidx.compose.material3.CardDefaults
@@ -28,6 +27,9 @@ import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +47,7 @@ import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.ui.components.IconTile
 import com.usipipo.vpn.ui.components.UsipipoCard
 
+@Composable
 internal fun ConfigCard(
     config: SavedConfig,
     selected: Boolean,
@@ -73,7 +76,7 @@ internal fun ConfigCard(
                 contentAlignment = Alignment.CenterEnd,
             ) {
                 Icon(
-                    imageVector = Delete,
+                    imageVector = FilledDelete,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onError,
                     modifier = Modifier.padding(end = 24.dp),

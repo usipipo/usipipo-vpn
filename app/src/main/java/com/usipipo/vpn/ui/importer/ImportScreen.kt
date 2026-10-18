@@ -12,9 +12,12 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.fillMaxWidth
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.activity.compose.BackHandler
+import androidx.compose.material3.Surface
+import com.usipipo.vpn.ui.theme.UsipipoTheme
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -29,6 +32,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -38,6 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import com.usipipo.vpn.R
+import com.usipipo.vpn.ui.components.AppHeader
 import com.usipipo.vpn.ui.components.IconTile
 import com.usipipo.vpn.ui.components.UsipipoCard
 
@@ -77,6 +82,7 @@ fun ImportScreen(vm: ImportViewModel, onDone: () -> Unit) {
                 .padding(horizontal = 20.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            AppHeader()
             Text(
                 text = stringResource(R.string.import_title),
                 style = MaterialTheme.typography.titleLarge,
@@ -117,24 +123,6 @@ fun ImportScreen(vm: ImportViewModel, onDone: () -> Unit) {
                         )
                     }
 
-                    Spacer(Modifier.weight(1f))
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.import_footer_title),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onBackground,
-                        )
-                        Text(
-                            text = stringResource(R.string.import_footer_body),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
                 }
 
                 ImportStage.Name -> {
@@ -216,4 +204,20 @@ private fun errorRes(error: ImportError): Int = when (error) {
     ImportError.NameEmpty -> R.string.err_name_empty
     ImportError.Duplicate -> R.string.err_name_duplicate
     ImportError.SaveFailed -> R.string.err_save_failed
+}
+
+@Preview(name = "Tarjeta de importar")
+@Preview(name = "Tarjeta de importar oscura", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewImportar() {
+    UsipipoTheme {
+        Surface {
+            ImportOptionCard(
+                icon = R.drawable.ic_import,
+                title = R.string.import_file_title,
+                subtitle = R.string.import_file_subtitle,
+                onClick = {},
+            )
+        }
+    }
 }

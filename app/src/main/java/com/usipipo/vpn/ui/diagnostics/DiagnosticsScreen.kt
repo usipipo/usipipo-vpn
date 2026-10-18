@@ -42,17 +42,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import android.content.res.Configuration
+import androidx.compose.material3.Surface
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.usipipo.vpn.R
 import com.usipipo.vpn.diagnostics.DeviceInfo
 import com.usipipo.vpn.diagnostics.ReportSender
+import com.usipipo.vpn.ui.components.AppHeader
+import com.usipipo.vpn.ui.theme.UsipipoTheme
 import com.usipipo.vpn.update.UpdateStatus
 
 @Composable
@@ -105,6 +110,7 @@ fun DiagnosticsScreen(vm: DiagnosticsViewModel, onCheckUpdates: suspend () -> Up
                 .padding(horizontal = 20.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            AppHeader()
             Text(
                 text = stringResource(R.string.diag_title),
                 style = MaterialTheme.typography.titleLarge,
@@ -341,3 +347,31 @@ private fun LogCard(lines: List<String>, sizeBytes: Long, onRefresh: () -> Unit)
 
 private fun formatSize(bytes: Long): String =
     if (bytes < 1024) "$bytes B" else "${bytes / 1024} KB"
+
+@Preview(name = "Tarjeta de información")
+@Preview(name = "Tarjeta de información oscura", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewInfoCard() {
+    UsipipoTheme {
+        Surface {
+            InfoCard(
+                rows = listOf(
+                    "App" to "uSipipo VPN",
+                    "Versión de Android" to "14",
+                    "Dispositivo" to "Emulador",
+                ),
+            )
+        }
+    }
+}
+
+@Preview(name = "Banner de cierre inesperado")
+@Preview(name = "Banner de cierre inesperado oscuro", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewBannerCierre() {
+    UsipipoTheme {
+        Surface {
+            CrashBanner(onDismiss = {})
+        }
+    }
+}

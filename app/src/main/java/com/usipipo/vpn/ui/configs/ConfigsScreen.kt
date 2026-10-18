@@ -33,17 +33,22 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import android.content.res.Configuration
+import androidx.compose.material3.Surface
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.usipipo.vpn.R
 import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.domain.isActive
+import com.usipipo.vpn.ui.components.AppHeader
 import com.usipipo.vpn.ui.home.HomeViewModel
+import com.usipipo.vpn.ui.theme.UsipipoTheme
 
 @Composable
 fun ConfigsScreen(vm: HomeViewModel, onImport: () -> Unit) {
@@ -63,6 +68,7 @@ fun ConfigsScreen(vm: HomeViewModel, onImport: () -> Unit) {
                 .padding(horizontal = 20.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            AppHeader()
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -184,5 +190,49 @@ private fun EmptyList(tab: ConfigsTab) {
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+    }
+}
+
+@Preview(name = "Pestañas")
+@Preview(name = "Pestañas oscuras", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewTabPills() {
+    UsipipoTheme {
+        Surface {
+            TabPills(selected = ConfigsTab.Mine, onSelect = {})
+        }
+    }
+}
+
+@Preview(name = "Pestañas favoritos")
+@Preview(name = "Pestañas favoritos oscuras", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewTabPillsFavoritos() {
+    UsipipoTheme {
+        Surface {
+            TabPills(selected = ConfigsTab.Favorites, onSelect = {})
+        }
+    }
+}
+
+@Preview(name = "Lista vacía")
+@Preview(name = "Lista vacía oscura", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewVacia() {
+    UsipipoTheme {
+        Surface {
+            EmptyList(tab = ConfigsTab.Mine)
+        }
+    }
+}
+
+@Preview(name = "Lista vacía favoritos")
+@Preview(name = "Lista vacía favoritos oscura", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewVaciaFavoritos() {
+    UsipipoTheme {
+        Surface {
+            EmptyList(tab = ConfigsTab.Favorites)
+        }
     }
 }

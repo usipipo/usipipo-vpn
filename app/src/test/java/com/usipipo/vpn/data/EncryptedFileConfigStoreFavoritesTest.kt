@@ -14,12 +14,6 @@ class EncryptedFileConfigStoreFavoritesTest {
     @get:Rule
     val tmp = TemporaryFolder()
 
-    /** Sin cifrado: aqui solo importa el indice, no el Keystore. */
-    private class IdentityCrypto : Crypto {
-        override fun encrypt(plain: ByteArray) = plain
-        override fun decrypt(blob: ByteArray) = blob
-    }
-
     @Test
     fun `el favorito se conserva al reabrir el almacen`() = runTest {
         val dir = tmp.newFolder("configs")

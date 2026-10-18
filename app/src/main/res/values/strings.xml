@@ -23,6 +23,12 @@
     <string name="msg_permission_denied">Se necesita el permiso de VPN para conectar.</string>
     <string name="msg_config_unreadable">No se pudo abrir la configuración guardada.</string>
 
+    <!-- Navegación -->
+    <string name="nav_home">Inicio</string>
+    <string name="nav_configs">Configuraciones</string>
+    <string name="nav_import">Importar</string>
+    <string name="nav_diagnostics">Diagnóstico</string>
+
     <!-- Importar -->
     <string name="import_title">Importar configuración</string>
     <string name="pick_file">Elegir archivo .conf</string>

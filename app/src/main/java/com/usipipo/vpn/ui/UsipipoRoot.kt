@@ -8,19 +8,25 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ExperimentalLayoutApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
@@ -28,76 +34,85 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.usipipo.vpn.AppContainer
 import com.usipipo.vpn.R
 import com.usipipo.vpn.diagnostics.AppLog
-import com.usipipo.vpn.ui.about.AboutScreen
+import com.usipipo.vpn.ui.components.UsipipoBottomBar
+import com.usipipo.vpn.ui.configs.ConfigsScreen
 import com.usipipo.vpn.ui.diagnostics.DiagnosticsScreen
 import com.usipipo.vpn.ui.diagnostics.DiagnosticsViewModel
 import com.usipipo.vpn.ui.home.HomeScreen
 import com.usipipo.vpn.ui.home.HomeViewModel
 import com.usipipo.vpn.ui.importer.ImportScreen
 import com.usipipo.vpn.ui.importer.ImportViewModel
+import com.usipipo.vpn.ui.nav.MainTab
+import com.usipipo.vpn.ui.nav.backTarget
 import com.usipipo.vpn.ui.theme.rememberReduceMotion
 import com.usipipo.vpn.ui.update.UpdateDialog
 import com.usipipo.vpn.update.UpdateStatus
 
-private enum class Screen { Home, Import, About, Diagnostics }
-
-/** Navegación mínima por estado: tres pantallas no justifican una librería de navegación. */
+/** Navegación por pestañas con barra inferior. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun UsipipoRoot(container: AppContainer) {
-    var screen by rememberSaveable { mutableStateOf(Screen.Home) }
+    var tab by rememberSaveable { mutableStateOf(MainTab.Home) }
     val updateStatus by container.updateStatus.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     // Versión cuya ventana ya se cerró (descarte o descarga): no reaparece.
     var handledUpdate by rememberSaveable { mutableStateOf<String?>(null) }
 
-    BackHandler(enabled = screen != Screen.Home) {
-        screen = if (screen == Screen.Diagnostics) Screen.About else Screen.Home
+    BackHandler(enabled = backTarget(tab) != null) {
+        backTarget(tab)?.let { tab = it }
     }
 
     val reduceMotion = rememberReduceMotion()
 
-    AnimatedContent(
-        targetState = screen,
-        transitionSpec = {
-            if (reduceMotion) {
-                EnterTransition.None togetherWith ExitTransition.None
-            } else {
-                val direction = if (targetState.ordinal > initialState.ordinal) 1 else -1
-                val spec = tween<IntOffset>(durationMillis = 250)
-                val fade = tween<Float>(durationMillis = 250)
-                (slideInHorizontally(spec) { it / 8 * direction } + fadeIn(fade)) togetherWith
-                    (slideOutHorizontally(spec) { -it / 8 * direction } + fadeOut(fade))
-            }
-        },
-        label = "screen",
-    ) { target ->
-        when (target) {
-            Screen.Home -> HomeScreen(
-                vm = homeViewModel(container),
-                onImport = { screen = Screen.Import },
-                onAbout = { screen = Screen.About },
-            )
-
-            Screen.Import -> ImportScreen(
-                vm = importViewModel(container),
-                onBack = { screen = Screen.Home },
-            )
-
-            Screen.About -> AboutScreen(
-                onBack = { screen = Screen.Home },
-                onDiagnostics = { screen = Screen.Diagnostics },
-                onCheckUpdates = {
-                    // La comprobación manual siempre vuelve a mostrar la ventana si hay release.
-                    handledUpdate = null
-                    container.checkForUpdates(force = true)
+    Box(
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .imePadding(),
+        ) {
+            AnimatedContent(
+                targetState = tab,
+                transitionSpec = {
+                    if (reduceMotion) {
+                        EnterTransition.None togetherWith ExitTransition.None
+                    } else {
+                        fadeIn(animationSpec = tween(durationMillis = 250)) togetherWith
+                            fadeOut(animationSpec = tween(durationMillis = 250))
+                    }
                 },
-            )
+                label = "tab",
+            ) { target ->
+                when (target) {
+                    MainTab.Home -> HomeScreen(
+                        vm = homeViewModel(container),
+                        onImport = { tab = MainTab.Import },
+                        onOpenConfigs = { tab = MainTab.Configs },
+                    )
 
-            Screen.Diagnostics -> DiagnosticsScreen(
-                vm = diagnosticsViewModel(container),
-                onBack = { screen = Screen.About },
-            )
+                    MainTab.Configs -> ConfigsScreen(
+                        vm = homeViewModel(container),
+                        onImport = { tab = MainTab.Import },
+                    )
+
+                    MainTab.Import -> ImportScreen(
+                        vm = importViewModel(container),
+                        onBack = { tab = MainTab.Home },
+                    )
+
+                    MainTab.Diagnostics -> DiagnosticsScreen(
+                        vm = diagnosticsViewModel(container),
+                        onBack = { tab = MainTab.Home },
+                    )
+                }
+            }
+
+            if (!isImeVisible) {
+                UsipipoBottomBar(tab = tab, onTabClick = { tab = it })
+            }
         }
     }
 

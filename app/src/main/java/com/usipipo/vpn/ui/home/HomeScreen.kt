@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -30,13 +31,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -45,14 +43,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,7 +59,6 @@ import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -74,6 +67,7 @@ import com.usipipo.vpn.R
 import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.domain.isActive
+import com.usipipo.vpn.ui.components.AppHeader
 import com.usipipo.vpn.ui.components.ConnectButton
 import com.usipipo.vpn.ui.theme.AtmospherePhase
 import com.usipipo.vpn.ui.theme.LocalAtmosphere
@@ -85,12 +79,11 @@ import com.usipipo.vpn.ui.theme.rememberReduceMotion
 fun HomeScreen(
     vm: HomeViewModel,
     onImport: () -> Unit,
-    onAbout: () -> Unit,
+    onOpenConfigs: () -> Unit,
 ) {
     val state by vm.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
-    var pendingDelete by remember { mutableStateOf<SavedConfig?>(null) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
@@ -121,7 +114,8 @@ fun HomeScreen(
     HomeBackground(phase = phase, reduceMotion = reduceMotion) {
         Scaffold(
             containerColor = Color.Transparent,
-            snackbarHost = { SnackbarHost(snackbar) },
+            snackbarHost = {             SnackbarHost(snackbar) },
+            contentWindowInsets = WindowInsets.statusBars,
         ) { padding ->
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -129,11 +123,11 @@ fun HomeScreen(
                     start = 20.dp,
                     end = 20.dp,
                     top = padding.calculateTopPadding() + 8.dp,
-                    bottom = padding.calculateBottomPadding() + 24.dp,
+                    bottom = 24.dp,
                 ),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                item { Header(onAbout = onAbout) }
+                item { AppHeader() }
                 item {
                     ConnectSection(
                         tunnel = state.tunnel,
@@ -154,7 +148,7 @@ fun HomeScreen(
                             selected = config.id == state.selectedId,
                             selectEnabled = !state.tunnel.isActive,
                             onSelect = { vm.select(config.id) },
-                            onDeleteRequest = { pendingDelete = config },
+                            onDeleteRequest = { },
                         )
                     }
                 }
@@ -162,24 +156,6 @@ fun HomeScreen(
         }
     }
 
-    pendingDelete?.let { config ->
-        AlertDialog(
-            onDismissRequest = { pendingDelete = null },
-            title = { Text(stringResource(R.string.delete_title)) },
-            text = { Text(stringResource(R.string.delete_body, config.name)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    vm.delete(config.id)
-                    pendingDelete = null
-                }) { Text(stringResource(R.string.delete)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { pendingDelete = null }) {
-                    Text(stringResource(R.string.cancel))
-                }
-            },
-        )
-    }
 }
 
 @Composable
@@ -211,25 +187,6 @@ private fun GradientLayer(top: Color, bottom: Color, reduceMotion: Boolean) {
 private fun messageRes(message: HomeMessage): Int = when (message) {
     HomeMessage.PermissionDenied -> R.string.msg_permission_denied
     HomeMessage.ConfigUnreadable -> R.string.msg_config_unreadable
-}
-
-@Composable
-private fun Header(onAbout: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = stringResource(R.string.app_name),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onBackground,
-        )
-        IconButton(onClick = onAbout) {
-            Icon(Icons.Default.Info, contentDescription = stringResource(R.string.cd_about))
-        }
-    }
 }
 
 @Composable

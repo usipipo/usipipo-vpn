@@ -24,4 +24,7 @@ interface ConfigStore {
 
     /** Marca o desmarca una configuración como favorita. Ignora ids que no existen. */
     suspend fun setFavorite(id: String, favorite: Boolean)
+
+    /** Cambia el nombre visible. Falla con [DuplicateNameException] si otro perfil ya lo usa (sin distinguir mayúsculas) y con [IllegalArgumentException] si queda vacío. */
+    suspend fun rename(id: String, name: String): Result<SavedConfig>
 }

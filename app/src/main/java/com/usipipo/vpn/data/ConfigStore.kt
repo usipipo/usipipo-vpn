@@ -21,4 +21,7 @@ interface ConfigStore {
     suspend fun remove(id: String)
 
     suspend fun setLastUsed(id: String)
+
+    /** Marca o desmarca una configuración como favorita. Ignora ids que no existen. */
+    suspend fun setFavorite(id: String, favorite: Boolean)
 }

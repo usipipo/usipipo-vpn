@@ -31,6 +31,7 @@ zxing-embedded = { group = "com.journeyapps", name = "zxing-android-embedded", v
 zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxingCore" }
 desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugarJdkLibs" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+json = { group = "org.json", name = "json", version = "20240303" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

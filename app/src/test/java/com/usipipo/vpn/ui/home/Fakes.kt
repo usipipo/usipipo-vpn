@@ -33,6 +33,10 @@ class FakeConfigStore(initial: List<SavedConfig> = emptyList()) : ConfigStore {
     override suspend fun setLastUsed(id: String) {
         _lastUsed.value = id
     }
+
+    override suspend fun setFavorite(id: String, favorite: Boolean) {
+        _configs.value = _configs.value.map { if (it.id == id) it.copy(favorite = favorite) else it }
+    }
 }
 
 class FakeTunnelManager : TunnelManager {

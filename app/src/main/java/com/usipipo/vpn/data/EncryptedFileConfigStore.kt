@@ -99,7 +99,11 @@ class EncryptedFileConfigStore(
             val array = root.optJSONArray(KEY_CONFIGS) ?: JSONArray()
             val loaded = (0 until array.length()).map { i ->
                 val item = array.getJSONObject(i)
-                SavedConfig(id = item.getString(KEY_ID), name = item.getString(KEY_NAME))
+                SavedConfig(
+                    id = item.getString(KEY_ID),
+                    name = item.getString(KEY_NAME),
+                    favorite = item.optBoolean(KEY_FAVORITE, false),
+                )
             }.filter { fileFor(it.id).exists() }
             _configs.value = loaded
             _lastUsedId.value = root.optString(KEY_LAST_USED).takeIf { id -> loaded.any { it.id == id } }
@@ -109,7 +113,12 @@ class EncryptedFileConfigStore(
     private fun persistIndex() {
         val array = JSONArray()
         _configs.value.forEach {
-            array.put(JSONObject().put(KEY_ID, it.id).put(KEY_NAME, it.name))
+            array.put(
+                JSONObject()
+                    .put(KEY_ID, it.id)
+                    .put(KEY_NAME, it.name)
+                    .put(KEY_FAVORITE, it.favorite),
+            )
         }
         val root = JSONObject().put(KEY_CONFIGS, array)
         _lastUsedId.value?.let { root.put(KEY_LAST_USED, it) }
@@ -129,5 +138,16 @@ class EncryptedFileConfigStore(
         const val KEY_ID = "id"
         const val KEY_NAME = "name"
         const val KEY_LAST_USED = "lastUsedId"
+        const val KEY_FAVORITE = "favorite"
+    }
+
+    override suspend fun setFavorite(id: String, favorite: Boolean) {
+        mutex.withLock {
+            withContext(Dispatchers.IO) {
+                if (_configs.value.none { it.id == id }) return@withContext
+                _configs.value = _configs.value.map { if (it.id == id) it.copy(favorite = favorite) else it }
+                persistIndex()
+            }
+        }
     }
 }

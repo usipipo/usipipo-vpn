@@ -53,6 +53,11 @@ class HomeViewModel(
         viewModelScope.launch { store.setLastUsed(id) }
     }
 
+    fun toggleFavorite(id: String) {
+        val current = store.configs.value.firstOrNull { it.id == id } ?: return
+        viewModelScope.launch { store.setFavorite(id, !current.favorite) }
+    }
+
     /** Llamar solo cuando el permiso de VPN ya está concedido. */
     fun connectSelected() {
         val id = selectedId(store.configs.value, store.lastUsedId.value) ?: return

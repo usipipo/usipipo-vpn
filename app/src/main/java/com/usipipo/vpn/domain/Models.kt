@@ -1,7 +1,7 @@
 package com.usipipo.vpn.domain
 
 /** Configuración guardada. El contenido (claves) vive cifrado en el almacén, no aquí. */
-data class SavedConfig(val id: String, val name: String)
+data class SavedConfig(val id: String, val name: String, val favorite: Boolean = false)
 
 sealed interface TunnelState {
     data object Disconnected : TunnelState

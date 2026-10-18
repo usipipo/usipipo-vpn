@@ -7,14 +7,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,12 +29,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.FontWeight
 import androidx.compose.ui.text.input.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
@@ -41,6 +47,8 @@ import com.usipipo.vpn.R
 import com.usipipo.vpn.data.DuplicateNameException
 import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.domain.TunnelState
+import com.usipipo.vpn.ui.components.IconTile
+import com.usipipo.vpn.ui.components.StatTile
 import com.usipipo.vpn.ui.components.UsipipoCard
 import com.usipipo.vpn.ui.theme.UsipipoTheme
 import kotlin.Result
@@ -192,8 +200,10 @@ fun DetailsScreen(
             }
             Button(
                 onClick = onDisconnect,
-                containerColor = MaterialTheme.colorScheme.error,
-                contentColor = MaterialTheme.colorScheme.onError,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError,
+                ),
                 modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
             ) {
                 Text(stringResource(R.string.disconnect))

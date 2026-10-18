@@ -1,12 +1,16 @@
-# uSipipo VPN (Android) — Fase 0 + Diagnóstico
+# uSipipo VPN (Android) — Fase 1: estructura y estilo del mockup
 
 App Android nativa en Kotlin que importa el `.conf` de WireGuard de tu VPS y conecta con un botón.
-Este paquete es la **fase 0: el esqueleto de la arquitectura**, con el flujo de la v1 ya cableado
-de punta a punta (importar → guardar cifrado → conectar → estado).
+Este paquete es la **fase 1: la interfaz del mockup llevada a código real** — barra inferior de 4
+pestañas (Inicio, Configuraciones, Importar, Diagnóstico), tema azul noche (oscuro) y azul pastel
+(claro), pantalla de Configuraciones con "Mis perfiles" y "Favoritos", Importar con dos tarjetas
+(QR y archivo), y «Acerca de» integrado dentro de Diagnóstico. Se parte de la fase 0 (arquitectura,
+almacén cifrado, túnel WireGuard, diagnóstico, actualizaciones).
 
 Diseños aprobados:
 - [`docs/plans/2026-10-09-usipipo-vpn-android-design.md`](docs/plans/2026-10-09-usipipo-vpn-android-design.md)
 - [`docs/plans/2026-10-11-usipipo-vpn-diagnostico-design.md`](docs/plans/2026-10-11-usipipo-vpn-diagnostico-design.md) (Diagnóstico y ajustes avanzados)
+- [`docs/plans/2026-10-18-usipipo-vpn-mockup-design.md`](docs/plans/2026-10-18-usipipo-vpn-mockup-design.md) (Mockup: de la pantalla a la app real)
 
 ## Antes de compilar
 
@@ -40,21 +44,41 @@ app/src/main/java/com/usipipo/vpn/
 │   ├── TunnelManager.kt             Contrato: state, connect, disconnect
 │   └── WireGuardTunnelManager.kt    GoBackend; "Conectado" solo tras el primer handshake
 └── ui/
-    ├── UsipipoRoot.kt               Navegación por estado (3 pantallas)
-    ├── theme/Theme.kt               Paleta de azules pastel, claro y oscuro
-    ├── components/ConnectButton.kt  Botón circular con anillo (respeta "reducir movimiento")
-    ├── home/                        Lista de configuraciones + botón + estado
-    ├── importer/                    Archivo .conf o QR (escáner ZXing offline)
-    ├── about/                       Versión, soporte (usipipo@gmail.com) y acceso a Diagnóstico
-    └── diagnostics/                 Diagnóstico y ajustes avanzados
+    ├── UsipipoRoot.kt               Navegación por pestañas (4 destinos, sin librería de navegación)
+    ├── nav/MainTab.kt               Enum de pestañas (Home, Configs, Import, Diagnostics) + backTarget
+    ├── theme/Theme.kt               Paleta azul noche (oscuro) y azul pastel (claro), tipografía Manrope
+    ├── components/                  Componentes base del mockup
+    │   ├── ConnectButton.kt         Botón circular con halo (respeta "reducir movimiento")
+    │   ├── UsipipoCard.kt           Tarjeta con borde fino y esquinas de 20 dp
+    │   ├── IconTile.kt              Icono en cuadro redondeado (44 dp)
+    │   ├── AppLogo.kt               Logo "u" sobre azul de marca
+    │   ├── AppHeader.kt             Cabecera con logo y nombre de la app
+    │   └── UsipipoBottomBar.kt      Barra inferior Material 3 con 4 pestañas
+    ├── home/                        Pantalla Inicio: botón conectar, estado, tarjeta del perfil activo
+    ├── configs/                     Pantalla Configuraciones: "Mis perfiles" y "Favoritos" con estrella
+    ├── importer/                    Archivo .conf o QR (escáner ZXing offline, dos tarjetas)
+    └── diagnostics/                 Diagnóstico con «Acerca de» y comprobación de actualizaciones integrados
 ```
 
-## Qué incluye la fase 0
+## Qué incluye la fase 1
 
-- Build completo (Gradle Kotlin DSL, catálogo de versiones, wrapper).
+- Build completo (Gradle Kotlin DSL, catálogo de versiones, wrapper) — verificado en GitHub Actions.
 - Las tres capas (UI → ViewModel → datos/túnel) con contratos por interfaz.
-- Tema y pantallas de la v1; textos en español.
-- Pruebas unitarias: `HomeViewModel` (7, con un túnel y un almacén falsos) y el registro (16).
+- **Navegación por pestañas:** barra inferior Material 3 con 4 destinos (Inicio, Configuraciones, Importar, Diagnóstico),
+  sin librería de navegación; estado con `rememberSaveable`; Atrás desde cualquier pestaña vuelve a Inicio.
+- **Tema:** oscuro azul noche (igual al mockup) y claro con azules pastel aprobados; comprobación de contraste ≥ 4.5:1.
+- **Pantalla Inicio:** botón de conectar con Atmósfera, estado del túnel, tarjeta del perfil activo (nombre y protocolo),
+  toque lleva a Configuraciones; subtítulo «Tu privacidad está protegida» al conectar.
+- **Pantalla Configuraciones:** pestañas «Mis perfiles» y «Favoritos»; reutiliza tarjetas actuales (chip «Activo»,
+  deslizar para borrar) y añade estrella de favorito; botón «+» y «Añadir configuración» llevan a Importar.
+- **Pantalla Importar:** dos tarjetas grandes (QR y archivo `.conf`), paso «Nombre» con Cancelar, Atrás cancela el paso.
+- **Pantalla Diagnóstico:** la pantalla actual de diagnóstico más la sección «Acerca de» (logo, versión, soporte,
+  comprobación de actualizaciones).
+- **Datos:** campo `favorite` en `SavedConfig` y en el índice del almacén cifrado; perfiles existentes cargan como no favoritos.
+- **Componentes base:** `UsipipoCard`, `IconTile`, `AppLogo`, `AppHeader`, `UsipipoBottomBar`; iconos de `material-icons-core`
+  y vectores propios en `res/drawable` (incluido el logo «u» convertido a icono adaptable).
+- **Pruebas unitarias:** `HomeViewModel` (incluyendo favoritos), `ConfigsFilter`, `EncryptedFileConfigStore` (favoritos y migración
+  de índice antiguo), `MainTab`, `PaletteContrastTest`; el registro (16 pruebas).
 - **Diagnóstico y ajustes avanzados:** registro en archivo con rotación, claves tapadas automáticamente,
   captura de cierres inesperados, modo detallado (con logcat), visor, borrado y envío del informe por
   correo a usipipo@gmail.com.
@@ -91,7 +115,7 @@ La firma de la versión `release` ya está resuelta (ver «Release firmada»).
 ## Siguiente paso sugerido
 
 Compilar, probar en tu teléfono con el `.conf` de tu VPS (handshake, IP pública, DNS de Blocky) y
-corregir lo que salga. Después, el plan de la fase 1.
+corregir lo que salga. Después, continuar con el plan de la fase 2 (datos reales de túnel y pantalla Detalles).
 
 ## Compilar la APK con GitHub Actions
 

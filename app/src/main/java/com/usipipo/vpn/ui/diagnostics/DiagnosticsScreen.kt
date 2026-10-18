@@ -18,8 +18,6 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -27,7 +25,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -55,9 +52,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.usipipo.vpn.R
 import com.usipipo.vpn.diagnostics.DeviceInfo
 import com.usipipo.vpn.diagnostics.ReportSender
+import com.usipipo.vpn.update.UpdateStatus
 
 @Composable
-fun DiagnosticsScreen(vm: DiagnosticsViewModel, onBack: () -> Unit) {
+fun DiagnosticsScreen(vm: DiagnosticsViewModel, onCheckUpdates: suspend () -> UpdateStatus) {
     val ui by vm.ui.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
@@ -106,20 +104,12 @@ fun DiagnosticsScreen(vm: DiagnosticsViewModel, onBack: () -> Unit) {
                 .padding(horizontal = 20.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.cd_back),
-                    )
-                }
-                Text(
-                    text = stringResource(R.string.diag_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                )
-            }
+            Text(
+                text = stringResource(R.string.diag_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
 
             SectionHeader(stringResource(R.string.diag_info_title))
             InfoCard(rows = ui.infoRows)
@@ -164,6 +154,8 @@ fun DiagnosticsScreen(vm: DiagnosticsViewModel, onBack: () -> Unit) {
                     .fillMaxWidth()
                     .heightIn(min = 56.dp),
             ) { Text(stringResource(R.string.diag_clear)) }
+
+            AboutSection(onCheckUpdates = onCheckUpdates, snackbar = snackbar)
 
             Spacer(Modifier.height(8.dp))
         }

@@ -105,7 +105,11 @@ fun UsipipoRoot(container: AppContainer) {
 
                     MainTab.Diagnostics -> DiagnosticsScreen(
                         vm = diagnosticsViewModel(container),
-                        onBack = { tab = MainTab.Home },
+                        onCheckUpdates = {
+                            // La comprobación manual siempre vuelve a mostrar la ventana si hay release.
+                            handledUpdate = null
+                            container.checkForUpdates(force = true)
+                        },
                     )
                 }
             }

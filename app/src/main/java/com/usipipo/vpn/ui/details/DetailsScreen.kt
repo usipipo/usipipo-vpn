@@ -34,7 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -52,6 +51,7 @@ import com.usipipo.vpn.ui.components.StatTile
 import com.usipipo.vpn.ui.components.UsipipoCard
 import com.usipipo.vpn.ui.theme.UsipipoTheme
 import kotlin.Result
+import kotlinx.coroutines.launch
 
 /** Pantalla de detalles de la conexión activa (sub-pantalla de Inicio, no pestaña). */
 @Composable

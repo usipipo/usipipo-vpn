@@ -223,20 +223,39 @@ jobs:
             echo "::error::No se encontró la APK firmada en $APK."
             exit 1
           fi
+          # Renombrar el artefacto de release: uSipipo VPN-<version>.apk
+          RENAMED_APK="uSipipo VPN-${VERSION_NAME}.apk"
+          cp "$APK" "$RENAMED_APK"
+          echo "APK renombrada a $RENAMED_APK"
+
+          # Notas de release manuales: changelog de commits convencionales
+          # desde la etiqueta previa, o texto descriptivo con la versión.
+          PREVIOUS_TAG="$(git tag --list 'v*' --sort=-version:refname \
+            | awk -v t="$TAG" '$0 != t {print; exit}')" || true
+          if [ -n "$PREVIOUS_TAG" ]; then
+            NOTES="$(git log "${PREVIOUS_TAG}..HEAD" --pretty=format:'- %s (%h)' \
+              | grep -Ei '^(feat|fix|chore|docs|refactor|perf|test|build|ci):' || true)"
+          else
+            NOTES=""
+          fi
+          if [ -z "$NOTES" ]; then
+            NOTES="uSipipo VPN $VERSION_NAME — release $VERSION_NAME."
+          fi
+
           if gh release view "$TAG" --repo "$REPO" >/dev/null 2>&1; then
             # Reintento o etiqueta republicada: se sustituye el adjunto en lugar de
             # dejar el job roto para siempre.
-            gh release upload "$TAG" "$APK" --repo "$REPO" --clobber
+            gh release upload "$TAG" "$RENAMED_APK" --repo "$REPO" --clobber
           else
             # --target solo en el camino dinámico, donde la etiqueta recién creada
             # apunta a este commit. En el camino por etiqueta no se pasa:
             # github.sha puede ser el commit etiquetado o el objeto tag anotado,
             # y gh release create ya resuelve por su cuenta la referencia vX.Y.Z.
-            ARGS=("create" "$TAG" "$APK" --repo "$REPO")
+            ARGS=("create" "$TAG" "$RENAMED_APK" --repo "$REPO")
             if [ "$IS_TAG" != 'true' ]; then
               ARGS+=(--target "$GITHUB_SHA")
             fi
             gh release "${ARGS[@]}" \
               --title "uSipipo VPN $VERSION_NAME" \
-              --generate-notes
+              --notes "$NOTES"
           fi

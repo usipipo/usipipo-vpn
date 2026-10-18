@@ -100,7 +100,7 @@ fun UsipipoRoot(container: AppContainer) {
 
                     MainTab.Import -> ImportScreen(
                         vm = importViewModel(container),
-                        onBack = { tab = MainTab.Home },
+                        onDone = { tab = MainTab.Home },
                     )
 
                     MainTab.Diagnostics -> DiagnosticsScreen(

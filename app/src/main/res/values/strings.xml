@@ -11,7 +11,6 @@
     <string name="status_no_response">Sin respuesta del servidor</string>
     <string name="status_failed">No se pudo conectar</string>
     <string name="hint_no_response">Revisa tu conexión a internet o escribe a %1$s</string>
-    <string name="configs_title">Configuraciones</string>
     <string name="config_active">Activo</string>
     <string name="tagline_connected">Tu privacidad está protegida</string>
     <string name="protocol_wireguard">WireGuard</string>
@@ -44,8 +43,6 @@
     <string name="import_qr_subtitle">Importa una configuración desde un código QR.</string>
     <string name="import_file_title">Importar archivo</string>
     <string name="import_file_subtitle">Selecciona un archivo .conf de tu dispositivo.</string>
-    <string name="import_footer_title">Rápido, fácil y seguro</string>
-    <string name="import_footer_body">Tienes dos formas de importar tus configuraciones VPN.</string>
     <string name="scan_qr">Escanear código QR</string>
     <string name="scan_prompt">Apunta al código QR de tu configuración</string>
     <string name="name_label">Nombre</string>
@@ -60,8 +57,6 @@
     <!-- Acerca de -->
     <string name="about_title">Acerca de</string>
     <string name="version_label">Versión %1$s</string>
-    <string name="about_updates_title">Actualizaciones</string>
-    <string name="support_label">Soporte</string>
     <string name="support_email">usipipo@gmail.com</string>
     <string name="send_email">Escribir a soporte</string>
 

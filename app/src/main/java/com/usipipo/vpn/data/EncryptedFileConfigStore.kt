@@ -133,14 +133,6 @@ class EncryptedFileConfigStore(
         )
     }
 
-    private companion object {
-        const val KEY_CONFIGS = "configs"
-        const val KEY_ID = "id"
-        const val KEY_NAME = "name"
-        const val KEY_LAST_USED = "lastUsedId"
-        const val KEY_FAVORITE = "favorite"
-    }
-
     override suspend fun setFavorite(id: String, favorite: Boolean) {
         mutex.withLock {
             withContext(Dispatchers.IO) {
@@ -149,5 +141,13 @@ class EncryptedFileConfigStore(
                 persistIndex()
             }
         }
+    }
+
+    private companion object {
+        const val KEY_CONFIGS = "configs"
+        const val KEY_ID = "id"
+        const val KEY_NAME = "name"
+        const val KEY_LAST_USED = "lastUsedId"
+        const val KEY_FAVORITE = "favorite"
     }
 }

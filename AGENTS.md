@@ -22,13 +22,15 @@ data/            Almacén cifrado (ConfigStore, EncryptedFileConfigStore, Crypto
 tunnel/          Motor del túnel (TunnelManager, WireGuardTunnelManager)
 diagnostics/     Registro y diagnóstico (AppLog, LogRedactor, ReportBuilder…)
 update/          Comprobación de actualizaciones (UpdateChecker, ReleaseInfo…)
+UsipipoApp.kt    Punto de entrada de la app (raiz del paquete)
 ui/
-  home/          Pantalla Inicio (HomeScreen, HomeViewModel, ConnectButton)
+  home/          Pantalla Inicio (HomeScreen, HomeViewModel)
   configs/       Pantalla Configuraciones (ConfigsScreen, ConfigCard, ConfigsFilter)
   importer/      Pantalla Importar (ImportScreen, ImportViewModel, QR + archivo)
   diagnostics/   Pantalla Diagnóstico (DiagnosticsScreen, AboutSection)
-  components/    Componentes compartidos (UsipipoCard, AppHeader, AppLogo, IconTile, UsipipoBottomBar)
-  nav/           Navegación (MainTab, UsipipoRoot, UsipipoApp)
+  details/       Detalles y estadísticas (pantalla Detalles, esta fase)
+  components/    Componentes compartidos (UsipipoCard, AppHeader, AppLogo, IconTile, UsipipoBottomBar, ConnectButton)
+  nav/           Navegación (MainTab, UsipipoRoot)
   theme/         Tema (Theme.kt, Atmosphere.kt, Motion.kt, colores claro/oscuro)
 ```
 

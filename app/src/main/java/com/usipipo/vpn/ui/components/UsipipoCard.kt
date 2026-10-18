@@ -24,5 +24,9 @@ fun UsipipoCard(
         containerColor = if (selected) colors.primaryContainer else colors.surface,
     )
     val border = BorderStroke(1.dp, if (selected) colors.primary else colors.outline)
-    Card(onClick = onClick, modifier = modifier, shape = shape, colors = cardColors, border = border, content = content)
+    if (onClick != null) {
+        Card(onClick = onClick, modifier = modifier, shape = shape, colors = cardColors, border = border, content = content)
+    } else {
+        Card(modifier = modifier, shape = shape, colors = cardColors, border = border, content = content)
+    }
 }

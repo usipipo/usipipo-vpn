@@ -5,10 +5,10 @@ import android.content.res.Configuration
 import android.net.VpnService
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.StringRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,34 +19,25 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.AutoMirrored
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,11 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.CustomAccessibilityAction
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.customActions
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -69,6 +56,8 @@ import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.domain.isActive
 import com.usipipo.vpn.ui.components.AppHeader
 import com.usipipo.vpn.ui.components.ConnectButton
+import com.usipipo.vpn.ui.components.IconTile
+import com.usipipo.vpn.ui.components.UsipipoCard
 import com.usipipo.vpn.ui.theme.AtmospherePhase
 import com.usipipo.vpn.ui.theme.LocalAtmosphere
 import com.usipipo.vpn.ui.theme.UsipipoTheme
@@ -104,58 +93,42 @@ fun HomeScreen(
             vm.disconnect()
             return
         }
-        // Android pide el permiso de VPN la primera vez; después prepare() devuelve null.
         val intent = VpnService.prepare(context)
         if (intent == null) vm.connectSelected() else permissionLauncher.launch(intent)
     }
 
     val reduceMotion = rememberReduceMotion()
     val phase = atmospherePhase(state.tunnel)
+    val selected = state.configs.firstOrNull { it.id == state.selectedId }
+
     HomeBackground(phase = phase, reduceMotion = reduceMotion) {
         Scaffold(
             containerColor = Color.Transparent,
-            snackbarHost = {             SnackbarHost(snackbar) },
             contentWindowInsets = WindowInsets.statusBars,
+            snackbarHost = { SnackbarHost(snackbar) },
         ) { padding ->
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(
-                    start = 20.dp,
-                    end = 20.dp,
-                    top = padding.calculateTopPadding() + 8.dp,
-                    bottom = 24.dp,
-                ),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 20.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                item { AppHeader() }
-                item {
-                    ConnectSection(
-                        tunnel = state.tunnel,
-                        enabled = state.selectedId != null,
-                        onClick = { onToggle() },
-                    )
-                }
-                item {
-                    ConfigsHeader(onImport = onImport, showImport = state.configs.isNotEmpty())
-                }
-
-                if (state.configs.isEmpty()) {
-                    item { EmptyState(onImport = onImport) }
+                AppHeader()
+                ConnectSection(
+                    tunnel = state.tunnel,
+                    enabled = selected != null,
+                    onClick = { onToggle() },
+                )
+                if (selected == null) {
+                    EmptyState(onImport = onImport)
                 } else {
-                    items(state.configs, key = { it.id }) { config ->
-                        ConfigCard(
-                            config = config,
-                            selected = config.id == state.selectedId,
-                            selectEnabled = !state.tunnel.isActive,
-                            onSelect = { vm.select(config.id) },
-                            onDeleteRequest = { },
-                        )
-                    }
+                    ProfileCard(config = selected, onClick = onOpenConfigs)
                 }
             }
         }
     }
-
 }
 
 @Composable
@@ -204,6 +177,14 @@ private fun ConnectSection(tunnel: TunnelState, enabled: Boolean, onClick: () ->
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onBackground,
         )
+        if (tunnel is TunnelState.Connected) {
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = stringResource(R.string.tagline_connected),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         if (tunnel is TunnelState.NoResponse) {
             Spacer(Modifier.height(4.dp))
             Text(
@@ -213,7 +194,6 @@ private fun ConnectSection(tunnel: TunnelState, enabled: Boolean, onClick: () ->
                 ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
             )
         }
     }
@@ -229,28 +209,6 @@ private fun statusLabel(tunnel: TunnelState): String = stringResource(
         is TunnelState.Failed -> R.string.status_failed
     },
 )
-
-@Composable
-private fun ConfigsHeader(onImport: () -> Unit, showImport: Boolean) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = stringResource(R.string.configs_title),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onBackground,
-        )
-        if (showImport) {
-            FilledTonalButton(onClick = onImport) {
-                Icon(Icons.Default.Add, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text(stringResource(R.string.import_action))
-            }
-        }
-    }
-}
 
 @Composable
 private fun EmptyState(onImport: () -> Unit) {
@@ -271,17 +229,15 @@ private fun EmptyState(onImport: () -> Unit) {
             text = stringResource(R.string.empty_title),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground,
-            textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(4.dp))
         Text(
             text = stringResource(R.string.empty_body),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(16.dp))
-        FilledTonalButton(onClick = onImport) {
+        Button(onClick = onImport) {
             Icon(Icons.Default.Add, contentDescription = null)
             Spacer(Modifier.width(8.dp))
             Text(stringResource(R.string.import_action))
@@ -290,98 +246,39 @@ private fun EmptyState(onImport: () -> Unit) {
 }
 
 @Composable
-private fun ConfigCard(
-    config: SavedConfig,
-    selected: Boolean,
-    selectEnabled: Boolean,
-    onSelect: () -> Unit,
-    onDeleteRequest: () -> Unit,
-) {
-    val deleteLabel = stringResource(R.string.cd_delete, config.name)
-    val dismissState = rememberSwipeToDismissBoxState(
-        confirmValueChange = { value ->
-            if (value == SwipeToDismissBoxValue.EndToStart) onDeleteRequest()
-            false // la tarjeta vuelve a su sitio; el borrado real pasa por el diálogo
-        },
-    )
-    SwipeToDismissBox(
-        state = dismissState,
-        enableDismissFromStartToEnd = false,
-        enableDismissFromEndToStart = true,
-        backgroundContent = {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.error),
-                contentAlignment = Alignment.CenterEnd,
-            ) {
-                Icon(
-                    Icons.Default.Delete,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onError,
-                    modifier = Modifier.padding(end = 24.dp),
-                )
-            }
-        },
-    ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = if (selected) {
-                    MaterialTheme.colorScheme.primaryContainer
-                } else {
-                    MaterialTheme.colorScheme.surfaceVariant
-                },
-            ),
+private fun ProfileCard(config: SavedConfig, onClick: () -> Unit) {
+    UsipipoCard(modifier = Modifier.fillMaxWidth(), onClick = onClick) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 72.dp)
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
+            IconTile(R.drawable.ic_server)
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 64.dp)
-                    .selectable(
-                        selected = selected,
-                        enabled = selectEnabled,
-                        role = Role.RadioButton,
-                        onClick = onSelect,
-                    )
-                    .semantics {
-                        customActions = listOf(
-                            CustomAccessibilityAction(label = deleteLabel) { onDeleteRequest(); true },
-                        )
-                    }
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                    .weight(1f)
+                    .padding(horizontal = 12.dp),
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_server),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(24.dp),
-                )
                 Text(
                     text = config.name,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 12.dp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
-                if (selected) {
-                    Surface(
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.onSecondary,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.config_active),
-                            style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                        )
-                    }
-                }
+                Text(
+                    text = stringResource(R.string.protocol_wireguard),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
+            Icon(
+                AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
@@ -456,6 +353,25 @@ private fun PreviewVacio() {
     UsipipoTheme {
         HomeBackground(phase = AtmospherePhase.Calm, reduceMotion = true) {
             EmptyState(onImport = {})
+        }
+    }
+}
+
+@Preview(name = "Inicio conectado")
+@Preview(name = "Inicio conectado oscuro", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewInicioConectado() {
+    UsipipoTheme {
+        Surface {
+            HomeBackground(phase = AtmospherePhase.Flowing, reduceMotion = true) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    ConnectSection(tunnel = TunnelState.Connected("a"), enabled = true, onClick = {})
+                    ProfileCard(config = SavedConfig("a", "client-mowgli"), onClick = {})
+                }
+            }
         }
     }
 }

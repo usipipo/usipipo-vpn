@@ -7,8 +7,8 @@ sealed interface TunnelState {
     data object Disconnected : TunnelState
     data class Connecting(val configId: String) : TunnelState
 
-    /** Túnel arriba y con handshake recibido. */
-    data class Connected(val configId: String) : TunnelState
+    /** Túnel arriba y con handshake recibido. [sinceMs] es `SystemClock.elapsedRealtime()` en ese momento. */
+    data class Connected(val configId: String, val sinceMs: Long = 0L) : TunnelState
 
     /** Túnel arriba pero sin handshake todavía (el servidor no responde). */
     data class NoResponse(val configId: String) : TunnelState

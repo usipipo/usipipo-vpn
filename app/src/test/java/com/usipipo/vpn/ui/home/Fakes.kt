@@ -2,8 +2,11 @@ package com.usipipo.vpn.ui.home
 
 import com.usipipo.vpn.data.ConfigStore
 import com.usipipo.vpn.domain.SavedConfig
+import com.usipipo.vpn.domain.TunnelCounters
 import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.tunnel.TunnelManager
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -59,4 +62,8 @@ class FakeTunnelManager : TunnelManager {
     fun emit(state: TunnelState) {
         _state.value = state
     }
+
+    val counterSamples = MutableSharedFlow<TunnelCounters>(extraBufferCapacity = 16)
+
+    override fun counters(): Flow<TunnelCounters> = counterSamples
 }

@@ -8,7 +8,7 @@ import com.usipipo.vpn.domain.TunnelState
  * noche → verde azulado profundo (no una inversión de la paleta clara).
  */
 object AtmospherePalette {
-    // Fondos (claro)
+    // Fondos (claro) — sin cambios
     const val LIGHT_CALM_TOP: Long = 0xFFF3F8FF
     const val LIGHT_CALM_BOTTOM: Long = 0xFFD6E6FB
     const val LIGHT_DRIFTING_TOP: Long = 0xFFEDF7FD
@@ -17,15 +17,23 @@ object AtmospherePalette {
     const val LIGHT_FLOWING_BOTTOM: Long = 0xFFA9E5D8
     const val LIGHT_ALERT_TOP: Long = 0xFFFDF6F7
     const val LIGHT_ALERT_BOTTOM: Long = 0xFFF7DCE2
-    // Fondos (oscuro)
-    const val DARK_CALM_TOP: Long = 0xFF0E1A2B
-    const val DARK_CALM_BOTTOM: Long = 0xFF17293D
-    const val DARK_DRIFTING_TOP: Long = 0xFF0D1F2E
+    // Fondos (oscuro): azul noche del mockup
+    const val DARK_CALM_TOP: Long = 0xFF04132D
+    const val DARK_CALM_BOTTOM: Long = 0xFF0B2147
+    const val DARK_DRIFTING_TOP: Long = 0xFF06182E
     const val DARK_DRIFTING_BOTTOM: Long = 0xFF15403C
-    const val DARK_FLOWING_TOP: Long = 0xFF0E2436
+    const val DARK_FLOWING_TOP: Long = 0xFF071D33
     const val DARK_FLOWING_BOTTOM: Long = 0xFF114C40
     const val DARK_ALERT_TOP: Long = 0xFF231620
     const val DARK_ALERT_BOTTOM: Long = 0xFF32202B
+    // Esquema oscuro (pantallas sin degradado y tarjetas)
+    const val DARK_BACKGROUND: Long = 0xFF061631
+    const val DARK_SURFACE: Long = 0xFF0E2447
+    const val DARK_SURFACE_VARIANT: Long = 0xFF12305A
+    const val DARK_PRIMARY: Long = 0xFF4C8DFF
+    const val DARK_ON_PRIMARY: Long = 0xFF04122B
+    const val DARK_SECONDARY: Long = 0xFF2DD4BF
+    const val DARK_ON_SECONDARY: Long = 0xFF042A26
     // Texto e iconos
     const val TEXT_LIGHT: Long = 0xFF0B2545 // Navy
     const val TEXT_DARK: Long = 0xFFE6F0FF

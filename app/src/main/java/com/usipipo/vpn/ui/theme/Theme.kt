@@ -38,19 +38,19 @@ private val LightColors = lightColorScheme(
 )
 
 private val DarkColors = darkColorScheme(
-    primary = Color(0xFF8DBBFF),
-    onPrimary = Navy,
-    primaryContainer = Color(0xFF24406B),
+    primary = Color(AtmospherePalette.DARK_PRIMARY),
+    onPrimary = Color(AtmospherePalette.DARK_ON_PRIMARY),
+    primaryContainer = Color(0xFF14386B),
     onPrimaryContainer = Color(0xFFE6F0FF),
-    secondary = Color(0xFF9DB8DD),
-    onSecondary = Navy,
-    background = Color(0xFF0E1A2B),
+    secondary = Color(AtmospherePalette.DARK_SECONDARY),
+    onSecondary = Color(AtmospherePalette.DARK_ON_SECONDARY),
+    background = Color(AtmospherePalette.DARK_BACKGROUND),
     onBackground = Color(0xFFE6F0FF),
-    surface = Color(0xFF162843),
+    surface = Color(AtmospherePalette.DARK_SURFACE),
     onSurface = Color(0xFFE6F0FF),
-    surfaceVariant = Color(0xFF1E3556),
+    surfaceVariant = Color(AtmospherePalette.DARK_SURFACE_VARIANT),
     onSurfaceVariant = Color(0xFFB7C9E2),
-    outline = Color(0xFF2B4468),
+    outline = Color(0xFF244A7C),
     error = Color(0xFFF4A3A3),
     onError = Navy,
 )

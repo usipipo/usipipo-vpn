@@ -109,4 +109,23 @@
     <string name="diag_report_failed">No se pudo preparar el informe</string>
     <string name="report_subject">uSipipo VPN – informe de diagnóstico (v%1$s)</string>
     <string name="report_intro">Informe de diagnóstico de uSipipo VPN. Si no ves el adjunto, cuéntame qué pasó y vuelve a intentarlo.</string>
+
+    <!-- Estadísticas y detalles -->
+    <string name="stat_download">Descarga</string>
+    <string name="stat_upload">Subida</string>
+    <string name="stat_protocol">Protocolo</string>
+    <string name="stat_uptime">Tiempo activo</string>
+    <string name="view_details">Ver detalles</string>
+    <string name="details_title">Detalles</string>
+    <string name="details_stats_title">Estadísticas de conexión</string>
+    <string name="details_stats_note">Velocidad actual del túnel, no una prueba de velocidad.</string>
+    <string name="details_connection_time">Tiempo de conexión</string>
+    <string name="details_endpoint">Endpoint</string>
+    <string name="details_ipv6">IPv6</string>
+    <string name="ipv6_enabled">Habilitado</string>
+    <string name="ipv6_disabled">Deshabilitado</string>
+    <string name="endpoint_unknown">No disponible</string>
+    <string name="rename_title">Renombrar perfil</string>
+    <string name="cd_rename">Renombrar %1$s</string>
+    <string name="cd_throughput_chart">Gráfica de la velocidad del último minuto</string>
 </resources>

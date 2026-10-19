@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -88,7 +87,7 @@ fun DetailsScreen(
             ) {
                 IconButton(onClick = onClose) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        painter = painterResource(R.drawable.ic_arrow_back),
                         contentDescription = stringResource(R.string.cd_back),
                     )
                 }
@@ -140,7 +139,7 @@ fun DetailsScreen(
                     }
                     IconButton(onClick = { renaming = true }) {
                         Icon(
-                            imageVector = Icons.Default.Edit,
+                            painter = painterResource(R.drawable.ic_edit),
                             contentDescription = stringResource(R.string.cd_rename, config.name),
                         )
                     }

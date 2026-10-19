@@ -3,6 +3,7 @@ package com.usipipo.vpn.tunnel
 import android.content.Context
 import android.os.SystemClock
 import com.usipipo.vpn.diagnostics.AppLog
+import com.usipipo.vpn.domain.TunnelCounters
 import com.usipipo.vpn.domain.TunnelState
 import com.wireguard.android.backend.GoBackend
 import com.wireguard.android.backend.Tunnel
@@ -14,9 +15,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -127,7 +130,7 @@ class WireGuardTunnelManager(
             AppLog.d(TAG, "Sondeo de handshake: ${if (handshake) "recibido" else "pendiente"} (t=$elapsed ms)")
             if (handshake) {
                 AppLog.i(TAG, "Handshake recibido a los $elapsed ms")
-                setState(TunnelState.Connected(configId))
+                setState(TunnelState.Connected(configId, SystemClock.elapsedRealtime()))
                 return
             }
             if (elapsed >= HANDSHAKE_TIMEOUT_MS && _state.value !is TunnelState.NoResponse) {
@@ -144,6 +147,36 @@ class WireGuardTunnelManager(
     } catch (e: Exception) {
         AppLog.d(TAG, "getStatistics falló (${e.javaClass.simpleName})")
         false
+    }
+
+    override fun counters(): Flow<TunnelCounters> = flow {
+        while (true) {
+            val tunnel = active?.tunnel
+            if (tunnel != null) {
+                val totals = withContext(Dispatchers.IO) { readTotals(tunnel) }
+                if (totals != null) {
+                    emit(TunnelCounters(totals.first, totals.second, SystemClock.elapsedRealtime()))
+                }
+            }
+            delay(STATS_POLL_MS)
+        }
+    }
+
+    /** Suma recibidos y enviados de todos los peers; null si la librería falla esta vez. */
+    private fun readTotals(tunnel: Tunnel): Pair<Long, Long>? = try {
+        val stats = backend.getStatistics(tunnel)
+        var rx = 0L
+        var tx = 0L
+        stats.peers().forEach { key ->
+            stats.peer(key)?.let {
+                rx += it.rxBytes()
+                tx += it.txBytes()
+            }
+        }
+        rx to tx
+    } catch (e: Exception) {
+        AppLog.d(TAG, "getStatistics falló (${e.javaClass.simpleName})")
+        null
     }
 
     private fun setState(newState: TunnelState) {
@@ -182,5 +215,6 @@ class WireGuardTunnelManager(
         const val HANDSHAKE_TIMEOUT_MS = 10_000L
         const val FAST_POLL_MS = 500L
         const val SLOW_POLL_MS = 2_000L
+        const val STATS_POLL_MS = 1_000L
     }
 }

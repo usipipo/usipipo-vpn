@@ -1,13 +1,20 @@
 package com.usipipo.vpn.ui.home
 
 import com.usipipo.vpn.data.ConfigStore
+import com.usipipo.vpn.data.DuplicateNameException
 import com.usipipo.vpn.domain.SavedConfig
+import com.usipipo.vpn.domain.TunnelCounters
 import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.tunnel.TunnelManager
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class FakeConfigStore(initial: List<SavedConfig> = emptyList()) : ConfigStore {
+class FakeConfigStore(
+    initial: List<SavedConfig> = emptyList(),
+    private val texts: Map<String, String> = emptyMap(),
+) : ConfigStore {
     private val _configs = MutableStateFlow(initial)
     private val _lastUsed = MutableStateFlow<String?>(null)
 
@@ -23,7 +30,7 @@ class FakeConfigStore(initial: List<SavedConfig> = emptyList()) : ConfigStore {
 
     /** Texto predecible para comprobar qué se le pasa al túnel. */
     override suspend fun readText(id: String): String? =
-        if (_configs.value.any { it.id == id }) "conf-de-$id" else null
+        texts[id] ?: if (_configs.value.any { it.id == id }) "conf-de-$id" else null
 
     override suspend fun remove(id: String) {
         _configs.value = _configs.value.filterNot { it.id == id }
@@ -36,6 +43,19 @@ class FakeConfigStore(initial: List<SavedConfig> = emptyList()) : ConfigStore {
 
     override suspend fun setFavorite(id: String, favorite: Boolean) {
         _configs.value = _configs.value.map { if (it.id == id) it.copy(favorite = favorite) else it }
+    }
+
+    override suspend fun rename(id: String, name: String): Result<SavedConfig> {
+        val clean = name.trim()
+        val current = _configs.value.firstOrNull { it.id == id }
+            ?: return Result.failure(NoSuchElementException())
+        if (clean.isEmpty()) return Result.failure(IllegalArgumentException("Nombre vacío"))
+        if (_configs.value.any { it.id != id && it.name.equals(clean, ignoreCase = true) }) {
+            return Result.failure(DuplicateNameException())
+        }
+        val renamed = current.copy(name = clean)
+        _configs.value = _configs.value.map { if (it.id == id) renamed else it }
+        return Result.success(renamed)
     }
 }
 
@@ -59,4 +79,8 @@ class FakeTunnelManager : TunnelManager {
     fun emit(state: TunnelState) {
         _state.value = state
     }
+
+    val counterSamples = MutableSharedFlow<TunnelCounters>(extraBufferCapacity = 16)
+
+    override fun counters(): Flow<TunnelCounters> = counterSamples
 }

@@ -1,5 +1,7 @@
 package com.usipipo.vpn.ui.configs
 
+import android.content.res.Configuration
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,12 +19,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -33,16 +37,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
-import android.content.res.Configuration
-import androidx.compose.material3.Surface
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+
 import com.usipipo.vpn.R
 import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.domain.isActive
@@ -144,7 +148,7 @@ private fun TabPills(selected: ConfigsTab, onSelect: (ConfigsTab) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(androidx.compose.foundation.shape.RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(14.dp))
             .background(scheme.surfaceVariant)
             .padding(4.dp),
     ) {
@@ -154,8 +158,8 @@ private fun TabPills(selected: ConfigsTab, onSelect: (ConfigsTab) -> Unit) {
                 modifier = Modifier
                     .weight(1f)
                     .heightIn(min = 44.dp)
-                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
-                    .background(if (isSelected) scheme.primary else androidx.compose.ui.graphics.Color.Transparent)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(if (isSelected) scheme.primary else Color.Transparent)
                     .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(item) }),
                 contentAlignment = Alignment.Center,
             ) {

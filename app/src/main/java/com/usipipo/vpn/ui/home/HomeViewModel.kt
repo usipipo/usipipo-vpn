@@ -82,6 +82,8 @@ class HomeViewModel(
         }
     }
 
+    suspend fun rename(id: String, name: String): Result<SavedConfig> = store.rename(id, name)
+
     fun onPermissionDenied() {
         AppLog.w("Permiso", "Permiso de VPN denegado por el usuario")
         message.value = HomeMessage.PermissionDenied

@@ -133,14 +133,6 @@ class EncryptedFileConfigStore(
         )
     }
 
-    private companion object {
-        const val KEY_CONFIGS = "configs"
-        const val KEY_ID = "id"
-        const val KEY_NAME = "name"
-        const val KEY_LAST_USED = "lastUsedId"
-        const val KEY_FAVORITE = "favorite"
-    }
-
     override suspend fun setFavorite(id: String, favorite: Boolean) {
         mutex.withLock {
             withContext(Dispatchers.IO) {
@@ -149,5 +141,34 @@ class EncryptedFileConfigStore(
                 persistIndex()
             }
         }
+    }
+
+    override suspend fun rename(id: String, name: String): Result<SavedConfig> =
+        mutex.withLock {
+            withContext(Dispatchers.IO) {
+                val clean = name.trim()
+                val current = _configs.value.firstOrNull { it.id == id }
+                    ?: return@withContext Result.failure<SavedConfig>(NoSuchElementException())
+                if (clean.isEmpty()) {
+                    return@withContext Result.failure<SavedConfig>(IllegalArgumentException("Nombre vacío"))
+                }
+                if (_configs.value.any { it.id != id && it.name.equals(clean, ignoreCase = true) }) {
+                    return@withContext Result.failure<SavedConfig>(DuplicateNameException())
+                }
+                runCatching {
+                    val renamed = current.copy(name = clean)
+                    _configs.value = _configs.value.map { if (it.id == id) renamed else it }
+                    persistIndex()
+                    renamed
+                }.onFailure { AppLog.e("Almacen", "No se pudo renombrar la configuración", it) }
+            }
+        }
+
+    private companion object {
+        const val KEY_CONFIGS = "configs"
+        const val KEY_ID = "id"
+        const val KEY_NAME = "name"
+        const val KEY_LAST_USED = "lastUsedId"
+        const val KEY_FAVORITE = "favorite"
     }
 }

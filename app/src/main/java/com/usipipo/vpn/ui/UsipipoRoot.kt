@@ -20,8 +20,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,8 +35,11 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.usipipo.vpn.AppContainer
 import com.usipipo.vpn.R
 import com.usipipo.vpn.diagnostics.AppLog
+import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.ui.components.UsipipoBottomBar
 import com.usipipo.vpn.ui.configs.ConfigsScreen
+import com.usipipo.vpn.ui.details.DetailsScreen
+import com.usipipo.vpn.ui.details.StatsViewModel
 import com.usipipo.vpn.ui.diagnostics.DiagnosticsScreen
 import com.usipipo.vpn.ui.diagnostics.DiagnosticsViewModel
 import com.usipipo.vpn.ui.home.HomeScreen
@@ -56,6 +57,7 @@ import com.usipipo.vpn.update.UpdateStatus
 @Composable
 fun UsipipoRoot(container: AppContainer) {
     var tab by rememberSaveable { mutableStateOf(MainTab.Home) }
+    var showDetails by rememberSaveable { mutableStateOf(false) }
     val updateStatus by container.updateStatus.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
@@ -65,6 +67,7 @@ fun UsipipoRoot(container: AppContainer) {
     BackHandler(enabled = backTarget(tab) != null) {
         backTarget(tab)?.let { tab = it }
     }
+    BackHandler(enabled = showDetails) { showDetails = false }
 
     val reduceMotion = rememberReduceMotion()
 
@@ -74,7 +77,6 @@ fun UsipipoRoot(container: AppContainer) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .windowInsetsPadding(WindowInsets.statusBars)
                 .imePadding(),
         ) {
             AnimatedContent(
@@ -90,11 +92,30 @@ fun UsipipoRoot(container: AppContainer) {
                 label = "tab",
             ) { target ->
                 when (target) {
-                    MainTab.Home -> HomeScreen(
-                        vm = homeViewModel(container),
-                        onImport = { tab = MainTab.Import },
-                        onOpenConfigs = { tab = MainTab.Configs },
-                    )
+                    MainTab.Home -> {
+                        val homeVm = homeViewModel(container)
+                        val stats by statsViewModel(container).ui.collectAsStateWithLifecycle()
+                        if (showDetails) {
+                            val homeState by homeVm.uiState.collectAsStateWithLifecycle()
+                            val activeId = (homeState.tunnel as? TunnelState.Connected)?.configId
+                            DetailsScreen(
+                                config = homeState.configs.firstOrNull { it.id == activeId },
+                                tunnel = homeState.tunnel,
+                                stats = stats,
+                                onClose = { showDetails = false },
+                                onDisconnect = { homeVm.disconnect() },
+                                onRename = { name -> homeVm.rename(activeId.orEmpty(), name) },
+                            )
+                        } else {
+                            HomeScreen(
+                                vm = homeVm,
+                                stats = stats,
+                                onImport = { tab = MainTab.Import },
+                                onOpenConfigs = { tab = MainTab.Configs },
+                                onOpenDetails = { showDetails = true },
+                            )
+                        }
+                    }
 
                     MainTab.Configs -> ConfigsScreen(
                         vm = homeViewModel(container),
@@ -118,7 +139,13 @@ fun UsipipoRoot(container: AppContainer) {
             }
 
             if (!WindowInsets.isImeVisible) {
-                UsipipoBottomBar(tab = tab, onTabClick = { tab = it })
+                UsipipoBottomBar(
+                    tab = tab,
+                    onTabClick = {
+                        tab = it
+                        showDetails = false
+                    },
+                )
             }
         }
     }
@@ -147,6 +174,13 @@ private fun openRelease(context: Context, url: String) {
         AppLog.w("Actualizar", context.getString(R.string.update_no_browser))
     }
 }
+
+@Composable
+private fun statsViewModel(container: AppContainer): StatsViewModel = viewModel(
+    factory = viewModelFactory {
+        initializer { StatsViewModel(container.configStore, container.tunnelManager) }
+    },
+)
 
 @Composable
 private fun homeViewModel(container: AppContainer): HomeViewModel = viewModel(

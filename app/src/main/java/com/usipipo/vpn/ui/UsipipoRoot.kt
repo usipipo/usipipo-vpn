@@ -39,7 +39,6 @@ import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.ui.components.UsipipoBottomBar
 import com.usipipo.vpn.ui.configs.ConfigsScreen
 import com.usipipo.vpn.ui.details.DetailsScreen
-import com.usipipo.vpn.ui.details.StatsUiState
 import com.usipipo.vpn.ui.details.StatsViewModel
 import com.usipipo.vpn.ui.diagnostics.DiagnosticsScreen
 import com.usipipo.vpn.ui.diagnostics.DiagnosticsViewModel

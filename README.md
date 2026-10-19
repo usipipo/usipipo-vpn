@@ -1,10 +1,13 @@
-# uSipipo VPN (Android) — Fase 1: estructura y estilo del mockup
+# uSipipo VPN (Android) — Fase 1 y 2: estructura, estilo y datos reales del túnel
 
 App Android nativa en Kotlin que importa el `.conf` de WireGuard de tu VPS y conecta con un botón.
-Este paquete es la **fase 1: la interfaz del mockup llevada a código real** — barra inferior de 4
+Este paquete incluye la **fase 1: la interfaz del mockup llevada a código real** — barra inferior de 4
 pestañas (Inicio, Configuraciones, Importar, Diagnóstico), tema azul noche (oscuro) y azul pastel
 (claro), pantalla de Configuraciones con "Mis perfiles" y "Favoritos", Importar con dos tarjetas
-(QR y archivo), y «Acerca de» integrado dentro de Diagnóstico. Se parte de la fase 0 (arquitectura,
+(QR y archivo), y «Acerca de» integrado dentro de Diagnóstico — y la **fase 2: datos reales del
+túnel y pantalla Detalles** — descarga/subida con gráfica, tiempo activo, protocolo, endpoint e
+IPv6; pantalla Detalles con botón Desconectar y lápiz para renombrar el perfil; tarjetas de
+estadísticas en Inicio cuando el túnel está conectado. Se parte de la fase 0 (arquitectura,
 almacén cifrado, túnel WireGuard, diagnóstico, actualizaciones).
 
 Diseños aprobados:
@@ -54,13 +57,14 @@ app/src/main/java/com/usipipo/vpn/
     │   ├── AppLogo.kt               Logo "u" sobre azul de marca
     │   ├── AppHeader.kt             Cabecera con logo y nombre de la app
     │   └── UsipipoBottomBar.kt      Barra inferior Material 3 con 4 pestañas
-    ├── home/                        Pantalla Inicio: botón conectar, estado, tarjeta del perfil activo
+    ├── home/                        Pantalla Inicio: botón conectar, estado, tarjeta del perfil activo, tarjetas de estadísticas (descarga, subida, tiempo, "Ver detalles")
     ├── configs/                     Pantalla Configuraciones: "Mis perfiles" y "Favoritos" con estrella
     ├── importer/                    Archivo .conf o QR (escáner ZXing offline, dos tarjetas)
-    └── diagnostics/                 Diagnóstico con «Acerca de» y comprobación de actualizaciones integrados
+    ├── diagnostics/                 Diagnóstico con «Acerca de» y comprobación de actualizaciones integrados
+    └── details/                     Pantalla Detalles (sub-pantalla de Inicio): estadísticas con gráfica, tiempo activo, protocolo, endpoint, IPv6, desconectar, renombrar
 ```
 
-## Qué incluye la fase 1
+## Qué incluye la fase 1 y la fase 2
 
 - Build completo (Gradle Kotlin DSL, catálogo de versiones, wrapper) — verificado en GitHub Actions.
 - Las tres capas (UI → ViewModel → datos/túnel) con contratos por interfaz.
@@ -68,27 +72,35 @@ app/src/main/java/com/usipipo/vpn/
   sin librería de navegación; estado con `rememberSaveable`; Atrás desde cualquier pestaña vuelve a Inicio.
 - **Tema:** oscuro azul noche (igual al mockup) y claro con azules pastel aprobados; comprobación de contraste ≥ 4.5:1.
 - **Pantalla Inicio:** botón de conectar con Atmósfera, estado del túnel, tarjeta del perfil activo (nombre y protocolo),
-  toque lleva a Configuraciones; subtítulo «Tu privacidad está protegida» al conectar.
+  toque lleva a Configuraciones; subtítulo «Tu privacidad está protegida» al conectar. Cuando el túnel está conectado
+  aparecen tarjetas de descarga y subida, tiempo activo y «Ver detalles».
 - **Pantalla Configuraciones:** pestañas «Mis perfiles» y «Favoritos»; reutiliza tarjetas actuales (chip «Activo»,
   deslizar para borrar) y añade estrella de favorito; botón «+» y «Añadir configuración» llevan a Importar.
 - **Pantalla Importar:** dos tarjetas grandes (QR y archivo `.conf`), paso «Nombre» con Cancelar, Atrás cancela el paso.
 - **Pantalla Diagnóstico:** la pantalla actual de diagnóstico más la sección «Acerca de» (logo, versión, soporte,
   comprobación de actualizaciones).
+- **Pantalla Detalles (sub-pantalla de Inicio):** chip «Activo», estadísticas con gráfica Canvas (últimos ~60 muestras),
+  tiempo activo, protocolo, endpoint, IPv6, botón rojo «Desconectar» y lápiz para renombrar el perfil.
 - **Datos:** campo `favorite` en `SavedConfig` y en el índice del almacén cifrado; perfiles existentes cargan como no favoritos.
-- **Componentes base:** `UsipipoCard`, `IconTile`, `AppLogo`, `AppHeader`, `UsipipoBottomBar`; iconos de `material-icons-core`
-  y vectores propios en `res/drawable` (incluido el logo «u» convertido a icono adaptable).
-- **Pruebas unitarias:** `HomeViewModel` (incluyendo favoritos), `ConfigsFilter`, `EncryptedFileConfigStore` (favoritos y migración
-  de índice antiguo), `MainTab`, `PaletteContrastTest`; el registro (16 pruebas).
+- **Renombrar:** `ConfigStore.rename(id, name)` con validación de duplicados (sin distinguir mayúsculas), nombre vacío,
+  e id desconocido.
+- **Estadísticas del túnel:** `TunnelManager.counters()` (una muestra por segundo), `SpeedCalculator` (ventana de 3
+  muestras, delta negativo como 0), `TunnelState.Connected(sinceMs)`, velocidad en bytes por segundo suavizada.
+- **Componentes base:** `UsipipoCard`, `IconTile`, `AppLogo`, `AppHeader`, `UsipipoBottomBar`, `StatTile`,
+  `ThroughputChart`, `UptimeText`; iconos de `material-icons-core` y vectores propios en `res/drawable`
+  (incluido el logo «u» convertido a icono adaptable).
+- **Pruebas unitarias:** `HomeViewModel` (incluyendo favoritos y renombrar), `ConfigsFilter`, `EncryptedFileConfigStore`
+  (favoritos, migración de índice antiguo y renombrar), `SpeedCalculator`, `ConfSummary`, `Formatters`, `MainTab`,
+  `PaletteContrastTest`; el registro (16 pruebas).
 - **Diagnóstico y ajustes avanzados:** registro en archivo con rotación, claves tapadas automáticamente,
   captura de cierres inesperados, modo detallado (con logcat), visor, borrado y envío del informe por
   correo a usipipo@gmail.com.
 
 ## Qué NO incluye (según el diseño)
 
-Estadísticas en pantalla, conexión automática, acceso a "VPN siempre activa", pegar texto,
+Conexión automática, acceso a "VPN siempre activa", pegar texto,
 split tunneling, ícono definitivo, minificación y todo el **modo administrador**
-(fase 2: servicio en el VPS dentro del túnel + clave Ed25519 del Keystore).
-La firma de la versión `release` ya está resuelta (ver «Release firmada»).
+(fase 3: país y ping, geolocalización del endpoint dentro del túnel).
 
 ## Supuestos que elegí yo (cámbialos si no te sirven)
 
@@ -115,7 +127,8 @@ La firma de la versión `release` ya está resuelta (ver «Release firmada»).
 ## Siguiente paso sugerido
 
 Compilar, probar en tu teléfono con el `.conf` de tu VPS (handshake, IP pública, DNS de Blocky) y
-corregir lo que salga. Después, continuar con el plan de la fase 2 (datos reales de túnel y pantalla Detalles).
+corregir lo que salga. La fase 2 está completa; el siguiente paso es la **fase 3** (país y bandera
+por geolocalización del endpoint, y ping real dentro del túnel).
 
 ## Compilar la APK con GitHub Actions
 

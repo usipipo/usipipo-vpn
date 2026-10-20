@@ -74,7 +74,7 @@ fun CountryPingRow(state: CountryPingUiState, modifier: Modifier = Modifier) {
     }
 }
 
-private fun flagEmoji(countryCode: String): String {
+fun flagEmoji(countryCode: String): String {
     return countryCode
         .map { it.code - 'A'.code + 0x1F1E6 }
         .joinToString("") { it.toChar() }

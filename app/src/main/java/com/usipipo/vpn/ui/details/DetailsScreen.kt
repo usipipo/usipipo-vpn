@@ -59,10 +59,10 @@ fun DetailsScreen(
     config: SavedConfig?,
     tunnel: TunnelState,
     stats: StatsUiState,
-    countryPing: CountryPingUiState = CountryPingUiState(),
     onClose: () -> Unit,
     onDisconnect: () -> Unit,
     onRename: suspend (String) -> Result<SavedConfig>,
+    countryPing: CountryPingUiState = CountryPingUiState(),
 ) {
     val connected = tunnel as? TunnelState.Connected
     val unavailable = connected == null || config == null

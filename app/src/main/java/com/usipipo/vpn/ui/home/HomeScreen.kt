@@ -60,6 +60,8 @@ import com.usipipo.vpn.ui.components.AppHeader
 import com.usipipo.vpn.ui.components.ConnectButton
 import com.usipipo.vpn.ui.components.IconTile
 import com.usipipo.vpn.ui.components.UsipipoCard
+import com.usipipo.vpn.ui.details.CountryPingRow
+import com.usipipo.vpn.ui.details.flagEmoji
 import com.usipipo.vpn.ui.details.StatsUiState
 import com.usipipo.vpn.ui.theme.AtmospherePhase
 import com.usipipo.vpn.ui.theme.LocalAtmosphere
@@ -74,6 +76,7 @@ fun HomeScreen(
     onImport: () -> Unit,
     onOpenConfigs: () -> Unit,
     onOpenDetails: () -> Unit,
+    countryCode: String? = null,
 ) {
     val state by vm.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -129,7 +132,7 @@ fun HomeScreen(
                 if (selected == null) {
                     EmptyState(onImport = onImport)
                 } else {
-                    ProfileCard(config = selected, onClick = onOpenConfigs)
+                    ProfileCard(config = selected, onClick = onOpenConfigs, countryCode = countryCode)
                     (state.tunnel as? TunnelState.Connected)?.let { connected ->
                         ConnectionStats(
                             sinceMs = connected.sinceMs,
@@ -258,7 +261,7 @@ private fun EmptyState(onImport: () -> Unit) {
 }
 
 @Composable
-private fun ProfileCard(config: SavedConfig, onClick: () -> Unit) {
+private fun ProfileCard(config: SavedConfig, onClick: () -> Unit, countryCode: String? = null) {
     UsipipoCard(modifier = Modifier.fillMaxWidth(), onClick = onClick) {
         Row(
             modifier = Modifier
@@ -273,12 +276,20 @@ private fun ProfileCard(config: SavedConfig, onClick: () -> Unit) {
                     .weight(1f)
                     .padding(horizontal = 12.dp),
             ) {
-                Text(
-                    text = config.name,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = config.name,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                    )
+                    if (countryCode != null) {
+                        Text(
+                            text = flagEmoji(countryCode),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    }
+                }
                 Text(
                     text = stringResource(R.string.protocol_wireguard),
                     style = MaterialTheme.typography.bodyMedium,

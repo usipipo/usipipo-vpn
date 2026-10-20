@@ -9,13 +9,13 @@ import com.usipipo.vpn.data.geo.PingRepository
 import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.tunnel.TunnelManager
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.Job
 
 /**
  * ViewModel que orquesta país (una vez al conectar) y ping (loop cada 5 s)

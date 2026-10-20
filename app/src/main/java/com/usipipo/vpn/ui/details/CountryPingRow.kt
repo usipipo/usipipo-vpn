@@ -5,9 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -82,5 +80,5 @@ fun CountryPingRow(state: CountryPingUiState, modifier: Modifier = Modifier) {
 /** Convierte un código ISO 2 letras en emoji de bandera (indicadores regionales). */
 internal fun flagEmoji(countryCode: String): String {
     val code = countryCode.uppercase().takeIf { it.length == 2 } ?: return ""
-    return code.map { (it.code - 'A'.code + 0x1F1E6).toString() }.joinToString("")
+    return code.map { String(Character.toChars(it.code - 'A'.code + 0x1F1E6)) }.joinToString("")
 }

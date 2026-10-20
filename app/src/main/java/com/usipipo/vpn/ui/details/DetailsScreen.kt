@@ -330,6 +330,7 @@ private fun PreviewDetailsScreen() {
 }
 
 @Preview(name = "Detalles con error de pais")
+@Preview(name = "Detalles con error de pais oscuro", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewDetailsScreenPaisError() {
     UsipipoTheme {
@@ -362,6 +363,7 @@ private fun PreviewDetailsScreenPaisError() {
 }
 
 @Preview(name = "Detalles sin datos")
+@Preview(name = "Detalles sin datos oscuro", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewDetailsScreenSinDatos() {
     UsipipoTheme {

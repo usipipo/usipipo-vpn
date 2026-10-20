@@ -76,6 +76,7 @@ fun HomeScreen(
     onOpenConfigs: () -> Unit,
     onOpenDetails: () -> Unit,
     countryCode: String? = null,
+    countryName: String? = null,
 ) {
     val state by vm.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -131,17 +132,50 @@ fun HomeScreen(
                 if (selected == null) {
                     EmptyState(onImport = onImport)
                 } else {
-                    ProfileCard(config = selected, onClick = onOpenConfigs, countryCode = countryCode)
+                    ProfileCard(
+                        config = selected,
+                        onClick = onOpenConfigs,
+                        countryCode = countryCode,
+                        countryName = countryName,
+                    )
                     (state.tunnel as? TunnelState.Connected)?.let { connected ->
                         ConnectionStats(
                             sinceMs = connected.sinceMs,
                             stats = stats,
                             onOpenDetails = onOpenDetails,
                         )
-                    }
-                }
             }
         }
+    }
+}
+
+@Preview(name = "ProfileCard con bandera")
+@Preview(name = "ProfileCard con bandera oscuro", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewProfileCardConBandera() {
+    UsipipoTheme {
+        Surface {
+            ProfileCard(
+                config = SavedConfig("a", "client-mowgli", countryCode = "DE", countryName = "Germany"),
+                onClick = {},
+            )
+        }
+    }
+}
+
+@Preview(name = "ProfileCard sin pais")
+@Preview(name = "ProfileCard sin pais oscuro", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewProfileCardSinPais() {
+    UsipipoTheme {
+        Surface {
+            ProfileCard(
+                config = SavedConfig("a", "client-mowgli"),
+                onClick = {},
+            )
+        }
+    }
+}
     }
 }
 
@@ -260,7 +294,12 @@ private fun EmptyState(onImport: () -> Unit) {
 }
 
 @Composable
-private fun ProfileCard(config: SavedConfig, onClick: () -> Unit, countryCode: String? = null) {
+private fun ProfileCard(
+    config: SavedConfig,
+    onClick: () -> Unit,
+    countryCode: String? = null,
+    countryName: String? = null,
+) {
     UsipipoCard(modifier = Modifier.fillMaxWidth(), onClick = onClick) {
         Row(
             modifier = Modifier
@@ -285,6 +324,20 @@ private fun ProfileCard(config: SavedConfig, onClick: () -> Unit, countryCode: S
                     if (countryCode != null) {
                         Text(
                             text = flagEmoji(countryCode),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        countryName?.let { name ->
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = name,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                            )
+                        }
+                    } else {
+                        Text(
+                            text = "\u26E2", // globo ⏣
                             style = MaterialTheme.typography.bodyLarge,
                         )
                     }
@@ -390,7 +443,10 @@ private fun PreviewInicioConectado() {
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     ConnectSection(tunnel = TunnelState.Connected("a"), enabled = true, onClick = {})
-                    ProfileCard(config = SavedConfig("a", "client-mowgli"), onClick = {})
+                    ProfileCard(
+                        config = SavedConfig("a", "client-mowgli", countryCode = "DE", countryName = "Germany"),
+                        onClick = {},
+                    )
                 }
             }
         }

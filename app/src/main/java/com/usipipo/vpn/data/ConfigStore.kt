@@ -1,5 +1,6 @@
 package com.usipipo.vpn.data
 
+import com.usipipo.vpn.domain.CountryInfo
 import com.usipipo.vpn.domain.SavedConfig
 import kotlinx.coroutines.flow.StateFlow
 
@@ -27,4 +28,7 @@ interface ConfigStore {
 
     /** Cambia el nombre visible. Falla con [DuplicateNameException] si otro perfil ya lo usa (sin distinguir mayúsculas) y con [IllegalArgumentException] si queda vacío. */
     suspend fun rename(id: String, name: String): Result<SavedConfig>
+
+    /** Actualiza los campos de caché de país de un perfil. Ignora ids que no existen. */
+    suspend fun updateCountry(id: String, countryInfo: CountryInfo)
 }

@@ -1,6 +1,7 @@
 package com.usipipo.vpn.data
 
 import com.usipipo.vpn.diagnostics.AppLog
+import com.usipipo.vpn.domain.CountryInfo
 import com.usipipo.vpn.domain.SavedConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -103,6 +104,10 @@ class EncryptedFileConfigStore(
                     id = item.getString(KEY_ID),
                     name = item.getString(KEY_NAME),
                     favorite = item.optBoolean(KEY_FAVORITE, false),
+                    countryCode = item.optString(KEY_COUNTRY_CODE, null).takeIf { it.isNotEmpty() },
+                    countryName = item.optString(KEY_COUNTRY_NAME, null).takeIf { it.isNotEmpty() },
+                    countryIp = item.optString(KEY_COUNTRY_IP, null).takeIf { it.isNotEmpty() },
+                    countryFetchedAt = item.optLong(KEY_COUNTRY_FETCHED_AT, -1).takeIf { it >= 0 },
                 )
             }.filter { fileFor(it.id).exists() }
             _configs.value = loaded
@@ -117,7 +122,11 @@ class EncryptedFileConfigStore(
                 JSONObject()
                     .put(KEY_ID, it.id)
                     .put(KEY_NAME, it.name)
-                    .put(KEY_FAVORITE, it.favorite),
+                    .put(KEY_FAVORITE, it.favorite)
+                    .put(KEY_COUNTRY_CODE, it.countryCode.orEmpty())
+                    .put(KEY_COUNTRY_NAME, it.countryName.orEmpty())
+                    .put(KEY_COUNTRY_IP, it.countryIp.orEmpty())
+                    .put(KEY_COUNTRY_FETCHED_AT, it.countryFetchedAt.orElse(-1L)),
             )
         }
         val root = JSONObject().put(KEY_CONFIGS, array)
@@ -164,11 +173,34 @@ class EncryptedFileConfigStore(
             }
         }
 
+    override suspend fun updateCountry(id: String, countryInfo: CountryInfo) {
+        mutex.withLock {
+            withContext(Dispatchers.IO) {
+                if (_configs.value.none { it.id == id }) return@withContext
+                _configs.value = _configs.value.map { cfg ->
+                    if (cfg.id == id) {
+                        cfg.copy(
+                            countryCode = countryInfo.countryCode,
+                            countryName = countryInfo.countryName,
+                            countryIp = countryInfo.ip,
+                            countryFetchedAt = countryInfo.fetchedAt,
+                        )
+                    } else cfg
+                }
+                persistIndex()
+            }
+        }
+    }
+
     private companion object {
         const val KEY_CONFIGS = "configs"
         const val KEY_ID = "id"
         const val KEY_NAME = "name"
         const val KEY_LAST_USED = "lastUsedId"
         const val KEY_FAVORITE = "favorite"
+        const val KEY_COUNTRY_CODE = "countryCode"
+        const val KEY_COUNTRY_NAME = "countryName"
+        const val KEY_COUNTRY_IP = "countryIp"
+        const val KEY_COUNTRY_FETCHED_AT = "countryFetchedAt"
     }
 }

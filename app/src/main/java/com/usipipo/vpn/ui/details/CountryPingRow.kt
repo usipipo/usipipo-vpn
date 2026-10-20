@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 /**
@@ -21,8 +20,8 @@ import androidx.compose.ui.unit.dp
  *
  * - País: emoji de bandera (código ISO 2 letras → regional indicator) + nombre,
  *   o globo `⏣` si no hay dato o falló la consulta.
- * - Ping: badge coloreado según latencia (verde <100, ámbar 100-250, rojo >250,
- *   gris `—` si no hay dato o falló).
+ * - Ping: badge coloreado según latencia usando colores del tema
+ *   (primario <100, secundario 100-250, error >250, superficie variante «—»).
  */
 @Composable
 fun CountryPingRow(state: CountryPingUiState, modifier: Modifier = Modifier) {
@@ -49,20 +48,20 @@ fun CountryPingRow(state: CountryPingUiState, modifier: Modifier = Modifier) {
                 )
             } else {
                 Text(
-                    text = "\u2B1B", // globo ⏣
+                    text = "\u26E2", // globo ⏣
                     style = MaterialTheme.typography.bodyLarge,
                 )
             }
         }
 
-        // Ping con badge de color
+        // Ping con badge de color (colores del tema, sin hardcodeo)
         val pingResult = state.pingResult
         val pingText = pingResult?.ms?.let { "$it ms" } ?: "—"
         val pingColor = when {
             pingResult == null || pingResult.error || pingResult.ms == null -> null
-            pingResult.ms < 100 -> Color(0xFF00C853) // verde
-            pingResult.ms <= 250 -> Color(0xFFFFB300) // ámbar
-            else -> Color(0xFFFF3D3D) // rojo
+            pingResult.ms < 100 -> MaterialTheme.colorScheme.primary
+            pingResult.ms <= 250 -> MaterialTheme.colorScheme.secondary
+            else -> MaterialTheme.colorScheme.error
         }
 
         Chip(
@@ -74,8 +73,10 @@ fun CountryPingRow(state: CountryPingUiState, modifier: Modifier = Modifier) {
     }
 }
 
-fun flagEmoji(countryCode: String): String {
-    return countryCode
+/** Convierte un código ISO 2 letras en emoji de bandera (indicadores regionales). */
+internal fun flagEmoji(countryCode: String): String {
+    val code = countryCode.uppercase().takeIf { it.length == 2 } ?: return ""
+    return code
         .map { it.code - 'A'.code + 0x1F1E6 }
         .joinToString("") { it.toChar() }
 }

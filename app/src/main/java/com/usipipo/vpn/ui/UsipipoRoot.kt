@@ -38,6 +38,7 @@ import com.usipipo.vpn.diagnostics.AppLog
 import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.ui.components.UsipipoBottomBar
 import com.usipipo.vpn.ui.configs.ConfigsScreen
+import com.usipipo.vpn.ui.details.CountryPingViewModel
 import com.usipipo.vpn.ui.details.DetailsScreen
 import com.usipipo.vpn.ui.details.StatsViewModel
 import com.usipipo.vpn.ui.diagnostics.DiagnosticsScreen
@@ -95,13 +96,17 @@ fun UsipipoRoot(container: AppContainer) {
                     MainTab.Home -> {
                         val homeVm = homeViewModel(container)
                         val stats by statsViewModel(container).ui.collectAsStateWithLifecycle()
+                        val homeState by homeVm.uiState.collectAsStateWithLifecycle()
+                        val activeId = (homeState.tunnel as? TunnelState.Connected)?.configId
+                        val activeConfig = homeState.configs.firstOrNull { it.id == activeId }
+                        val countryPingVm = countryPingViewModel(container)
+                        val countryPing by countryPingVm.ui.collectAsStateWithLifecycle()
                         if (showDetails) {
-                            val homeState by homeVm.uiState.collectAsStateWithLifecycle()
-                            val activeId = (homeState.tunnel as? TunnelState.Connected)?.configId
                             DetailsScreen(
-                                config = homeState.configs.firstOrNull { it.id == activeId },
+                                config = activeConfig,
                                 tunnel = homeState.tunnel,
                                 stats = stats,
+                                countryPing = countryPing,
                                 onClose = { showDetails = false },
                                 onDisconnect = { homeVm.disconnect() },
                                 onRename = { name -> homeVm.rename(activeId.orEmpty(), name) },
@@ -113,6 +118,7 @@ fun UsipipoRoot(container: AppContainer) {
                                 onImport = { tab = MainTab.Import },
                                 onOpenConfigs = { tab = MainTab.Configs },
                                 onOpenDetails = { showDetails = true },
+                                countryCode = activeConfig?.countryCode,
                             )
                         }
                     }
@@ -186,6 +192,20 @@ private fun statsViewModel(container: AppContainer): StatsViewModel = viewModel(
 private fun homeViewModel(container: AppContainer): HomeViewModel = viewModel(
     factory = viewModelFactory {
         initializer { HomeViewModel(container.configStore, container.tunnelManager) }
+    },
+)
+
+@Composable
+private fun countryPingViewModel(container: AppContainer): CountryPingViewModel = viewModel(
+    factory = viewModelFactory {
+        initializer {
+            CountryPingViewModel(
+                store = container.configStore,
+                tunnelManager = container.tunnelManager,
+                countryRepository = container.countryRepository,
+                pingRepository = container.pingRepository,
+            )
+        }
     },
 )
 

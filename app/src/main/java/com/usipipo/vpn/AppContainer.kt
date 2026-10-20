@@ -4,6 +4,9 @@ import android.content.Context
 import com.usipipo.vpn.data.ConfigImporter
 import com.usipipo.vpn.data.ConfigStore
 import com.usipipo.vpn.data.EncryptedFileConfigStore
+import com.usipipo.vpn.data.geo.CountryRepository
+import com.usipipo.vpn.data.geo.IpApiClient
+import com.usipipo.vpn.data.geo.PingRepository
 import com.usipipo.vpn.data.KeystoreCrypto
 import com.usipipo.vpn.diagnostics.AppLog
 import com.usipipo.vpn.diagnostics.DeviceInfo
@@ -45,6 +48,14 @@ class AppContainer(context: Context) {
 
     // Lazy: la librería nativa de WireGuard solo se carga cuando se necesita.
     val tunnelManager: TunnelManager by lazy { WireGuardTunnelManager(appContext, scope) }
+
+    /** Repositorio de geolocalización de país con caché 24 h (ipapi.co). */
+    val countryRepository: CountryRepository by lazy {
+        CountryRepository(configStore, IpApiClient())
+    }
+
+    /** Repositorio de ping nativo con fallback a isReachable. */
+    val pingRepository: PingRepository by lazy { PingRepository() }
 
     val updateStateStore: UpdateStateStore by lazy { PrefsUpdateStateStore.create(appContext) }
 

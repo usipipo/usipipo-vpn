@@ -57,6 +57,19 @@ class FakeConfigStore(
         _configs.value = _configs.value.map { if (it.id == id) renamed else it }
         return Result.success(renamed)
     }
+
+    override suspend fun updateCountry(id: String, countryInfo: com.usipipo.vpn.domain.CountryInfo) {
+        _configs.value = _configs.value.map { cfg ->
+            if (cfg.id == id) {
+                cfg.copy(
+                    countryCode = countryInfo.countryCode,
+                    countryName = countryInfo.countryName,
+                    countryIp = countryInfo.ip,
+                    countryFetchedAt = countryInfo.fetchedAt,
+                )
+            } else cfg
+        }
+    }
 }
 
 class FakeTunnelManager : TunnelManager {

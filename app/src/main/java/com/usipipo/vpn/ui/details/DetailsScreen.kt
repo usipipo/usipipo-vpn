@@ -59,6 +59,7 @@ fun DetailsScreen(
     config: SavedConfig?,
     tunnel: TunnelState,
     stats: StatsUiState,
+    countryPing: CountryPingUiState = CountryPingUiState(),
     onClose: () -> Unit,
     onDisconnect: () -> Unit,
     onRename: suspend (String) -> Result<SavedConfig>,
@@ -196,6 +197,7 @@ fun DetailsScreen(
                         label = stringResource(R.string.details_ipv6),
                         value = if (stats.routesIpv6) stringResource(R.string.ipv6_enabled) else stringResource(R.string.ipv6_disabled),
                     )
+                    CountryPingRow(state = countryPing)
                 }
             }
             Button(
@@ -298,6 +300,70 @@ private fun renameErrorRes(error: Throwable): Int = when (error) {
 @Preview(name = "Detalles oscuro", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewDetailsScreen() {
+    UsipipoTheme {
+        Surface {
+            DetailsScreen(
+                config = SavedConfig("a", "client-mowgli"),
+                tunnel = TunnelState.Connected("a", sinceMs = 1L),
+                stats = StatsUiState(
+                    downHistory = List(60) { (it % 20) * 500_000L },
+                    upHistory = List(60) { (it % 20) * 500_000L },
+                    endpoint = "frankfurt.example.com:51820",
+                    routesIpv6 = false,
+                ),
+                countryPing = CountryPingUiState(
+                    countryInfo = CountryInfo(
+                        ip = "1.2.3.4",
+                        countryCode = "DE",
+                        countryName = "Germany",
+                        fetchedAt = 1000L,
+                        error = false,
+                    ),
+                    pingResult = PingResult(ms = 23L, error = false),
+                ),
+                onClose = {},
+                onDisconnect = {},
+                onRename = { Result.success(SavedConfig("a", it)) },
+            )
+        }
+    }
+}
+
+@Preview(name = "Detalles con error de pais")
+@Composable
+private fun PreviewDetailsScreenPaisError() {
+    UsipipoTheme {
+        Surface {
+            DetailsScreen(
+                config = SavedConfig("a", "client-mowgli"),
+                tunnel = TunnelState.Connected("a", sinceMs = 1L),
+                stats = StatsUiState(
+                    downHistory = List(60) { (it % 20) * 500_000L },
+                    upHistory = List(60) { (it % 20) * 500_000L },
+                    endpoint = "frankfurt.example.com:51820",
+                    routesIpv6 = false,
+                ),
+                countryPing = CountryPingUiState(
+                    countryInfo = CountryInfo(
+                        ip = "1.2.3.4",
+                        countryCode = null,
+                        countryName = null,
+                        fetchedAt = 1000L,
+                        error = true,
+                    ),
+                    pingResult = PingResult(ms = null, error = true),
+                ),
+                onClose = {},
+                onDisconnect = {},
+                onRename = { Result.success(SavedConfig("a", it)) },
+            )
+        }
+    }
+}
+
+@Preview(name = "Detalles sin datos")
+@Composable
+private fun PreviewDetailsScreenSinDatos() {
     UsipipoTheme {
         Surface {
             DetailsScreen(

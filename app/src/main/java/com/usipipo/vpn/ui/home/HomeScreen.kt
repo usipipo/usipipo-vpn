@@ -60,7 +60,6 @@ import com.usipipo.vpn.ui.components.AppHeader
 import com.usipipo.vpn.ui.components.ConnectButton
 import com.usipipo.vpn.ui.components.IconTile
 import com.usipipo.vpn.ui.components.UsipipoCard
-import com.usipipo.vpn.ui.details.CountryPingRow
 import com.usipipo.vpn.ui.details.flagEmoji
 import com.usipipo.vpn.ui.details.StatsUiState
 import com.usipipo.vpn.ui.theme.AtmospherePhase

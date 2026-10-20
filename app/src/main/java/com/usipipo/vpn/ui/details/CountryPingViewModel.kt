@@ -11,8 +11,6 @@ import com.usipipo.vpn.tunnel.TunnelManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.Dispatchers
 
 /**
  * ViewModel que orquesta país (una vez al conectar) y ping (loop cada 5 s)
@@ -35,6 +33,8 @@ class CountryPingViewModel(
 
     private var lastConfigId: String? = null
     private var lastIp: String? = null
+    /** Job del loop de ping; se cancela al desconectar o al cambiar de perfil. */
+    private var pingJob: kotlinx.coroutines.Job? = null
 
     init {
         viewModelScope.launch {
@@ -44,6 +44,7 @@ class CountryPingViewModel(
                         handleConnected(state.configId)
                     }
                     else -> {
+                        cancelPingLoop()
                         lastConfigId = null
                         lastIp = null
                         _ui.update { it.copy(pingResult = null) }
@@ -56,6 +57,7 @@ class CountryPingViewModel(
     private fun handleConnected(configId: String) = viewModelScope.launch {
         val ip = extractEndpointIp(configId) ?: return@launch
         if (configId == lastConfigId && ip == lastIp) return@launch
+        cancelPingLoop()
         lastConfigId = configId
         lastIp = ip
 
@@ -67,7 +69,7 @@ class CountryPingViewModel(
     }
 
     private fun launchPingLoop(configId: String) {
-        viewModelScope.launch {
+        pingJob = viewModelScope.launch {
             val target = extractPingTarget(configId)
             if (target == null) return@launch
             while (isActive) {
@@ -76,6 +78,11 @@ class CountryPingViewModel(
                 delay(5000)
             }
         }
+    }
+
+    private fun cancelPingLoop() {
+        pingJob?.cancel()
+        pingJob = null
     }
 
     private fun extractEndpointIp(configId: String): String? {

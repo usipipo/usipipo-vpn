@@ -52,7 +52,7 @@ class CountryPingViewModelTest {
         assertTrue(httpCalled)
         assertEquals("DE", first.countryInfo?.countryCode)
         assertEquals("Germany", first.countryInfo?.countryName)
-        assertFalse(first.countryInfo!!.error)
+        assertFalse(first.countryInfo?.error ?: true)
         assertNull(first.pingResult) // ping aún no se ha emitido (delay 5s)
     }
 

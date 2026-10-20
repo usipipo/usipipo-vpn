@@ -176,8 +176,6 @@ private fun PreviewProfileCardSinPais() {
         }
     }
 }
-    }
-}
 
 @Composable
 private fun HomeBackground(

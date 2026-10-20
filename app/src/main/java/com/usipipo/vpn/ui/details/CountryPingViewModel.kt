@@ -8,11 +8,14 @@ import com.usipipo.vpn.data.geo.CountryRepository
 import com.usipipo.vpn.data.geo.PingRepository
 import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.tunnel.TunnelManager
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.Job
 
 /**
  * ViewModel que orquesta país (una vez al conectar) y ping (loop cada 5 s)
@@ -37,9 +40,11 @@ class CountryPingViewModel(
     private var lastConfigId: String? = null
     private var lastIp: String? = null
     /** Job del loop de ping; se cancela al desconectar o al cambiar de perfil. */
-    private var pingJob: kotlinx.coroutines.Job? = null
+    private var pingJob: Job? = null
     /** Serializa el acceso a handleConnected para evitar bucles de ping concurrentes. */
     private val connectMutex = Mutex()
+    /** Indica si el ViewModel está activo (para el loop de ping). */
+    private var isActive = true
 
     init {
         viewModelScope.launch {
@@ -54,23 +59,23 @@ class CountryPingViewModel(
                         cancelPingLoop()
                         lastConfigId = null
                         lastIp = null
-                        _ui.update { it.copy(pingResult = null) }
+                        _ui.value = _ui.value.copy(pingResult = null)
                     }
                 }
             }
         }
     }
 
-    private fun handleConnected(configId: String) = viewModelScope.launch {
-        val ip = extractEndpointIp(configId) ?: return@launch
-        if (configId == lastConfigId && ip == lastIp) return@launch
+    private suspend fun handleConnected(configId: String) {
+        val ip = extractEndpointIp(configId) ?: return
+        if (configId == lastConfigId && ip == lastIp) return
         cancelPingLoop()
         lastConfigId = configId
         lastIp = ip
 
-        _ui.update { it.copy(isLoadingCountry = true) }
+        _ui.value = _ui.value.copy(isLoadingCountry = true)
         val info = countryRepository.countryFor(configId, ip)
-        _ui.update { it.copy(countryInfo = info, isLoadingCountry = false) }
+        _ui.value = _ui.value.copy(countryInfo = info, isLoadingCountry = false)
 
         launchPingLoop(configId)
     }
@@ -81,7 +86,7 @@ class CountryPingViewModel(
             if (target == null) return@launch
             while (isActive) {
                 val result = pingRepository.ping(target)
-                _ui.update { it.copy(pingResult = result) }
+                _ui.value = _ui.value.copy(pingResult = result)
                 delay(5000)
             }
         }
@@ -92,13 +97,13 @@ class CountryPingViewModel(
         pingJob = null
     }
 
-    private fun extractEndpointIp(configId: String): String? {
+    private suspend fun extractEndpointIp(configId: String): String? {
         val confText = store.readText(configId) ?: return null
         val endpoint = ConfSummary.parse(confText).endpoint ?: return null
         return endpoint.substringBefore(':').takeIf { it.isNotEmpty() }
     }
 
-    private fun extractPingTarget(configId: String): String? {
+    private suspend fun extractPingTarget(configId: String): String? {
         val confText = store.readText(configId) ?: return null
 
         // Intentar derivar .1 del Address del cliente (ej. 10.5.0.2/24 -> 10.5.0.1)
@@ -121,6 +126,7 @@ class CountryPingViewModel(
 
     override fun onCleared() {
         super.onCleared()
+        isActive = false
         cancelPingLoop()
         viewModelScope.cancel()
     }

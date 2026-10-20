@@ -3,6 +3,7 @@ package com.usipipo.vpn.data.geo
 import com.usipipo.vpn.domain.PingResult
 import java.io.IOException
 import java.net.InetAddress
+import kotlin.math.roundToLong
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -17,21 +18,30 @@ import kotlinx.coroutines.withContext
  * - Nunca lanza: cualquier excepción se degrada a `error = true`.
  */
 class PingRepository(
-    private val pingRunner: (String) -> String? = { runNativePing(it) },
-    private val reachabilityChecker: (String, Int) -> Boolean = { host, timeout ->
-        InetAddress.getByName(host).isReachable(timeout)
-    },
+    private val pingRunner: ((String) -> String?)? = null,
+    private val reachabilityChecker: ((String, Int) -> Boolean)? = null,
 ) {
+
+    private val defaultPingRunner: (String) -> String? = { target ->
+        runNativePing(target)
+    }
+
+    private val defaultReachabilityChecker: (String, Int) -> Boolean = { host, timeout ->
+        InetAddress.getByName(host).isReachable(timeout)
+    }
 
     suspend fun ping(target: String): PingResult = withContext(Dispatchers.IO) {
         if (target.isBlank()) return@withContext PingResult(ms = null, error = true)
 
-        val output = pingRunner(target)
+        val runner = pingRunner ?: defaultPingRunner
+        val checker = reachabilityChecker ?: defaultReachabilityChecker
+
+        val output = runner(target)
         val ms = parsePingTime(output)
         if (ms != null) return@withContext PingResult(ms = ms, error = false)
 
         val reachable = try {
-            reachabilityChecker(target, 1000)
+            checker(target, 1000)
         } catch (e: Exception) {
             false
         }

@@ -44,6 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import com.usipipo.vpn.R
 import com.usipipo.vpn.data.DuplicateNameException
+import com.usipipo.vpn.domain.CountryInfo
+import com.usipipo.vpn.domain.PingResult
 import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.ui.components.IconTile

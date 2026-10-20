@@ -31,7 +31,7 @@ class CountryRepository(
         val config = store.configs.value.firstOrNull { it.id == configId }
 
         // Caché hit: misma IP y dentro del TTL.
-        val fetchedAt = config.countryFetchedAt
+        val fetchedAt = config?.countryFetchedAt
         if (config?.countryIp == ip && fetchedAt != null) {
             val age = System.currentTimeMillis() - fetchedAt
             if (age < cacheTtlMs) {

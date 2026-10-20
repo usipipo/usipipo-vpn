@@ -126,7 +126,7 @@ class EncryptedFileConfigStore(
                     .put(KEY_COUNTRY_CODE, it.countryCode.orEmpty())
                     .put(KEY_COUNTRY_NAME, it.countryName.orEmpty())
                     .put(KEY_COUNTRY_IP, it.countryIp.orEmpty())
-                    .put(KEY_COUNTRY_FETCHED_AT, it.countryFetchedAt.orElse(-1L)),
+                    .put(KEY_COUNTRY_FETCHED_AT, it.countryFetchedAt ?: -1L),
             )
         }
         val root = JSONObject().put(KEY_CONFIGS, array)

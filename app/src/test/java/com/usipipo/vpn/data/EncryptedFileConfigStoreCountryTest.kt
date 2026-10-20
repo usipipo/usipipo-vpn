@@ -1,5 +1,6 @@
 package com.usipipo.vpn.data
 
+import com.usipipo.vpn.domain.CountryInfo
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -19,7 +20,7 @@ class EncryptedFileConfigStoreCountryTest {
         val store = EncryptedFileConfigStore(dir, IdentityCrypto())
         val saved = store.add("Casa", "conf").getOrThrow()
 
-        store.updateCountry(saved.id, "DE", "Germany", "1.2.3.4", 1000L)
+        store.updateCountry(saved.id, CountryInfo("1.2.3.4", "DE", "Germany", 1000L, error = false))
 
         val cfg = store.configs.value.single { it.id == saved.id }
         assertEquals("DE", cfg.countryCode)
@@ -50,7 +51,7 @@ class EncryptedFileConfigStoreCountryTest {
         val dir = tmp.newFolder("configs")
         val store = EncryptedFileConfigStore(dir, IdentityCrypto())
 
-        store.updateCountry("no-existe", "DE", "Germany", "1.2.3.4", 1000L)
+        store.updateCountry("no-existe", CountryInfo("1.2.3.4", "DE", "Germany", 1000L, error = false))
 
         assertEquals(0, store.configs.value.size)
     }

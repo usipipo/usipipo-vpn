@@ -1,8 +1,8 @@
 package com.usipipo.vpn.data.geo
 
 import com.usipipo.vpn.data.ConfigStore
-import com.usipipo.vpn.domain.CountryInfo
 import com.usipipo.vpn.diagnostics.AppLog
+import com.usipipo.vpn.domain.CountryInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

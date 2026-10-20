@@ -29,7 +29,7 @@ class IpApiClient(private val timeoutMs: Int = 3000) : CountryHttpClient {
             if (code != 200) {
                 throw IOException("ipapi.co respondió HTTP $code para $ip")
             }
-            val body = connection.inputStream.bufferedReader().readText()
+            val body = connection.inputStream.bufferedReader().use { it.readText() }
             val json = JSONObject(body)
             CountryInfo(
                 ip = ip,

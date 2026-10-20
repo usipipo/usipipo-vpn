@@ -6,7 +6,7 @@ package com.usipipo.vpn.domain
  * @param ip la IP consultada.
  * @param countryCode código ISO 2 letras (ej. "DE"), null si no se conoció o falló.
  * @param countryName nombre del país (ej. "Germany"), null si no se conoció o falló.
- * @param fetchedAt marca de tiempo de la consulta (`SystemClock.elapsedRealtime()`).
+ * @param fetchedAt marca de tiempo de la consulta (milisegundos de reloj del sistema).
  * @param error true si la consulta falló (timeout, red, 429, JSON inválido…).
  */
 data class CountryInfo(

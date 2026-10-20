@@ -85,9 +85,11 @@ class CountryRepositoryTest {
         val http = FakeHttp { httpCalled = true; null }
         val repo = CountryRepository(store, http)
 
-        repo.countryFor("c1", "1.2.3.4")
+        val result = repo.countryFor("c1", "1.2.3.4")
 
         assertTrue(httpCalled)
+        assertTrue(result.error)
+        assertEquals("1.2.3.4", result.ip)
     }
 
     @Test

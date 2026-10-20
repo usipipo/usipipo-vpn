@@ -3,8 +3,8 @@ package com.usipipo.vpn.data.geo
 import com.usipipo.vpn.data.ConfigStore
 import com.usipipo.vpn.domain.CountryInfo
 import com.usipipo.vpn.diagnostics.AppLog
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Repositorio de geolocalización de país con caché por perfil (TTL 24 h).
@@ -31,14 +31,15 @@ class CountryRepository(
         val config = store.configs.value.firstOrNull { it.id == configId }
 
         // Caché hit: misma IP y dentro del TTL.
-        if (config?.countryIp == ip && config.countryFetchedAt != null) {
-            val age = System.currentTimeMillis() - config.countryFetchedAt!!
+        val fetchedAt = config.countryFetchedAt
+        if (config?.countryIp == ip && fetchedAt != null) {
+            val age = System.currentTimeMillis() - fetchedAt
             if (age < cacheTtlMs) {
                 return@withContext CountryInfo(
                     ip = ip,
                     countryCode = config.countryCode,
                     countryName = config.countryName,
-                    fetchedAt = config.countryFetchedAt,
+                    fetchedAt = fetchedAt,
                     error = false,
                 )
             }

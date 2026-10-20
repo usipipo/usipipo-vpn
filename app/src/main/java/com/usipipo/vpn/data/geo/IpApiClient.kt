@@ -1,0 +1,45 @@
+package com.usipipo.vpn.data.geo
+
+import com.usipipo.vpn.domain.CountryInfo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.URL
+
+/**
+ * Cliente mínimo contra `https://ipapi.co/json/{ip}/`.
+ *
+ * - HTTPS obligatorio (capa gratuita de ipapi.co lo soporta).
+ * - Timeout de 3 s, 1 intento, sin reintentos.
+ * - Parsea `country_name` y `country_code` del JSON.
+ */
+class IpApiClient(private val timeoutMs: Int = 3000) : CountryHttpClient {
+
+    override suspend fun fetch(ip: String): CountryInfo = withContext(Dispatchers.IO) {
+        val url = URL("https://ipapi.co/json/$ip/")
+        val connection = url.openConnection() as HttpURLConnection
+        connection.requestMethod = "GET"
+        connection.connectTimeout = timeoutMs
+        connection.readTimeout = timeoutMs
+        connection.instanceFollowRedirects = true
+        try {
+            val code = connection.responseCode
+            if (code != 200) {
+                throw IOException("ipapi.co respondió HTTP $code para $ip")
+            }
+            val body = connection.inputStream.bufferedReader().readText()
+            val json = JSONObject(body)
+            CountryInfo(
+                ip = ip,
+                countryCode = json.optString("country_code", null).takeIf { it.isNotEmpty() },
+                countryName = json.optString("country_name", null).takeIf { it.isNotEmpty() },
+                fetchedAt = System.currentTimeMillis(),
+                error = false,
+            )
+        } finally {
+            connection.disconnect()
+        }
+    }
+}

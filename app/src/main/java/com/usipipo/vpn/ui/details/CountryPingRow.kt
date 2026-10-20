@@ -30,17 +30,17 @@ fun CountryPingRow(state: CountryPingUiState, modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // País y bandera
-        Row(
-            modifier = Modifier.weight(1f),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
             val countryInfo = state.countryInfo
             if (countryInfo != null && !countryInfo.error && countryInfo.countryCode != null) {
                 Text(
                     text = flagEmoji(countryInfo.countryCode),
                     style = MaterialTheme.typography.bodyLarge,
                 )
-                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = countryInfo.countryName ?: countryInfo.countryCode ?: "",
                     style = MaterialTheme.typography.bodyMedium,

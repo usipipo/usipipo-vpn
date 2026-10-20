@@ -128,6 +128,5 @@ class CountryPingViewModel(
         super.onCleared()
         isActive = false
         cancelPingLoop()
-        viewModelScope.cancel()
     }
 }

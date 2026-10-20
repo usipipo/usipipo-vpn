@@ -99,9 +99,9 @@ fun UsipipoRoot(container: AppContainer) {
                         val homeState by homeVm.uiState.collectAsStateWithLifecycle()
                         val activeId = (homeState.tunnel as? TunnelState.Connected)?.configId
                         val activeConfig = homeState.configs.firstOrNull { it.id == activeId }
-                        val countryPingVm = countryPingViewModel(container)
-                        val countryPing by countryPingVm.ui.collectAsStateWithLifecycle()
                         if (showDetails) {
+                            val countryPingVm = countryPingViewModel(container)
+                            val countryPing by countryPingVm.ui.collectAsStateWithLifecycle()
                             DetailsScreen(
                                 config = activeConfig,
                                 tunnel = homeState.tunnel,
@@ -119,6 +119,7 @@ fun UsipipoRoot(container: AppContainer) {
                                 onOpenConfigs = { tab = MainTab.Configs },
                                 onOpenDetails = { showDetails = true },
                                 countryCode = activeConfig?.countryCode,
+                                countryName = activeConfig?.countryName,
                             )
                         }
                     }

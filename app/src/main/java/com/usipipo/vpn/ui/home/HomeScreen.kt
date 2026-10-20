@@ -148,8 +148,6 @@ fun HomeScreen(
         }
     }
 }
-}
-}
 
 @Preview(name = "ProfileCard con bandera")
 @Preview(name = "ProfileCard con bandera oscuro", uiMode = Configuration.UI_MODE_NIGHT_YES)

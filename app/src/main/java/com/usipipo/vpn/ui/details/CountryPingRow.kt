@@ -48,7 +48,7 @@ fun CountryPingRow(state: CountryPingUiState, modifier: Modifier = Modifier) {
                     style = MaterialTheme.typography.bodyLarge,
                 )
                 Text(
-                    text = countryInfo.countryName ?: countryCode,
+                    text = countryInfo?.countryName ?: countryCode,
                     style = MaterialTheme.typography.bodyMedium,
                 )
             } else {

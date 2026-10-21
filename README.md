@@ -133,10 +133,14 @@ queda descartado: la app solo importa un `.conf` y no lleva gestión de usuarios
 
 ## Siguiente paso sugerido
 
-Compilar, probar en tu teléfono con el `.conf` de tu VPS (handshake, IP pública, DNS de Blocky) y
-corregir lo que salga. La fase 3 está completa; el siguiente paso es la **fase 4** (**modo
-administrador**: listar, crear y revocar usuarios del WireGuard desde la app), que necesita su
-propio diseño antes de implementarse.
+**Probar la v0.3.0 en tu teléfono** (la release firmada está en
+<https://github.com/usipipo/usipipo-vpn/releases/tag/v0.3.0>): conectar con el `.conf` de tu
+VPS (handshake, IP pública, DNS de Blocky), importar por QR, renombrar, ver el país y el ping en
+Detalles, y desconectar. Ojo: la APK firmada **no** se instala encima de la de depuración, hay que
+desinstalar la anterior antes.
+
+La **fase 4** (R8 activado, residuos cerrados y release publicada) está completa. Quedan fuera de
+alcance, sin fecha: split tunneling, conexión automática y "VPN siempre activa".
 
 ## Compilar la APK con GitHub Actions
 

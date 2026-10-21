@@ -2,7 +2,8 @@
 
 Fecha: 2026-10-18
 Estado: diseño aprobado (secciones 1 a 6). Fases 1, 2 y 3 implementadas y verificadas en CI.
-Pendiente de diseño la fase 4 (modo administrador, ver sección 3).
+La fase 4 no fue el modo administrador (descartado, ver sección 3) sino el cierre de la app para
+publicarla: R8 activado, residuos cerrados y release v0.3.0 firmada.
 Alcance: capa de interfaz de la app Android (Kotlin + Jetpack Compose), más los datos de túnel que la interfaz necesita
 
 ## 1. Objetivo

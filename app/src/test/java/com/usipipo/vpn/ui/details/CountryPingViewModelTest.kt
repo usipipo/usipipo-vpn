@@ -113,6 +113,10 @@ class CountryPingViewModelTest {
         vm.setDetailsVisible(true)
         val conPing = vm.ui.first { it.pingResult != null }
         assertNotNull(conPing.pingResult)
+
+        // Detalles oculta: el ping se detiene.
+        vm.setDetailsVisible(false)
+        assertNull(vm.ui.value.pingResult)
     }
 
     @Test

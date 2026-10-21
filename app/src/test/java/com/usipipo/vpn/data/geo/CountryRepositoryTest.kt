@@ -128,20 +128,20 @@ class CountryRepositoryTest {
         assertEquals("Japan", result.countryName)
     }
 
-    private class FakeCountryStoreMutable(private val configs: List<SavedConfig>) : ConfigStore {
+    private class FakeCountryStoreMutable(configs: List<SavedConfig>) : ConfigStore {
         private val _configs = MutableStateFlow(configs)
         private val _lastUsedId = MutableStateFlow<String?>(null)
 
         override val configs: StateFlow<List<SavedConfig>> = _configs
         override val lastUsedId: StateFlow<String?> = _lastUsedId
 
-        override suspend fun add(name: String, configText: String): kotlinx.coroutines.Result<SavedConfig>
+        override suspend fun add(name: String, configText: String): Result<SavedConfig>
             = throw UnsupportedOperationException()
         override suspend fun readText(id: String): String? = null
         override suspend fun remove(id: String) {}
         override suspend fun setLastUsed(id: String) {}
         override suspend fun setFavorite(id: String, favorite: Boolean) {}
-        override suspend fun rename(id: String, name: String): kotlinx.coroutines.Result<SavedConfig>
+        override suspend fun rename(id: String, name: String): Result<SavedConfig>
             = throw UnsupportedOperationException()
 
         override suspend fun updateCountry(id: String, countryInfo: CountryInfo) {

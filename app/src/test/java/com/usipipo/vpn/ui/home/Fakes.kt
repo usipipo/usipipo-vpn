@@ -1,8 +1,8 @@
 package com.usipipo.vpn.ui.home
 
 import com.usipipo.vpn.data.ConfigStore
-import com.usipipo.vpn.domain.CountryInfo
 import com.usipipo.vpn.data.DuplicateNameException
+import com.usipipo.vpn.domain.CountryInfo
 import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.domain.TunnelCounters
 import com.usipipo.vpn.domain.TunnelState

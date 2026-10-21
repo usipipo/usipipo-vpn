@@ -4,11 +4,11 @@ import com.usipipo.vpn.data.optStringOrNull
 import com.usipipo.vpn.domain.CountryInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.json.JSONException
-import org.json.JSONObject
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
+import org.json.JSONException
+import org.json.JSONObject
 
 /**
  * Cliente mínimo contra `https://ipapi.co/json/{ip}/`.

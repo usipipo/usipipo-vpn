@@ -70,7 +70,7 @@ class CountryPingViewModel(
                         cancelPingLoop()
                         lastConfigId = null
                         lastIp = null
-                        _ui.update { it.copy(pingResult = null) }
+                        _ui.update { it.copy(pingResult = null, countryInfo = null) }
                     }
                 }
             }

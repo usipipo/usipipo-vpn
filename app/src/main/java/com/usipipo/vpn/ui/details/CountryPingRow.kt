@@ -42,13 +42,14 @@ fun CountryPingRow(state: CountryPingUiState, modifier: Modifier = Modifier) {
         ) {
             val countryInfo = state.countryInfo
             val countryCode = if (countryInfo != null && !countryInfo.error) countryInfo.countryCode else null
-            if (countryCode != null) {
+            val flag = countryCode?.let { flagEmoji(it) }?.takeIf { it.isNotEmpty() }
+            if (flag != null) {
                 Text(
-                    text = flagEmoji(countryCode),
+                    text = flag,
                     style = MaterialTheme.typography.bodyLarge,
                 )
                 Text(
-                    text = countryInfo?.countryName ?: countryCode,
+                    text = countryInfo?.countryName ?: countryCode.orEmpty(),
                     style = MaterialTheme.typography.bodyMedium,
                 )
             } else {

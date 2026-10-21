@@ -104,6 +104,9 @@ fun UsipipoRoot(container: AppContainer) {
         ) {
             AnimatedContent(
                 targetState = tab,
+                // Sin weight(1f) cada pantalla, que usa fillMaxSize(), se come todo el
+                // alto de la columna y la barra inferior se queda con altura cero.
+                modifier = Modifier.weight(1f),
                 transitionSpec = {
                     if (reduceMotion) {
                         EnterTransition.None togetherWith ExitTransition.None

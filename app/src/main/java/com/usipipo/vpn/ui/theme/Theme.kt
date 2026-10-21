@@ -153,6 +153,27 @@ private val DarkAtmosphere = AtmosphereColors(
 
 val LocalAtmosphere = staticCompositionLocalOf { LightAtmosphere }
 
+/**
+ * Colores de la barra inferior: fondo, color de la pestaña activa y de las inactivas.
+ * Vive aparte del esquema de Material porque la barra lleva su propio azul de marca.
+ */
+@Immutable
+data class BottomBarColors(val container: Color, val active: Color, val inactive: Color)
+
+private val LightBottomBar = BottomBarColors(
+    container = Color(AtmospherePalette.BOTTOM_BAR_LIGHT),
+    active = Color(AtmospherePalette.BOTTOM_BAR_ACTIVE_LIGHT),
+    inactive = Color(AtmospherePalette.BOTTOM_BAR_INACTIVE_LIGHT),
+)
+
+private val DarkBottomBar = BottomBarColors(
+    container = Color(AtmospherePalette.BOTTOM_BAR_DARK),
+    active = Color(AtmospherePalette.BOTTOM_BAR_ACTIVE_DARK),
+    inactive = Color(AtmospherePalette.BOTTOM_BAR_INACTIVE_DARK),
+)
+
+val LocalBottomBarColors = staticCompositionLocalOf { LightBottomBar }
+
 @Composable
 fun UsipipoTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -162,6 +183,7 @@ fun UsipipoTheme(
         LocalStatusColors provides if (darkTheme) DarkStatus else LightStatus,
         LocalAtmosphere provides if (darkTheme) DarkAtmosphere else LightAtmosphere,
         LocalPingColors provides if (darkTheme) DarkPing else LightPing,
+        LocalBottomBarColors provides if (darkTheme) DarkBottomBar else LightBottomBar,
     ) {
         MaterialTheme(
             colorScheme = if (darkTheme) DarkColors else LightColors,

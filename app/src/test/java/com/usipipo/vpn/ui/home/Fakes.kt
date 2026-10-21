@@ -1,6 +1,7 @@
 package com.usipipo.vpn.ui.home
 
 import com.usipipo.vpn.data.ConfigStore
+import com.usipipo.vpn.domain.CountryInfo
 import com.usipipo.vpn.data.DuplicateNameException
 import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.domain.TunnelCounters
@@ -58,7 +59,7 @@ class FakeConfigStore(
         return Result.success(renamed)
     }
 
-    override suspend fun updateCountry(id: String, countryInfo: com.usipipo.vpn.domain.CountryInfo) {
+    override suspend fun updateCountry(id: String, countryInfo: CountryInfo) {
         _configs.value = _configs.value.map { cfg ->
             if (cfg.id == id) {
                 cfg.copy(

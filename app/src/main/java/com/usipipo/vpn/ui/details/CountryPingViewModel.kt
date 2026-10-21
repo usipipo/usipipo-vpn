@@ -51,7 +51,7 @@ class CountryPingViewModel(
     private var connectedConfigId: String? = null
     /** La pantalla Detalles avisa de su visibilidad con [setDetailsVisible]. */
     private var detailsVisible = false
-    /** Serializa el acceso a handleConnected para evitar consultas y pings concurrentes. */
+    /** Serializa la comprobacion y actualizacion de la cache de pais (no la llamada de red). */
     private val connectMutex = Mutex()
 
     init {
@@ -60,7 +60,9 @@ class CountryPingViewModel(
                 when (state) {
                     is TunnelState.Connected -> {
                         connectedConfigId = state.configId
-                        connectMutex.withLock { handleConnected(state.configId) }
+                        // La consulta de pais va en su propia corrutina: el colector no
+                        // debe esperar a la red para procesar un desconexion.
+                        handleConnected(state.configId)
                         if (detailsVisible) startPingLoop(state.configId)
                     }
                     else -> {
@@ -89,11 +91,18 @@ class CountryPingViewModel(
         }
     }
 
-    private suspend fun handleConnected(configId: String) {
-        val ip = extractEndpointIp(configId) ?: return
-        if (configId == lastConfigId && ip == lastIp) return
-        lastConfigId = configId
-        lastIp = ip
+    private fun handleConnected(configId: String) = viewModelScope.launch {
+        val ip = extractEndpointIp(configId) ?: return@launch
+        val shouldQuery = connectMutex.withLock {
+            if (configId == lastConfigId && ip == lastIp) {
+                false
+            } else {
+                lastConfigId = configId
+                lastIp = ip
+                true
+            }
+        }
+        if (!shouldQuery) return@launch
 
         _ui.update { it.copy(isLoadingCountry = true) }
         val info = countryRepository.countryFor(configId, ip)

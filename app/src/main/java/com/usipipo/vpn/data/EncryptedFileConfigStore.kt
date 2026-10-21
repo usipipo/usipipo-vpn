@@ -108,8 +108,8 @@ class EncryptedFileConfigStore(
     }
 
     /**
-     * Lee un perfil del indice. Los campos ausentes (indices antiguos) quedan en null:
-     * `optString` usa "" como fallback para no propagar null.
+     * Lee un perfil del indice. Los campos ausentes (indices antiguos) quedan en null
+     * gracias a [optStringOrNull].
      */
     private fun JSONObject.toSavedConfig(): SavedConfig = SavedConfig(
         id = getString(KEY_ID),

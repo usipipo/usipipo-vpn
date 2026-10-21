@@ -58,20 +58,23 @@ class PingRepository(
         var process: Process? = null
         return try {
             // `-W` esta en SEGUNDOS en Linux/Android (no en ms): 1 s es el timeout efectivo.
-            process = ProcessBuilder("ping", "-c", "1", "-W", "1", target).start()
-            // Se lee stderr en paralelo para no llenar el pipe y bloquear el proceso.
-            val stderr = process.errorStream.bufferedReader().use { it.readText() }
-            val output = process.inputStream.bufferedReader().use { it.readText() }
+            // redirectErrorStream unifica stderr en stdout: un solo pipe, sin interbloqueo.
+            process = ProcessBuilder("ping", "-c", "1", "-W", "1", target)
+                .redirectErrorStream(true)
+                .start()
+            // Se espera PRIMERO con timeout: leer antes bloquearia el hilo de IO hasta el EOF.
             if (!process.waitFor(PING_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
-                process.destroy()
-                null
-            } else {
-                output
+                process.destroyForcibly()
+                process.waitFor()
+                return null
             }
+            process.inputStream.bufferedReader().use { it.readText() }
         } catch (e: IOException) {
             null
         } catch (e: InterruptedException) {
             Thread.currentThread().interrupt()
+            null
+        } catch (e: SecurityException) {
             null
         } finally {
             process?.destroy()

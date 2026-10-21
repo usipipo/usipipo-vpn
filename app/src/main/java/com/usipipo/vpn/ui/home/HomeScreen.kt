@@ -58,6 +58,7 @@ import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.domain.isActive
 import com.usipipo.vpn.ui.components.AppHeader
 import com.usipipo.vpn.ui.components.ConnectButton
+import com.usipipo.vpn.ui.components.GLOBE_EMOJI
 import com.usipipo.vpn.ui.components.IconTile
 import com.usipipo.vpn.ui.components.UsipipoCard
 import com.usipipo.vpn.ui.details.StatsUiState
@@ -75,8 +76,6 @@ fun HomeScreen(
     onImport: () -> Unit,
     onOpenConfigs: () -> Unit,
     onOpenDetails: () -> Unit,
-    countryCode: String? = null,
-    countryName: String? = null,
 ) {
     val state by vm.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -132,12 +131,7 @@ fun HomeScreen(
                 if (selected == null) {
                     EmptyState(onImport = onImport)
                 } else {
-                    ProfileCard(
-                        config = selected,
-                        onClick = onOpenConfigs,
-                        countryCode = countryCode,
-                        countryName = countryName,
-                    )
+                    ProfileCard(config = selected, onClick = onOpenConfigs)
                     (state.tunnel as? TunnelState.Connected)?.let { connected ->
                         ConnectionStats(
                             sinceMs = connected.sinceMs,
@@ -297,8 +291,6 @@ private fun EmptyState(onImport: () -> Unit) {
 private fun ProfileCard(
     config: SavedConfig,
     onClick: () -> Unit,
-    countryCode: String? = null,
-    countryName: String? = null,
 ) {
     UsipipoCard(modifier = Modifier.fillMaxWidth(), onClick = onClick) {
         Row(
@@ -321,12 +313,14 @@ private fun ProfileCard(
                         color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                     )
+                    // El pais pertenece al perfil mostrado: no al perfil conectado.
+                    val countryCode = config.countryCode
                     if (countryCode != null) {
                         Text(
                             text = flagEmoji(countryCode),
                             style = MaterialTheme.typography.bodyLarge,
                         )
-                        countryName?.let { name ->
+                        config.countryName?.let { name ->
                             Text(
                                 text = name,
                                 style = MaterialTheme.typography.bodyMedium,
@@ -336,7 +330,7 @@ private fun ProfileCard(
                         }
                     } else {
                         Text(
-                            text = "\u26E2", // globo
+                            text = GLOBE_EMOJI,
                             style = MaterialTheme.typography.bodyLarge,
                         )
                     }

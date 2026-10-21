@@ -126,8 +126,6 @@ fun UsipipoRoot(container: AppContainer) {
                                 onImport = { tab = MainTab.Import },
                                 onOpenConfigs = { tab = MainTab.Configs },
                                 onOpenDetails = { showDetails = true },
-                                countryCode = activeConfig?.countryCode,
-                                countryName = activeConfig?.countryName,
                             )
                         }
                     }

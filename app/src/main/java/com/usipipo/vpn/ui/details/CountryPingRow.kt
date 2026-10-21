@@ -5,79 +5,91 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.usipipo.vpn.R
+import com.usipipo.vpn.ui.components.GLOBE_EMOJI
+import com.usipipo.vpn.ui.theme.LocalPingColors
 
 /**
  * Fila de país y ping para la pantalla Detalles.
  *
  * - País: emoji de bandera (código ISO 2 letras → regional indicator) + nombre,
- *   o globo `⏣` si no hay dato o falló la consulta.
- * - Ping: badge con color del tema según latencia (primario <100, secundario 100-250,
- *   error >250, superficie variante «—»).
+ *   o el globo si no hay dato o falló la consulta.
+ * - Ping: badge con color según latencia (verde <100 ms, ámbar 100-250 ms, rojo >250 ms,
+ *   gris «—» si no hay dato o falló).
  */
 @Composable
 fun CountryPingRow(state: CountryPingUiState, modifier: Modifier = Modifier) {
+    val pingColors = LocalPingColors.current
+
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // País y bandera
-            Row(
-                modifier = Modifier.weight(1f),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
+        Row(
+            modifier = Modifier.weight(1f),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
             val countryInfo = state.countryInfo
-            if (countryInfo != null && !countryInfo.error && countryInfo.countryCode != null) {
+            val countryCode = if (countryInfo != null && !countryInfo.error) countryInfo.countryCode else null
+            if (countryCode != null) {
                 Text(
-                    text = flagEmoji(countryInfo.countryCode),
+                    text = flagEmoji(countryCode),
                     style = MaterialTheme.typography.bodyLarge,
                 )
                 Text(
-                    text = countryInfo.countryName ?: countryInfo.countryCode ?: "",
+                    text = countryInfo.countryName ?: countryCode,
                     style = MaterialTheme.typography.bodyMedium,
                 )
             } else {
                 Text(
-                    text = "\u26E2", // globo ⏣
+                    text = GLOBE_EMOJI,
                     style = MaterialTheme.typography.bodyLarge,
                 )
             }
         }
 
-        // Ping con badge de color usando colores del tema
+        // Ping con badge de color
         val pingResult = state.pingResult
-        val pingText = pingResult?.ms?.let { "$it ms" } ?: "—"
+        val pingText = pingResult?.ms?.let { stringResource(R.string.ping_ms, it) }
+            ?: stringResource(R.string.ping_unknown)
         val pingColor = when {
-            pingResult == null || pingResult.error || pingResult.ms == null -> null
-            pingResult.ms < 100 -> MaterialTheme.colorScheme.primary
-            pingResult.ms <= 250 -> MaterialTheme.colorScheme.secondary
-            else -> MaterialTheme.colorScheme.error
+            pingResult == null || pingResult.error || pingResult.ms == null -> pingColors.unknown
+            pingResult.ms < 100 -> pingColors.good
+            pingResult.ms <= 250 -> pingColors.warn
+            else -> pingColors.bad
         }
 
         Text(
             text = pingText,
             style = MaterialTheme.typography.bodySmall,
-            color = pingColor ?: MaterialTheme.colorScheme.onSurfaceVariant,
+            color = pingColor,
             modifier = Modifier
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .background(
-                    color = pingColor?.copy(alpha = 0.15f) ?: Color.Transparent,
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(6.dp),
+                    color = pingColor.copy(alpha = 0.15f),
+                    shape = RoundedCornerShape(6.dp),
                 ),
         )
     }
 }
 
-/** Convierte un código ISO 2 letras en emoji de bandera (indicadores regionales). */
+/**
+ * Convierte un código ISO 2 letras en emoji de bandera (indicadores regionales).
+ * Devuelve cadena vacía si el código no son dos letras ASCII.
+ */
 internal fun flagEmoji(countryCode: String): String {
-    val code = countryCode.uppercase().takeIf { it.length == 2 } ?: return ""
+    val code = countryCode.uppercase()
+    if (code.length != 2 || !code.all { it in 'A'..'Z' }) return ""
     return code.map { String(Character.toChars(it.code - 'A'.code + 0x1F1E6)) }.joinToString("")
 }

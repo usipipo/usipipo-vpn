@@ -128,6 +128,29 @@ class CountryRepositoryTest {
         assertEquals("Japan", result.countryName)
     }
 
+    @Test
+    fun `respuesta con error no se cachea ni pisa la cache anterior`() = runTest {
+        val store = FakeCountryStoreMutable(configs = listOf(
+            SavedConfig(
+                id = "c1", name = "x",
+                countryIp = "9.9.9.9", countryCode = "DE", countryName = "Germany",
+                countryFetchedAt = 1_000L,
+            ),
+        ))
+        val http = FakeHttp { ip ->
+            CountryInfo(ip = ip, countryCode = null, countryName = null, fetchedAt = 0L, error = true)
+        }
+        val repo = CountryRepository(store, http)
+
+        val result = repo.countryFor("c1", "1.2.3.4")
+
+        assertTrue(result.error)
+        // La cache anterior se mantiene intacta.
+        val saved = store.configs.value.single { it.id == "c1" }
+        assertEquals("9.9.9.9", saved.countryIp)
+        assertEquals("DE", saved.countryCode)
+    }
+
     private class FakeCountryStoreMutable(configs: List<SavedConfig>) : ConfigStore {
         private val _configs = MutableStateFlow(configs)
         private val _lastUsedId = MutableStateFlow<String?>(null)

@@ -3,6 +3,7 @@ package com.usipipo.vpn.data.geo
 import com.usipipo.vpn.data.ConfigStore
 import com.usipipo.vpn.diagnostics.AppLog
 import com.usipipo.vpn.domain.CountryInfo
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -48,19 +49,31 @@ class CountryRepository(
         // Caché miss: consultar la API externa.
         try {
             val info = http.fetch(ip)
+            if (info.error) {
+                // La API respondio con error: no se guarda nada (spec 5.2.5) ni se
+                // sustituye la cache anterior.
+                AppLog.e("Geo", "Geolocalización sin resultado para IP ${abbreviateIp(ip)}")
+                return@withContext failed(ip)
+            }
             store.updateCountry(configId, info)
             return@withContext info
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            AppLog.e("Geo", "Fallo de geolocalización para IP ${abbreviateIp(ip)}", e)
-            return@withContext CountryInfo(
-                ip = ip,
-                countryCode = null,
-                countryName = null,
-                fetchedAt = System.currentTimeMillis(),
-                error = true,
-            )
+            // No se adjunta la excepción: su stack trace puede incluir el cuerpo de la
+            // respuesta (con la IP completa), que el informe de diagnostico si envia.
+            AppLog.e("Geo", "Fallo de geolocalización para IP ${abbreviateIp(ip)} (${e::class.simpleName})")
+            return@withContext failed(ip)
         }
     }
+
+    private fun failed(ip: String) = CountryInfo(
+        ip = ip,
+        countryCode = null,
+        countryName = null,
+        fetchedAt = System.currentTimeMillis(),
+        error = true,
+    )
 
     /** Devuelve los primeros 2 octetos de [ip] para registrar sin exponer la IP completa. */
     private fun abbreviateIp(ip: String): String {

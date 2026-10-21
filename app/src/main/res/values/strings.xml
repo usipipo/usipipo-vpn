@@ -128,4 +128,6 @@
     <string name="rename_title">Renombrar perfil</string>
     <string name="cd_rename">Renombrar %1$s</string>
     <string name="cd_throughput_chart">Gráfica de la velocidad del último minuto</string>
+    <string name="ping_ms">%1$d ms</string>
+    <string name="ping_unknown">—</string>
 </resources>

@@ -12,3 +12,8 @@
 
 # Metadatos que Compose y las librerías leen en runtime.
 -keepattributes *Annotation*, InnerClasses, Signature, EnclosingMethod
+
+# Anotaciones JSR-305 referenciadas por WireGuard (javax.annotation.Nonnull y
+# javax.annotation.meta.TypeQualifierDefault). No están en el classpath y su
+# retención es CLASS: no se leen en runtime, así que se silencian.
+-dontwarn javax.annotation.**

@@ -19,6 +19,7 @@ import com.usipipo.vpn.update.UpdateChecker
 import com.usipipo.vpn.update.UpdateStateStore
 import com.usipipo.vpn.update.UpdateStatus
 import com.usipipo.vpn.update.Version
+import java.io.File
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +28,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.io.File
 
 /** Contenedor de dependencias manual: suficiente para una app de tres pantallas. */
 class AppContainer(context: Context) {

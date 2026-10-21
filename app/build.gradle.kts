@@ -58,8 +58,11 @@ android {
             if (releaseSigning != null) {
                 signingConfig = signingConfigs.getByName("release")
             }
-            // Fase 0: sin minificación. Se activa en una fase posterior (ver proguard-rules.pro).
-            isMinifyEnabled = false
+            // Fase 4: minificación y reducción de recursos activas. Las reglas
+            // que lo necesitan están en proguard-rules.pro (WireGuard usa JNI y
+            // ZXing se construye por reflexión).
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",

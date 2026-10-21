@@ -1,7 +1,8 @@
 # uSipipo VPN — Diseño: del mockup a la app real
 
 Fecha: 2026-10-18
-Estado: diseño aprobado (secciones 1 a 4), pendiente de plan de implementación
+Estado: diseño aprobado (secciones 1 a 6). Fases 1, 2 y 3 implementadas y verificadas en CI.
+Pendiente de diseño la fase 4 (modo administrador, ver sección 3).
 Alcance: capa de interfaz de la app Android (Kotlin + Jetpack Compose), más los datos de túnel que la interfaz necesita
 
 ## 1. Objetivo
@@ -80,7 +81,10 @@ Llevar a código real las cinco pantallas del mockup generado con IA (principal,
 - El contrato `TunnelManager` gana un flujo de estadísticas. La lógica de conexión no cambia.
 - El registro de diagnóstico no guarda cifras de tráfico, salvo en modo detallado y sin claves ni IPs completas.
 
-## 6. Fase 3 — País y ping
+## 6. Fase 3 — País y ping — **implementada**
+
+Especificación detallada: `docs/superpowers/specs/2026-10-18-usipipo-vpn-fase3-pais-y-ping-design.md`
+Plan: `docs/superpowers/plans/2026-10-18-fase3-pais-y-ping.md`
 
 ### País y bandera
 

@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -61,6 +63,8 @@ fun UsipipoRoot(container: AppContainer) {
     var showDetails by rememberSaveable { mutableStateOf(false) }
     val updateStatus by container.updateStatus.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    // Vive a nivel raiz: la consulta de pais ocurre al conectar, no solo al abrir Detalles.
+    val countryPingVm = countryPingViewModel(container)
 
     // Versión cuya ventana ya se cerró (descarte o descarga): no reaparece.
     var handledUpdate by rememberSaveable { mutableStateOf<String?>(null) }
@@ -96,12 +100,16 @@ fun UsipipoRoot(container: AppContainer) {
                     MainTab.Home -> {
                         val homeVm = homeViewModel(container)
                         val stats by statsViewModel(container).ui.collectAsStateWithLifecycle()
+                        val countryPing by countryPingVm.ui.collectAsStateWithLifecycle()
                         val homeState by homeVm.uiState.collectAsStateWithLifecycle()
                         val activeId = (homeState.tunnel as? TunnelState.Connected)?.configId
                         val activeConfig = homeState.configs.firstOrNull { it.id == activeId }
+                        // El ping solo corre mientras Detalles esta visible.
+                        LaunchedEffect(showDetails) { countryPingVm.setDetailsVisible(showDetails) }
+                        DisposableEffect(Unit) {
+                            onDispose { countryPingVm.setDetailsVisible(false) }
+                        }
                         if (showDetails) {
-                            val countryPingVm = countryPingViewModel(container)
-                            val countryPing by countryPingVm.ui.collectAsStateWithLifecycle()
                             DetailsScreen(
                                 config = activeConfig,
                                 tunnel = homeState.tunnel,

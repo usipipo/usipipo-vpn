@@ -12,10 +12,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class FakeConfigStore(
-    initial: List<SavedConfig> = emptyList(),
+    configs: List<SavedConfig> = emptyList(),
     private val texts: Map<String, String> = emptyMap(),
 ) : ConfigStore {
-    private val _configs = MutableStateFlow(initial)
+    private val _configs = MutableStateFlow(configs)
     private val _lastUsed = MutableStateFlow<String?>(null)
 
     override val configs: StateFlow<List<SavedConfig>> = _configs

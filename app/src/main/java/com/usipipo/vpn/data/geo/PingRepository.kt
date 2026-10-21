@@ -3,6 +3,7 @@ package com.usipipo.vpn.data.geo
 import com.usipipo.vpn.domain.PingResult
 import java.io.IOException
 import java.net.InetAddress
+import java.util.concurrent.TimeUnit
 import kotlin.math.roundToLong
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -30,6 +31,11 @@ class PingRepository(
         InetAddress.getByName(host).isReachable(timeout)
     }
 
+    private companion object {
+        /** Timeout del proceso `ping` nativo, en segundos. */
+        const val PING_TIMEOUT_SECONDS = 3L
+    }
+
     suspend fun ping(target: String): PingResult = withContext(Dispatchers.IO) {
         if (target.isBlank()) return@withContext PingResult(ms = null, error = true)
 
@@ -49,14 +55,26 @@ class PingRepository(
     }
 
     private fun runNativePing(target: String): String? {
+        var process: Process? = null
         return try {
-            val process =
-                ProcessBuilder("ping", "-c", "1", "-W", "1000", target).start()
+            // `-W` esta en SEGUNDOS en Linux/Android (no en ms): 1 s es el timeout efectivo.
+            process = ProcessBuilder("ping", "-c", "1", "-W", "1", target).start()
+            // Se lee stderr en paralelo para no llenar el pipe y bloquear el proceso.
+            val stderr = process.errorStream.bufferedReader().use { it.readText() }
             val output = process.inputStream.bufferedReader().use { it.readText() }
-            process.waitFor()
-            output
+            if (!process.waitFor(PING_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                process.destroy()
+                null
+            } else {
+                output
+            }
         } catch (e: IOException) {
             null
+        } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
+            null
+        } finally {
+            process?.destroy()
         }
     }
 

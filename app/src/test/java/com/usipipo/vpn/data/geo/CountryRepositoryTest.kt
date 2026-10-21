@@ -128,8 +128,8 @@ class CountryRepositoryTest {
         assertEquals("Japan", result.countryName)
     }
 
-    private class FakeCountryStoreMutable(private val initial: List<SavedConfig>) : ConfigStore {
-        private val _configs = MutableStateFlow(initial)
+    private class FakeCountryStoreMutable(private val configs: List<SavedConfig>) : ConfigStore {
+        private val _configs = MutableStateFlow(configs)
         private val _lastUsedId = MutableStateFlow<String?>(null)
 
         override val configs: StateFlow<List<SavedConfig>> = _configs

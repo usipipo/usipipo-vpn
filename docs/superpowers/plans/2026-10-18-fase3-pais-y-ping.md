@@ -25,7 +25,7 @@
 ## Review Focus
 
 1. IP del endpoint ausente o sin puerto → país no se consulta, se muestra globo sin romper nada.
-2. ipapi.co timeout (3 s) o HTTP 429 → `CountryInfo(error=true)`, globo en UI, log en AppLog, sin reintento.
+2. ipapi.co timeout (3 s) o HTTP 429 → `CountryInfo(error=true)`, globo en UI, log en AppLog con IP abreviada, sin reintento. Con 429 se activa además un cooldown local hasta el `X-Ttl`.
 3. Binario `ping` ausente o bloqueado por fabricante → fallback `InetAddress.isReachable`; si falla, «—».
 4. Perfil existente sin campos de país (migración) → campos `null`, no rompe carga del almacén.
 5. Túnel se desconecta mientras Detalles abierto → job de ping se cancela, UI muestra «—».
@@ -183,7 +183,7 @@ Expected: FAIL (CountryRepository no existe)
 
 - [ ] **Step 3: Crear `CountryRepository.countryFor`**
 
-Lógica: leer SavedConfig del configId → si `countryIp == ip` y edad < 24 h → retornar caché. Si miss → llamar a IpApiClient → éxito: guardar en store via `updateCountry`, retornar CountryInfo. Fallo: retornar `CountryInfo(ip = ip, error = true)`, log en AppLog con IP abreviada (primeros 2 octetos).
+Lógica: leer SavedConfig del configId → si `countryIp == ip` y edad < 24 h → retornar caché. Si miss → llamar a IpApiClient → éxito: guardar en store via `updateCountry`, retornar CountryInfo. Fallo: retornar `CountryInfo(ip = ip, error = true)`, log en AppLog con IP abreviada (primeros 2 octetos) y **sin adjuntar la excepción** (su stack trace puede incluir el cuerpo de la respuesta, con la IP). Si la API responde HTTP 429 se respeta `X-Ttl` y el repositorio entra en **cooldown** local: no vuelve a consultar hasta el reinicio del contador, y no guarda nada en caché. Una respuesta con `error: true` (HTTP 200) tampoco se cachea.
 
 - [ ] **Step 4: Run tests — CountryRepository pasa**
 
@@ -227,7 +227,7 @@ Expected: FAIL (PingRepository no existe)
 
 - [ ] **Step 2: Crear `PingRepository.ping`**
 
-Ejecutar `ping -c 1 -W 1000 <target>` vía ProcessBuilder en Dispatchers.IO. Parsear `time=(\d+(?:\.\d+)?)` de la salida. Si proceso falla o no existe → `InetAddress.isReachable(target, 1000)`: true → `PingResult(ms = null, error = false)`; false → `PingResult(ms = null, error = true)`.
+Ejecutar `ping -c 1 -W 1 <target>` vía ProcessBuilder en Dispatchers.IO. Ojo: `-W` va en **segundos** en Linux/Android, no en milisegundos (con `-W 1000` el proceso se quedaría 1000 s). Parsear `time=(\d+(?:\.\d+)?)` y `time<1 ms` (el ping al `.1` del túnel suele ser menor de 1 ms) de la salida. Si proceso falla o no existe → `InetAddress.isReachable(target, 1000)`: true → `PingResult(ms = null, error = false)`; false → `PingResult(ms = null, error = true)`.
 
 - [ ] **Step 3: Run tests — PingRepository pasa**
 

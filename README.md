@@ -106,8 +106,8 @@ app/src/main/java/com/usipipo/vpn/
 ## Qué NO incluye (según el diseño)
 
 Conexión automática, acceso a "VPN siempre activa", pegar texto,
-split tunneling, ícono definitivo, minificación y todo el **modo administrador**
-(fase 4, que requiere su propio diseño previo).
+split tunneling, conexión automática y "VPN siempre activa". El **modo administrador**
+queda descartado: la app solo importa un `.conf` y no lleva gestión de usuarios.
 
 ## Supuestos que elegí yo (cámbialos si no te sirven)
 

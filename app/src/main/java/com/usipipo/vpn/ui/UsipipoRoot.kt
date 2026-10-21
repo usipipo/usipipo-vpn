@@ -22,12 +22,17 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
@@ -38,6 +43,7 @@ import com.usipipo.vpn.diagnostics.AppLog
 import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.ui.components.UsipipoBottomBar
 import com.usipipo.vpn.ui.configs.ConfigsScreen
+import com.usipipo.vpn.ui.details.CountryPingViewModel
 import com.usipipo.vpn.ui.details.DetailsScreen
 import com.usipipo.vpn.ui.details.StatsViewModel
 import com.usipipo.vpn.ui.diagnostics.DiagnosticsScreen
@@ -60,6 +66,23 @@ fun UsipipoRoot(container: AppContainer) {
     var showDetails by rememberSaveable { mutableStateOf(false) }
     val updateStatus by container.updateStatus.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    // Vive a nivel raiz: la consulta de pais ocurre al conectar, no solo al abrir Detalles.
+    val countryPingVm = countryPingViewModel(container)
+
+    // El ping solo corre con la app en primer plano: en segundo plano consume bateria
+    // y consulta un tunel que puede no estar activo.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> countryPingVm.setDetailsVisible(showDetails)
+                Lifecycle.Event.ON_STOP -> countryPingVm.setDetailsVisible(false)
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     // Versión cuya ventana ya se cerró (descarte o descarga): no reaparece.
     var handledUpdate by rememberSaveable { mutableStateOf<String?>(null) }
@@ -95,13 +118,21 @@ fun UsipipoRoot(container: AppContainer) {
                     MainTab.Home -> {
                         val homeVm = homeViewModel(container)
                         val stats by statsViewModel(container).ui.collectAsStateWithLifecycle()
+                        val countryPing by countryPingVm.ui.collectAsStateWithLifecycle()
+                        val homeState by homeVm.uiState.collectAsStateWithLifecycle()
+                        val activeId = (homeState.tunnel as? TunnelState.Connected)?.configId
+                        val activeConfig = homeState.configs.firstOrNull { it.id == activeId }
+                        // El ping solo corre mientras Detalles esta visible.
+                        LaunchedEffect(showDetails) { countryPingVm.setDetailsVisible(showDetails) }
+                        DisposableEffect(Unit) {
+                            onDispose { countryPingVm.setDetailsVisible(false) }
+                        }
                         if (showDetails) {
-                            val homeState by homeVm.uiState.collectAsStateWithLifecycle()
-                            val activeId = (homeState.tunnel as? TunnelState.Connected)?.configId
                             DetailsScreen(
-                                config = homeState.configs.firstOrNull { it.id == activeId },
+                                config = activeConfig,
                                 tunnel = homeState.tunnel,
                                 stats = stats,
+                                countryPing = countryPing,
                                 onClose = { showDetails = false },
                                 onDisconnect = { homeVm.disconnect() },
                                 onRename = { name -> homeVm.rename(activeId.orEmpty(), name) },
@@ -186,6 +217,20 @@ private fun statsViewModel(container: AppContainer): StatsViewModel = viewModel(
 private fun homeViewModel(container: AppContainer): HomeViewModel = viewModel(
     factory = viewModelFactory {
         initializer { HomeViewModel(container.configStore, container.tunnelManager) }
+    },
+)
+
+@Composable
+private fun countryPingViewModel(container: AppContainer): CountryPingViewModel = viewModel(
+    factory = viewModelFactory {
+        initializer {
+            CountryPingViewModel(
+                store = container.configStore,
+                tunnelManager = container.tunnelManager,
+                countryRepository = container.countryRepository,
+                pingRepository = container.pingRepository,
+            )
+        }
     },
 )
 

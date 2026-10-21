@@ -44,6 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import com.usipipo.vpn.R
 import com.usipipo.vpn.data.DuplicateNameException
+import com.usipipo.vpn.domain.CountryInfo
+import com.usipipo.vpn.domain.PingResult
 import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.ui.components.IconTile
@@ -62,6 +64,7 @@ fun DetailsScreen(
     onClose: () -> Unit,
     onDisconnect: () -> Unit,
     onRename: suspend (String) -> Result<SavedConfig>,
+    countryPing: CountryPingUiState = CountryPingUiState(),
 ) {
     val connected = tunnel as? TunnelState.Connected
     val unavailable = connected == null || config == null
@@ -196,6 +199,7 @@ fun DetailsScreen(
                         label = stringResource(R.string.details_ipv6),
                         value = if (stats.routesIpv6) stringResource(R.string.ipv6_enabled) else stringResource(R.string.ipv6_disabled),
                     )
+                    CountryPingRow(state = countryPing)
                 }
             }
             Button(
@@ -298,6 +302,72 @@ private fun renameErrorRes(error: Throwable): Int = when (error) {
 @Preview(name = "Detalles oscuro", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewDetailsScreen() {
+    UsipipoTheme {
+        Surface {
+            DetailsScreen(
+                config = SavedConfig("a", "client-mowgli"),
+                tunnel = TunnelState.Connected("a", sinceMs = 1L),
+                stats = StatsUiState(
+                    downHistory = List(60) { (it % 20) * 500_000L },
+                    upHistory = List(60) { (it % 20) * 500_000L },
+                    endpoint = "frankfurt.example.com:51820",
+                    routesIpv6 = false,
+                ),
+                countryPing = CountryPingUiState(
+                    countryInfo = CountryInfo(
+                        ip = "1.2.3.4",
+                        countryCode = "DE",
+                        countryName = "Germany",
+                        fetchedAt = 1000L,
+                        error = false,
+                    ),
+                    pingResult = PingResult(ms = 23L, error = false),
+                ),
+                onClose = {},
+                onDisconnect = {},
+                onRename = { Result.success(SavedConfig("a", it)) },
+            )
+        }
+    }
+}
+
+@Preview(name = "Detalles con error de pais")
+@Preview(name = "Detalles con error de pais oscuro", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewDetailsScreenPaisError() {
+    UsipipoTheme {
+        Surface {
+            DetailsScreen(
+                config = SavedConfig("a", "client-mowgli"),
+                tunnel = TunnelState.Connected("a", sinceMs = 1L),
+                stats = StatsUiState(
+                    downHistory = List(60) { (it % 20) * 500_000L },
+                    upHistory = List(60) { (it % 20) * 500_000L },
+                    endpoint = "frankfurt.example.com:51820",
+                    routesIpv6 = false,
+                ),
+                countryPing = CountryPingUiState(
+                    countryInfo = CountryInfo(
+                        ip = "1.2.3.4",
+                        countryCode = null,
+                        countryName = null,
+                        fetchedAt = 1000L,
+                        error = true,
+                    ),
+                    pingResult = PingResult(ms = null, error = true),
+                ),
+                onClose = {},
+                onDisconnect = {},
+                onRename = { Result.success(SavedConfig("a", it)) },
+            )
+        }
+    }
+}
+
+@Preview(name = "Detalles sin datos")
+@Preview(name = "Detalles sin datos oscuro", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewDetailsScreenSinDatos() {
     UsipipoTheme {
         Surface {
             DetailsScreen(

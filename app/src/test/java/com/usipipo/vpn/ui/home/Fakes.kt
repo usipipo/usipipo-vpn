@@ -2,6 +2,7 @@ package com.usipipo.vpn.ui.home
 
 import com.usipipo.vpn.data.ConfigStore
 import com.usipipo.vpn.data.DuplicateNameException
+import com.usipipo.vpn.domain.CountryInfo
 import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.domain.TunnelCounters
 import com.usipipo.vpn.domain.TunnelState
@@ -12,10 +13,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class FakeConfigStore(
-    initial: List<SavedConfig> = emptyList(),
+    configs: List<SavedConfig> = emptyList(),
     private val texts: Map<String, String> = emptyMap(),
 ) : ConfigStore {
-    private val _configs = MutableStateFlow(initial)
+    private val _configs = MutableStateFlow(configs)
     private val _lastUsed = MutableStateFlow<String?>(null)
 
     override val configs: StateFlow<List<SavedConfig>> = _configs
@@ -56,6 +57,19 @@ class FakeConfigStore(
         val renamed = current.copy(name = clean)
         _configs.value = _configs.value.map { if (it.id == id) renamed else it }
         return Result.success(renamed)
+    }
+
+    override suspend fun updateCountry(id: String, countryInfo: CountryInfo) {
+        _configs.value = _configs.value.map { cfg ->
+            if (cfg.id == id) {
+                cfg.copy(
+                    countryCode = countryInfo.countryCode,
+                    countryName = countryInfo.countryName,
+                    countryIp = countryInfo.ip,
+                    countryFetchedAt = countryInfo.fetchedAt,
+                )
+            } else cfg
+        }
     }
 }
 

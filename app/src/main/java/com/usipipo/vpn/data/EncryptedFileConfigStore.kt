@@ -1,6 +1,7 @@
 package com.usipipo.vpn.data
 
 import com.usipipo.vpn.diagnostics.AppLog
+import com.usipipo.vpn.domain.CountryInfo
 import com.usipipo.vpn.domain.SavedConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -97,18 +98,28 @@ class EncryptedFileConfigStore(
         runCatching {
             val root = JSONObject(indexFile.readText())
             val array = root.optJSONArray(KEY_CONFIGS) ?: JSONArray()
-            val loaded = (0 until array.length()).map { i ->
-                val item = array.getJSONObject(i)
-                SavedConfig(
-                    id = item.getString(KEY_ID),
-                    name = item.getString(KEY_NAME),
-                    favorite = item.optBoolean(KEY_FAVORITE, false),
-                )
+            // Un perfil ilegible no debe invalidar el resto del indice.
+            val loaded = (0 until array.length()).mapNotNull { i ->
+                runCatching { array.getJSONObject(i).toSavedConfig() }.getOrNull()
             }.filter { fileFor(it.id).exists() }
             _configs.value = loaded
             _lastUsedId.value = root.optString(KEY_LAST_USED).takeIf { id -> loaded.any { it.id == id } }
         }.onFailure { AppLog.e("Almacen", "No se pudo leer el índice de configuraciones", it) }
     }
+
+    /**
+     * Lee un perfil del indice. Los campos ausentes (indices antiguos) quedan en null
+     * gracias a [optStringOrNull].
+     */
+    private fun JSONObject.toSavedConfig(): SavedConfig = SavedConfig(
+        id = getString(KEY_ID),
+        name = getString(KEY_NAME),
+        favorite = optBoolean(KEY_FAVORITE, false),
+        countryCode = optStringOrNull(KEY_COUNTRY_CODE),
+        countryName = optStringOrNull(KEY_COUNTRY_NAME),
+        countryIp = optStringOrNull(KEY_COUNTRY_IP),
+        countryFetchedAt = optLong(KEY_COUNTRY_FETCHED_AT, -1).takeIf { it >= 0 },
+    )
 
     private fun persistIndex() {
         val array = JSONArray()
@@ -117,7 +128,11 @@ class EncryptedFileConfigStore(
                 JSONObject()
                     .put(KEY_ID, it.id)
                     .put(KEY_NAME, it.name)
-                    .put(KEY_FAVORITE, it.favorite),
+                    .put(KEY_FAVORITE, it.favorite)
+                    .put(KEY_COUNTRY_CODE, it.countryCode.orEmpty())
+                    .put(KEY_COUNTRY_NAME, it.countryName.orEmpty())
+                    .put(KEY_COUNTRY_IP, it.countryIp.orEmpty())
+                    .put(KEY_COUNTRY_FETCHED_AT, it.countryFetchedAt ?: -1L),
             )
         }
         val root = JSONObject().put(KEY_CONFIGS, array)
@@ -164,11 +179,34 @@ class EncryptedFileConfigStore(
             }
         }
 
+    override suspend fun updateCountry(id: String, countryInfo: CountryInfo) {
+        mutex.withLock {
+            withContext(Dispatchers.IO) {
+                if (_configs.value.none { it.id == id }) return@withContext
+                _configs.value = _configs.value.map { cfg ->
+                    if (cfg.id == id) {
+                        cfg.copy(
+                            countryCode = countryInfo.countryCode,
+                            countryName = countryInfo.countryName,
+                            countryIp = countryInfo.ip,
+                            countryFetchedAt = countryInfo.fetchedAt,
+                        )
+                    } else cfg
+                }
+                persistIndex()
+            }
+        }
+    }
+
     private companion object {
         const val KEY_CONFIGS = "configs"
         const val KEY_ID = "id"
         const val KEY_NAME = "name"
         const val KEY_LAST_USED = "lastUsedId"
         const val KEY_FAVORITE = "favorite"
+        const val KEY_COUNTRY_CODE = "countryCode"
+        const val KEY_COUNTRY_NAME = "countryName"
+        const val KEY_COUNTRY_IP = "countryIp"
+        const val KEY_COUNTRY_FETCHED_AT = "countryFetchedAt"
     }
 }

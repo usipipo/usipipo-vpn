@@ -75,6 +75,26 @@ private val DarkStatus = StatusColors(
     error = Color(AtmospherePalette.BUTTON_DARK_ERROR),
 )
 
+/** Colores del badge de ping por latencia (RF-3: verde <100 ms, ambar 100-250 ms, rojo >250 ms). */
+@Immutable
+data class PingColors(val good: Color, val warn: Color, val bad: Color, val unknown: Color)
+
+private val LightPing = PingColors(
+    good = Color(0xFF1B7F4B),
+    warn = Color(0xFF8A5A00),
+    bad = Color(0xFFB3261E),
+    unknown = Color(0xFF4A6283),
+)
+
+private val DarkPing = PingColors(
+    good = Color(0xFF5BD98A),
+    warn = Color(0xFFF5C451),
+    bad = Color(0xFFF87171),
+    unknown = Color(0xFFB7C9E2),
+)
+
+val LocalPingColors = staticCompositionLocalOf { LightPing }
+
 val LocalStatusColors = staticCompositionLocalOf { LightStatus }
 
 // Manrope variable: los cinco pesos usan el mismo archivo con distinto eje `wght`.
@@ -141,6 +161,7 @@ fun UsipipoTheme(
     CompositionLocalProvider(
         LocalStatusColors provides if (darkTheme) DarkStatus else LightStatus,
         LocalAtmosphere provides if (darkTheme) DarkAtmosphere else LightAtmosphere,
+        LocalPingColors provides if (darkTheme) DarkPing else LightPing,
     ) {
         MaterialTheme(
             colorScheme = if (darkTheme) DarkColors else LightColors,

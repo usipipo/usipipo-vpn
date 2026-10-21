@@ -58,9 +58,11 @@ import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.domain.isActive
 import com.usipipo.vpn.ui.components.AppHeader
 import com.usipipo.vpn.ui.components.ConnectButton
+import com.usipipo.vpn.ui.components.GLOBE_EMOJI
 import com.usipipo.vpn.ui.components.IconTile
 import com.usipipo.vpn.ui.components.UsipipoCard
 import com.usipipo.vpn.ui.details.StatsUiState
+import com.usipipo.vpn.ui.components.flagEmoji
 import com.usipipo.vpn.ui.theme.AtmospherePhase
 import com.usipipo.vpn.ui.theme.LocalAtmosphere
 import com.usipipo.vpn.ui.theme.UsipipoTheme
@@ -139,6 +141,34 @@ fun HomeScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Preview(name = "ProfileCard con bandera")
+@Preview(name = "ProfileCard con bandera oscuro", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewProfileCardConBandera() {
+    UsipipoTheme {
+        Surface {
+            ProfileCard(
+                config = SavedConfig("a", "client-mowgli", countryCode = "DE", countryName = "Germany"),
+                onClick = {},
+            )
+        }
+    }
+}
+
+@Preview(name = "ProfileCard sin pais")
+@Preview(name = "ProfileCard sin pais oscuro", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewProfileCardSinPais() {
+    UsipipoTheme {
+        Surface {
+            ProfileCard(
+                config = SavedConfig("a", "client-mowgli"),
+                onClick = {},
+            )
         }
     }
 }
@@ -258,7 +288,10 @@ private fun EmptyState(onImport: () -> Unit) {
 }
 
 @Composable
-private fun ProfileCard(config: SavedConfig, onClick: () -> Unit) {
+private fun ProfileCard(
+    config: SavedConfig,
+    onClick: () -> Unit,
+) {
     UsipipoCard(modifier = Modifier.fillMaxWidth(), onClick = onClick) {
         Row(
             modifier = Modifier
@@ -273,12 +306,35 @@ private fun ProfileCard(config: SavedConfig, onClick: () -> Unit) {
                     .weight(1f)
                     .padding(horizontal = 12.dp),
             ) {
-                Text(
-                    text = config.name,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = config.name,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                    )
+                    // El pais pertenece al perfil mostrado: no al perfil conectado.
+                    val countryCode = config.countryCode
+                    if (countryCode != null) {
+                        Text(
+                            text = flagEmoji(countryCode),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        config.countryName?.let { name ->
+                            Text(
+                                text = name,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                            )
+                        }
+                    } else {
+                        Text(
+                            text = GLOBE_EMOJI,
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    }
+                }
                 Text(
                     text = stringResource(R.string.protocol_wireguard),
                     style = MaterialTheme.typography.bodyMedium,
@@ -380,7 +436,10 @@ private fun PreviewInicioConectado() {
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     ConnectSection(tunnel = TunnelState.Connected("a"), enabled = true, onClick = {})
-                    ProfileCard(config = SavedConfig("a", "client-mowgli"), onClick = {})
+                    ProfileCard(
+                        config = SavedConfig("a", "client-mowgli", countryCode = "DE", countryName = "Germany"),
+                        onClick = {},
+                    )
                 }
             }
         }

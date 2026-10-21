@@ -60,8 +60,8 @@ import com.usipipo.vpn.ui.components.AppHeader
 import com.usipipo.vpn.ui.components.ConnectButton
 import com.usipipo.vpn.ui.components.IconTile
 import com.usipipo.vpn.ui.components.UsipipoCard
-import com.usipipo.vpn.ui.details.flagEmoji
 import com.usipipo.vpn.ui.details.StatsUiState
+import com.usipipo.vpn.ui.details.flagEmoji
 import com.usipipo.vpn.ui.theme.AtmospherePhase
 import com.usipipo.vpn.ui.theme.LocalAtmosphere
 import com.usipipo.vpn.ui.theme.UsipipoTheme
@@ -144,6 +144,8 @@ fun HomeScreen(
                             stats = stats,
                             onOpenDetails = onOpenDetails,
                         )
+                    }
+                }
             }
         }
     }
@@ -325,7 +327,6 @@ private fun ProfileCard(
                             style = MaterialTheme.typography.bodyLarge,
                         )
                         countryName?.let { name ->
-                            Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = name,
                                 style = MaterialTheme.typography.bodyMedium,
@@ -335,7 +336,7 @@ private fun ProfileCard(
                         }
                     } else {
                         Text(
-                            text = "\u26E2", // globo ⏣
+                            text = "\u26E2", // globo
                             style = MaterialTheme.typography.bodyLarge,
                         )
                     }
@@ -445,10 +446,8 @@ private fun PreviewInicioConectado() {
                         config = SavedConfig("a", "client-mowgli", countryCode = "DE", countryName = "Germany"),
                         onClick = {},
                     )
+                }
             }
         }
     }
-}
-}
-}
 }

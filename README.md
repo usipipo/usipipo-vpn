@@ -1,4 +1,4 @@
-# uSipipo VPN (Android) — Fase 1 y 2: estructura, estilo y datos reales del túnel
+# uSipipo VPN (Android) — Fases 1 a 3: estructura, estilo, datos reales, país y ping
 
 App Android nativa en Kotlin que importa el `.conf` de WireGuard de tu VPS y conecta con un botón.
 Este paquete incluye la **fase 1: la interfaz del mockup llevada a código real** — barra inferior de 4
@@ -7,8 +7,10 @@ pestañas (Inicio, Configuraciones, Importar, Diagnóstico), tema azul noche (os
 (QR y archivo), y «Acerca de» integrado dentro de Diagnóstico — y la **fase 2: datos reales del
 túnel y pantalla Detalles** — descarga/subida con gráfica, tiempo activo, protocolo, endpoint e
 IPv6; pantalla Detalles con botón Desconectar y lápiz para renombrar el perfil; tarjetas de
-estadísticas en Inicio cuando el túnel está conectado. Se parte de la fase 0 (arquitectura,
-almacén cifrado, túnel WireGuard, diagnóstico, actualizaciones).
+estadísticas en Inicio cuando el túnel está conectado — y la **fase 3: país y ping** — bandera del
+servidor por geolocalización del endpoint (ipapi.co, con caché de 24 h por perfil) y ping real
+dentro del túnel cada 5 s, visibles en la pantalla Detalles y con la bandera en el perfil de Inicio.
+Se parte de la fase 0 (arquitectura, almacén cifrado, túnel WireGuard, diagnóstico, actualizaciones).
 
 Diseños aprobados:
 - [`docs/plans/2026-10-09-usipipo-vpn-android-design.md`](docs/plans/2026-10-09-usipipo-vpn-android-design.md)
@@ -34,13 +36,17 @@ Diseños aprobados:
 app/src/main/java/com/usipipo/vpn/
 ├── UsipipoApp.kt, AppContainer.kt   Dependencias a mano (sin Hilt, a propósito)
 ├── MainActivity.kt
-├── domain/Models.kt                 SavedConfig y TunnelState (Desconectado, Conectando, Conectado,
-│                                    SinRespuesta, Fallo)
+├── domain/                          SavedConfig, TunnelState, CountryInfo, PingResult
 ├── data/
 │   ├── Crypto.kt                    AES-256-GCM con clave del Android Keystore
 │   ├── ConfigStore.kt               Contrato del almacén
 │   ├── EncryptedFileConfigStore.kt  Un archivo cifrado por configuración + índice sin claves
-│   └── ConfigImporter.kt            Valida el .conf con el parser oficial de WireGuard
+│   ├── JsonExt.kt                   Lectura segura de strings del JSON (ausentes o null)
+│   ├── ConfigImporter.kt            Valida el .conf con el parser oficial de WireGuard
+│   └── geo/                         País y ping
+│       ├── CountryRepository.kt     Geolocalización con caché de 24 h por perfil y cooldown ante 429
+│       ├── IpApiClient.kt           Cliente HTTPS de ipapi.co (timeout 3 s, sin reintentos)
+│       └── PingRepository.kt        Ping nativo con fallback a InetAddress.isReachable
 ├── diagnostics/                     Registro propio: AppLog, LogRedactor (tapa claves), FileLogWriter
 │                                    (archivo rotativo), CrashHandler, informe y envío por correo
 ├── tunnel/
@@ -56,12 +62,13 @@ app/src/main/java/com/usipipo/vpn/
     │   ├── IconTile.kt              Icono en cuadro redondeado (44 dp)
     │   ├── AppLogo.kt               Logo "u" sobre azul de marca
     │   ├── AppHeader.kt             Cabecera con logo y nombre de la app
-    │   └── UsipipoBottomBar.kt      Barra inferior Material 3 con 4 pestañas
+    │   ├── UsipipoBottomBar.kt      Barra inferior Material 3 con 4 pestañas
+    │   └── UiSymbols.kt              Símbolos compartidos: globo y bandera emoji
     ├── home/                        Pantalla Inicio: botón conectar, estado, tarjeta del perfil activo, tarjetas de estadísticas (descarga, subida, tiempo, "Ver detalles")
     ├── configs/                     Pantalla Configuraciones: "Mis perfiles" y "Favoritos" con estrella
     ├── importer/                    Archivo .conf o QR (escáner ZXing offline, dos tarjetas)
     ├── diagnostics/                 Diagnóstico con «Acerca de» y comprobación de actualizaciones integrados
-    └── details/                     Pantalla Detalles (sub-pantalla de Inicio): estadísticas con gráfica, tiempo activo, protocolo, endpoint, IPv6, desconectar, renombrar
+    └── details/                     Pantalla Detalles (sub-pantalla de Inicio): estadísticas con gráfica, tiempo activo, protocolo, endpoint, IPv6, país, ping, desconectar, renombrar
 ```
 
 ## Qué incluye la fase 1 y la fase 2
@@ -100,7 +107,7 @@ app/src/main/java/com/usipipo/vpn/
 
 Conexión automática, acceso a "VPN siempre activa", pegar texto,
 split tunneling, ícono definitivo, minificación y todo el **modo administrador**
-(fase 3: país y ping, geolocalización del endpoint dentro del túnel).
+(fase 4, que requiere su propio diseño previo).
 
 ## Supuestos que elegí yo (cámbialos si no te sirven)
 
@@ -127,8 +134,9 @@ split tunneling, ícono definitivo, minificación y todo el **modo administrador
 ## Siguiente paso sugerido
 
 Compilar, probar en tu teléfono con el `.conf` de tu VPS (handshake, IP pública, DNS de Blocky) y
-corregir lo que salga. La fase 2 está completa; el siguiente paso es la **fase 3** (país y bandera
-por geolocalización del endpoint, y ping real dentro del túnel).
+corregir lo que salga. La fase 3 está completa; el siguiente paso es la **fase 4** (**modo
+administrador**: listar, crear y revocar usuarios del WireGuard desde la app), que necesita su
+propio diseño antes de implementarse.
 
 ## Compilar la APK con GitHub Actions
 

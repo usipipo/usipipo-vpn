@@ -18,7 +18,7 @@ class CountryRepositoryLogTest {
 
     @Test
     fun `la abreviatura conserva los dos primeros octetos`() {
-        assertEquals("10.5", abbreviateIp("10.5.0.2"))
-        assertEquals("1.2", abbreviateIp("1.2.3.4"))
+        assertEquals("10.5.x.x", abbreviateIp("10.5.0.2"))
+        assertEquals("1.2.x.x", abbreviateIp("1.2.3.4"))
     }
 }

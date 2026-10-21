@@ -12,7 +12,7 @@ import kotlinx.coroutines.withContext
  */
 internal fun abbreviateIp(ip: String): String {
     val parts = ip.split(".")
-    return if (parts.size >= 2) "${parts[0]}.${parts[1]}" else ip
+    return if (parts.size >= 2) "${parts[0]}.${parts[1]}.x.x" else ip
 }
 
 /**

@@ -54,9 +54,15 @@ class PingRepository internal constructor(
     private fun parsePingTime(output: String?): Long? {
         if (output == null) return null
         // Admite 'time=23.4 ms' y 'time<1 ms' (el ping al .1 del túnel suele ser <1 ms).
-        val regex = Regex("""time(?:=|<)(\d+(?:\.\d+)?)""")
-        val match = regex.find(output)
-        return match?.groupValues?.get(1)?.toDouble()?.roundToLong()
+        val regex = Regex("""time(=|<)(\d+(?:\.\d+)?)""")
+        val match = regex.find(output) ?: return null
+        val value = match.groupValues[2].toDouble()
+        // '<' es un extremo exclusivo: el valor real es menor que el indicado.
+        return if (match.groupValues[1] == "<") {
+            (value - 1.0).coerceAtLeast(0.0).roundToLong()
+        } else {
+            value.roundToLong()
+        }
     }
 
     private companion object {

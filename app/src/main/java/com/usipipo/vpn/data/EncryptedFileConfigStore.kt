@@ -98,22 +98,28 @@ class EncryptedFileConfigStore(
         runCatching {
             val root = JSONObject(indexFile.readText())
             val array = root.optJSONArray(KEY_CONFIGS) ?: JSONArray()
-            val loaded = (0 until array.length()).map { i ->
-                val item = array.getJSONObject(i)
-                SavedConfig(
-                    id = item.getString(KEY_ID),
-                    name = item.getString(KEY_NAME),
-                    favorite = item.optBoolean(KEY_FAVORITE, false),
-                    countryCode = item.optString(KEY_COUNTRY_CODE, null).takeIf { it.isNotEmpty() },
-                    countryName = item.optString(KEY_COUNTRY_NAME, null).takeIf { it.isNotEmpty() },
-                    countryIp = item.optString(KEY_COUNTRY_IP, null).takeIf { it.isNotEmpty() },
-                    countryFetchedAt = item.optLong(KEY_COUNTRY_FETCHED_AT, -1).takeIf { it >= 0 },
-                )
+            // Un perfil ilegible no debe invalidar el resto del indice.
+            val loaded = (0 until array.length()).mapNotNull { i ->
+                runCatching { array.getJSONObject(i).toSavedConfig() }.getOrNull()
             }.filter { fileFor(it.id).exists() }
             _configs.value = loaded
             _lastUsedId.value = root.optString(KEY_LAST_USED).takeIf { id -> loaded.any { it.id == id } }
         }.onFailure { AppLog.e("Almacen", "No se pudo leer el índice de configuraciones", it) }
     }
+
+    /**
+     * Lee un perfil del indice. Los campos ausentes (indices antiguos) quedan en null:
+     * `optString` usa "" como fallback para no propagar null.
+     */
+    private fun JSONObject.toSavedConfig(): SavedConfig = SavedConfig(
+        id = getString(KEY_ID),
+        name = getString(KEY_NAME),
+        favorite = optBoolean(KEY_FAVORITE, false),
+        countryCode = optStringOrNull(KEY_COUNTRY_CODE),
+        countryName = optStringOrNull(KEY_COUNTRY_NAME),
+        countryIp = optStringOrNull(KEY_COUNTRY_IP),
+        countryFetchedAt = optLong(KEY_COUNTRY_FETCHED_AT, -1).takeIf { it >= 0 },
+    )
 
     private fun persistIndex() {
         val array = JSONArray()

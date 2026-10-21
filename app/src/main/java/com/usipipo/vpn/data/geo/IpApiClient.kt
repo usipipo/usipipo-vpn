@@ -1,5 +1,6 @@
 package com.usipipo.vpn.data.geo
 
+import com.usipipo.vpn.data.optStringOrNull
 import com.usipipo.vpn.domain.CountryInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -39,8 +40,8 @@ class IpApiClient(private val timeoutMs: Int = 3000) : CountryHttpClient {
             val json = JSONObject(body)
             CountryInfo(
                 ip = ip,
-                countryCode = json.optString("country_code", null).takeIf { it.isNotEmpty() },
-                countryName = json.optString("country_name", null).takeIf { it.isNotEmpty() },
+                countryCode = json.optStringOrNull("country_code"),
+                countryName = json.optStringOrNull("country_name"),
                 fetchedAt = System.currentTimeMillis(),
                 error = false,
             )

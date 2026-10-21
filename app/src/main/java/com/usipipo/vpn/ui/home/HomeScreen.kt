@@ -62,7 +62,7 @@ import com.usipipo.vpn.ui.components.GLOBE_EMOJI
 import com.usipipo.vpn.ui.components.IconTile
 import com.usipipo.vpn.ui.components.UsipipoCard
 import com.usipipo.vpn.ui.details.StatsUiState
-import com.usipipo.vpn.ui.details.flagEmoji
+import com.usipipo.vpn.ui.components.flagEmoji
 import com.usipipo.vpn.ui.theme.AtmospherePhase
 import com.usipipo.vpn.ui.theme.LocalAtmosphere
 import com.usipipo.vpn.ui.theme.UsipipoTheme

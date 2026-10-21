@@ -77,7 +77,7 @@ data class CountryInfo(
     val ip: String,
     val countryCode: String?,   // ISO 2 letras, ej. "DE"
     val countryName: String?,   // ej. "Germany"
-    val fetchedAt: Long,        // SystemClock.elapsedRealtime()
+    val fetchedAt: Long,        // System.currentTimeMillis()
     val error: Boolean = false  // true si la consulta falló
 )
 ```
@@ -89,6 +89,11 @@ data class PingResult(
     val error: Boolean = false
 )
 ```
+
+**Reloj del TTL:** `fetchedAt` y `countryFetchedAt` usan el reloj de pared
+(`System.currentTimeMillis()`), no `SystemClock.elapsedRealtime()`. El dato se persiste en
+`index.json` y debe sobrevivir a reinicios; `elapsedRealtime()` se reinicia al apagar el
+dispositivo y reiniciaría el TTL de 24 h, duplicando las llamadas a la API.
 
 **Cambio a `SavedConfig`** (`domain/Models.kt`):
 ```kotlin
@@ -116,7 +121,8 @@ data class SavedConfig(
 **`PingRepository`** — responsable del ping nativo.
 - `suspend fun ping(target: String): PingResult`
   1. Ejecutar `ping -c 1 -W 1000 <target>` vía `ProcessBuilder` en Dispatchers.IO.
-  2. Parsear salida para extraer `time=XX ms`.
+  2. Parsear la salida para extraer `time=XX ms` y `time<1 ms` (el ping al `.1` del tunel
+     suele ser menor de 1 ms).
   3. Si `ping` no existe o falla → `InetAddress.isReachable(target, 1000)` → si true, `ms = null` (solo sabemos que responde); si false, `error = true`.
   4. Retornar `PingResult(ms = ms, error = error)`.
 
@@ -199,7 +205,7 @@ Pantalla Detalles visible + TunnelState.Connected
 
 **IP del endpoint (para geolocalización):**
 - `ConfSummary.endpoint` tiene forma `host:puerto` o `ip:puerto`.
-- Extraer la parte antes del `:`. Si es un hostname, resolver a IP mediante `InetAddress.getByName` (best effort; si falla, pasar el hostname tal cual a ipapi.co, que acepta dominios).
+- Extraer la parte antes del `:`. Si es un hostname, resolverlo a IP mediante `InetAddress.getByName` (best effort). Si no resuelve, **no se consulta el pais** y se muestra el globo: `ipapi.co` no acepta dominios en `/json/{ip}/`, y enviar el nombre de host consumiria cuota sin resultado.
 
 **Destino del ping (`.1`):**
 - Leer `Address` del cliente en el `.conf` (ej. `10.5.0.2/24`).
@@ -214,7 +220,7 @@ Pantalla Detalles visible + TunnelState.Connected
 | Escenario | Comportamiento |
 |-----------|---------------|
 | ipapi.co timeout (3 s) | `error = true`, globo en UI, log en AppLog, sin reintento |
-| ipapi.co HTTP 429 (rate limit) | `error = true`, globo, log; respetar `X-Rl`/`X-Ttl` si vienen (no reintentar hasta el reset) |
+| ipapi.co HTTP 429 (rate limit) | `error = true`, globo, log con IP abreviada. Se respeta `X-Ttl` (segundos hasta el reset): el repositorio entra en **cooldown** local y no vuelve a consultar la API hasta el reinicio del contador. No se guarda nada en cache |
 | ipapi.co JSON inválido | `error = true`, globo, log |
 | Sin internet | `error = true`, globo, log |
 | Ping binario no existe | fallback `isReachable`, ms=null, «—» si false |
@@ -285,7 +291,7 @@ Pantalla Detalles visible + TunnelState.Connected
 |--------|-----------|
 | ipapi.co cambia su capa gratuita o bloquea IP de la app | Diseñar `CountryRepository` detrás de interfaz; fácil de reemplazar por ipinfo.io/ipgeolocation.io |
 | Algunos fabricantes bloquean `ping` | Fallback a `InetAddress.isReachable`; mostrar «—» |
-| Hostname del endpoint no resuelve | Pasar el hostname a ipapi.co (acepta dominios); si falla, globo |
+| Hostname del endpoint no resuelve | No se consulta el pais (ipapi.co no acepta dominios en `/json/{ip}/`); se muestra el globo sin gastar cuota |
 | Caché stale (servidor cambió de país) | TTL 24 h; re-consulta al cambiar de IP de endpoint |
 
 ---

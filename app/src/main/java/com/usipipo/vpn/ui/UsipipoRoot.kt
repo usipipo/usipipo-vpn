@@ -30,6 +30,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
@@ -65,6 +68,21 @@ fun UsipipoRoot(container: AppContainer) {
     val context = LocalContext.current
     // Vive a nivel raiz: la consulta de pais ocurre al conectar, no solo al abrir Detalles.
     val countryPingVm = countryPingViewModel(container)
+
+    // El ping solo corre con la app en primer plano: en segundo plano consume bateria
+    // y consulta un tunel que puede no estar activo.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> countryPingVm.setDetailsVisible(showDetails)
+                Lifecycle.Event.ON_STOP -> countryPingVm.setDetailsVisible(false)
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     // Versión cuya ventana ya se cerró (descarte o descarga): no reaparece.
     var handledUpdate by rememberSaveable { mutableStateOf<String?>(null) }

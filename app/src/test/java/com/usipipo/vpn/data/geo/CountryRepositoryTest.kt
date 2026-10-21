@@ -151,6 +151,26 @@ class CountryRepositoryTest {
         assertEquals("DE", saved.countryCode)
     }
 
+    @Test
+    fun `un 429 activa un cooldown y no vuelve a consultar la api`() = runTest {
+        val store = FakeCountryStoreMutable(configs = listOf(SavedConfig("c1", "x")))
+        var httpCalls = 0
+        val http = FakeHttp { ip ->
+            httpCalls++
+            throw RateLimitedException(60L)
+        }
+        val repo = CountryRepository(store, http)
+
+        val first = repo.countryFor("c1", "1.2.3.4")
+        assertTrue(first.error)
+        assertEquals(1, httpCalls)
+
+        // Segunda consulta dentro del cooldown: no se llama a la API.
+        val second = repo.countryFor("c1", "1.2.3.4")
+        assertTrue(second.error)
+        assertEquals(1, httpCalls)
+    }
+
     private class FakeCountryStoreMutable(configs: List<SavedConfig>) : ConfigStore {
         private val _configs = MutableStateFlow(configs)
         private val _lastUsedId = MutableStateFlow<String?>(null)

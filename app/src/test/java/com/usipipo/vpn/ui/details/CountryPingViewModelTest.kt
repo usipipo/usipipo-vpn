@@ -3,6 +3,8 @@ package com.usipipo.vpn.ui.details
 import com.usipipo.vpn.data.geo.CountryHttpClient
 import com.usipipo.vpn.data.geo.CountryRepository
 import com.usipipo.vpn.data.geo.PingRepository
+import com.usipipo.vpn.data.geo.PingRunner
+import com.usipipo.vpn.data.geo.ReachabilityChecker
 import com.usipipo.vpn.domain.CountryInfo
 import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.domain.TunnelState
@@ -45,8 +47,8 @@ class CountryPingViewModelTest {
     }
 
     private fun pingRepo() = PingRepository(
-        pingRunner = { null },
-        reachabilityChecker = { _, _ -> false },
+        PingRunner { null },
+        ReachabilityChecker { _, _ -> false },
     )
 
     @Test

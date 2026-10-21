@@ -1,5 +1,6 @@
 package com.usipipo.vpn.data.geo
 
+import com.usipipo.vpn.BuildConfig
 import com.usipipo.vpn.data.optStringOrNull
 import com.usipipo.vpn.domain.CountryInfo
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +19,11 @@ import org.json.JSONObject
  * - Parsea `country_name` y `country_code` del JSON.
  */
 class IpApiClient(private val timeoutMs: Int = 3000) : CountryHttpClient {
+
+    private companion object {
+        /** Espera conservadora si la API no comunica el reinicio del contador. */
+        const val DEFAULT_RATE_LIMIT_SECONDS = 60L
+    }
 
     /** Primeros 2 octetos: suficiente para diagnosticar sin filtrar la IP completa. */
     private fun abbreviate(ip: String): String {
@@ -42,9 +48,15 @@ class IpApiClient(private val timeoutMs: Int = 3000) : CountryHttpClient {
         connection.connectTimeout = timeoutMs
         connection.readTimeout = timeoutMs
         connection.instanceFollowRedirects = true
-        connection.setRequestProperty("User-Agent", "uSipipoVPN")
+        connection.setRequestProperty("User-Agent", "uSipipoVPN/${BuildConfig.VERSION_NAME}")
         try {
             val code = connection.responseCode
+            if (code == 429) {
+                // ipapi.co comunica el reinicio del contador en 'X-Ttl' (segundos).
+                val retryAfter = connection.getHeaderField("X-Ttl")?.toLongOrNull()
+                    ?: DEFAULT_RATE_LIMIT_SECONDS
+                throw RateLimitedException(retryAfter)
+            }
             if (code != 200) {
                 throw IOException("ipapi.co respondió HTTP $code para ${abbreviate(ip)}")
             }

@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.usipipo.vpn.R
 import com.usipipo.vpn.ui.components.GLOBE_EMOJI
+import com.usipipo.vpn.ui.components.flagEmoji
 import com.usipipo.vpn.ui.theme.LocalPingColors
 
 /**
@@ -43,17 +44,22 @@ fun CountryPingRow(state: CountryPingUiState, modifier: Modifier = Modifier) {
             val countryInfo = state.countryInfo
             val countryCode = if (countryInfo != null && !countryInfo.error) countryInfo.countryCode else null
             val flag = countryCode?.let { flagEmoji(it) }?.takeIf { it.isNotEmpty() }
-            if (flag != null) {
-                Text(
-                    text = flag,
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-                Text(
-                    text = countryInfo?.countryName ?: countryCode.orEmpty(),
+            when {
+                state.isLoadingCountry -> Text(
+                    text = stringResource(R.string.country_loading),
                     style = MaterialTheme.typography.bodyMedium,
                 )
-            } else {
-                Text(
+                flag != null -> {
+                    Text(
+                        text = flag,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    Text(
+                        text = countryInfo?.countryName ?: countryCode.orEmpty(),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+                else -> Text(
                     text = GLOBE_EMOJI,
                     style = MaterialTheme.typography.bodyLarge,
                 )
@@ -83,14 +89,4 @@ fun CountryPingRow(state: CountryPingUiState, modifier: Modifier = Modifier) {
                 ),
         )
     }
-}
-
-/**
- * Convierte un código ISO 2 letras en emoji de bandera (indicadores regionales).
- * Devuelve cadena vacía si el código no son dos letras ASCII.
- */
-internal fun flagEmoji(countryCode: String): String {
-    val code = countryCode.uppercase()
-    if (code.length != 2 || !code.all { it in 'A'..'Z' }) return ""
-    return code.map { String(Character.toChars(it.code - 'A'.code + 0x1F1E6)) }.joinToString("")
 }

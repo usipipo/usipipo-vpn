@@ -27,7 +27,8 @@ Llevar a código real las cinco pantallas del mockup generado con IA (principal,
 
 - Contador de «usuarios online» del mockup (no hay fuente de datos).
 - Mapa de puntos de fondo y efectos de desenfoque (peso en gama baja).
-- Modo administrador (fase posterior ya aprobada).
+- Modo administrador: **descartado** tras la fase 3. Se evaluó y no encaja con el propósito de
+  la app (importar un `.conf` y conectar); no habrá fase de gestión de usuarios.
 - Soporte de otros protocolos.
 
 ## 4. Fase 1 — Estructura y estilo

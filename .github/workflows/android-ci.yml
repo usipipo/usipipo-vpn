@@ -54,6 +54,13 @@ jobs:
       - name: Build debug APK
         run: ./gradlew --no-daemon assembleDebug
 
+      # Valida que R8 (minificacion y recorte de recursos) no rompe la
+      # compilacion ni el empaquetado. Sin los secretos de firma la variante
+      # release se compila SIN firmar, que es lo que se quiere aqui: esta
+      # validacion no publica nada, la firma la hace .github/workflows/release.yml.
+      - name: Build release APK without signing (validates R8)
+        run: ./gradlew --no-daemon assembleRelease
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:

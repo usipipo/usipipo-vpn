@@ -706,6 +706,10 @@ import org.junit.Test
  * El icono adaptativo se recorta fuera de la zona segura: el lienzo del
  * foreground es 108x108 y solo los 66x66 centrales (21..87) sobreviven a las
  * máscaras del sistema. Este test lee el vector y comprueba que nada se sale.
+ *
+ * Se miran solo las coordenadas de `pathData`: el resto de numeros del archivo
+ * (el `1.0` de la declaracion XML, el `108` del tamano del lienzo, el grosor
+ * de trazo) no son coordenadas y no dicen nada de la zona segura.
  */
 class LauncherIconSafeZoneTest {
 
@@ -715,9 +719,14 @@ class LauncherIconSafeZoneTest {
     fun `el icono del launcher existe y dibuja dentro de la zona segura`() {
         assertTrue("falta ${foreground.path}", foreground.exists())
         val contenido = foreground.readText()
-        val numeros = Regex("-?\\d+(?:\\.\\d+)?").findAll(contenido)
+        val trazados = Regex("android:pathData=\"([^\"]*)\"")
+            .findAll(contenido)
+            .map { it.groupValues[1] }
+            .toList()
+        assertTrue("el vector no dibuja ninguna ruta", trazados.isNotEmpty())
+        val numeros = Regex("-?\\d+(?:\\.\\d+)?")
+            .findAll(trazados.joinToString(" "))
             .map { it.value.toDouble() }
-            .filter { it in 0.0..108.0 }
             .toList()
         assertTrue("el vector no tiene coordenadas", numeros.isNotEmpty())
         val fuera = numeros.filter { it < SAFE_MIN || it > SAFE_MAX }
@@ -731,13 +740,14 @@ class LauncherIconSafeZoneTest {
 }
 ```
 
-El filtro `it in 0.0..108.0` descarta los atributos de tamaño (`108dp`, `24dp`) y deja solo las
-coordenadas del trazado.
+Las coordenadas se sacan de los atributos `pathData`, no de todo el archivo: el `1.0` de la
+declaración XML, el `108` del tamaño del lienzo, el grosor de trazo `8.4` y el `0` de
+`#00000000` no son coordenadas y quedarían fuera de 21..87 aunque el dibujo fuese correcto.
 
 - [ ] **Step 2: ejecuta el test y comprueba que falla**
 
-Falla en el CI: el vector actual tiene coordenadas `104` (el guion bajo), `102`, `88` y `30`
-fuera de 21..87.
+Falla en el CI: el vector actual tiene coordenadas `104` (el guion bajo), `102`, `100`, `92` y
+`88` fuera de 21..87.
 
 - [ ] **Step 3: rehaz el icono del launcher**
 

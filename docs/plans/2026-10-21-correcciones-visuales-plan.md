@@ -967,12 +967,10 @@ internal const val MAP_ROWS = 36
  * Costa rasterizada sobre Natural Earth 50m land (dominio público), de 87.5°N
  * a 57.5°S. 776 de 2592 celdas son tierra.
  */
-private const val MAP_MASK_HEX = """
-    000000000000000000
-    00003EFF4001000000
-    ...
-    000000000000000000
-""".trimIndent()
+private const val MAP_MASK_HEX = """000000000000000000
+00003EFF4001000000
+...
+000000000000000000"""
 
 /** Las 36 filas de la máscara, en hexadecimal. */
 internal fun mapMaskRows(): List<String> = MAP_MASK_HEX.lines()
@@ -988,6 +986,13 @@ internal fun isLand(column: Int, row: Int): Boolean {
 ```
 
 La máscara completa son las 36 líneas del bloque `MAP_MASK_HEX`, sin modificar:
+
+> **Desvío de la implementación (Fase 4).** La primera y la última fila comparten línea con
+> las comillas en vez de usar `trimIndent()`: el inicializador de un `const val` tiene que ser
+> un literal, y `trimIndent()` es una llamada a función que el compilador no acepta ahí
+> (KEEP-0444, que lo permitiria, sigue sin implementarse). Con esta forma el literal no lleva
+> saltos de linea de sobra y las 36 filas salen limpias sin sangrar, de modo que
+> `mapMaskRows()` devuelve exactamente 36 filas de 18 digitos.
 
 ```
 000000000000000000
@@ -1082,13 +1087,20 @@ internal fun WorldMapLayer(
                 }
             }
         },
-    )
+    ) {
+        // Los puntos se dibujan en el bloque drawWithCache; el lienzo no lleva contenido.
+    }
 }
 ```
 
+> **Desvío de la implementación (Fase 4).** `Canvas` exige su lambda `onDraw` (no tiene valor
+> por defecto), asi que el lienzo se cierra con un bloque vacio: el dibujo de verdad va en el
+> `onDrawBehind` del `drawWithCache`, que es el patron documentado de Compose para calcular la
+> geometria una vez por tamaño de pantalla y pintar los puntos en cada dibujado.
+
 Con `MAP_WIDTH_FRACTION = 0.98f` (la red ocupa el 98 % del ancho) y
 `MAP_VERTICAL_CENTER = 0.34f` (el centro vertical del mapa queda al 34 % del alto, detrás del
-botón de conectar).
+botón de conectar). Las dos son `private const val` de `WorldMap.kt`.
 
 - [ ] **Step 5: declara el color de los puntos**
 

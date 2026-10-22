@@ -154,21 +154,28 @@ private val DarkAtmosphere = AtmosphereColors(
 val LocalAtmosphere = staticCompositionLocalOf { LightAtmosphere }
 
 /**
- * Colores de la barra inferior: fondo, color de la pestaña activa y de las inactivas.
- * Vive aparte del esquema de Material porque la barra lleva su propio azul de marca.
+ * Colores de la barra inferior: fondo, color de la pestaña activa (icono y etiqueta) y de las
+ * inactivas. Vive aparte del esquema de Material porque la barra lleva su propio azul de marca.
  */
 @Immutable
-data class BottomBarColors(val container: Color, val active: Color, val inactive: Color)
+data class BottomBarColors(
+    val container: Color,
+    val active: Color,
+    val activeLabel: Color,
+    val inactive: Color,
+)
 
 private val LightBottomBar = BottomBarColors(
     container = Color(AtmospherePalette.BOTTOM_BAR_LIGHT),
     active = Color(AtmospherePalette.BOTTOM_BAR_ACTIVE_LIGHT),
+    activeLabel = Color(AtmospherePalette.BOTTOM_BAR_ACTIVE_LABEL_LIGHT),
     inactive = Color(AtmospherePalette.BOTTOM_BAR_INACTIVE_LIGHT),
 )
 
 private val DarkBottomBar = BottomBarColors(
     container = Color(AtmospherePalette.BOTTOM_BAR_DARK),
     active = Color(AtmospherePalette.BOTTOM_BAR_ACTIVE_DARK),
+    activeLabel = Color(AtmospherePalette.BOTTOM_BAR_ACTIVE_LABEL_DARK),
     inactive = Color(AtmospherePalette.BOTTOM_BAR_INACTIVE_DARK),
 )
 

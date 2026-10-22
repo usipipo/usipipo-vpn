@@ -106,6 +106,7 @@ El síntoma principal del usuario: la barra inferior no aparece. La causa está 
 **Files:**
 - Modify: `app/src/main/java/com/usipipo/vpn/ui/UsipipoRoot.kt` (`AnimatedContent`, ~línea 105)
 - Modify: `app/src/main/java/com/usipipo/vpn/ui/theme/Atmosphere.kt` (constantes de la barra)
+- Modify: `app/src/main/java/com/usipipo/vpn/ui/theme/Theme.kt` (`BottomBarColors` y su `CompositionLocal`)
 - Modify: `app/src/main/java/com/usipipo/vpn/ui/components/UsipipoBottomBar.kt`
 - Test: `app/src/test/java/com/usipipo/vpn/ui/theme/PaletteContrastTest.kt`
 
@@ -144,8 +145,32 @@ fun `la barra inferior mantiene el icono inactivo por encima de 3 punto 1`() {
 }
 
 @Test
+fun `la etiqueta inactiva de la barra se lee como texto`() {
+    assertTrue(
+        contrast(AtmospherePalette.BOTTOM_BAR_INACTIVE_DARK, AtmospherePalette.BOTTOM_BAR_DARK) >= 4.5,
+    )
+    assertTrue(
+        contrast(AtmospherePalette.BOTTOM_BAR_INACTIVE_LIGHT, AtmospherePalette.BOTTOM_BAR_LIGHT) >= 4.5,
+    )
+}
+
+@Test
+fun `la pestana activa destaca mas que la inactiva`() {
+    // Si la inactiva contrasta mas que la activa, el estado seleccionado es el mas
+    // apagado y la barra no dice que pestana esta activa.
+    assertTrue(
+        contrast(AtmospherePalette.BOTTOM_BAR_ACTIVE_DARK, AtmospherePalette.BOTTOM_BAR_DARK) >
+            contrast(AtmospherePalette.BOTTOM_BAR_INACTIVE_DARK, AtmospherePalette.BOTTOM_BAR_DARK),
+    )
+    assertTrue(
+        contrast(AtmospherePalette.BOTTOM_BAR_ACTIVE_LIGHT, AtmospherePalette.BOTTOM_BAR_LIGHT) >
+            contrast(AtmospherePalette.BOTTOM_BAR_INACTIVE_LIGHT, AtmospherePalette.BOTTOM_BAR_LIGHT),
+    )
+}
+
+@Test
 fun `la barra inferior no pinta igual la pestana activa y la inactiva`() {
-    // La distincion activa/inactiva es de tono, no de luminancia.
+    // La distincion activa/inactiva es de tono, no solo de luminancia.
     assertTrue(
         AtmospherePalette.BOTTOM_BAR_ACTIVE_DARK != AtmospherePalette.BOTTOM_BAR_INACTIVE_DARK,
     )
@@ -156,10 +181,11 @@ fun `la barra inferior no pinta igual la pestana activa y la inactiva`() {
 ```
 
 Los iconos de la barra son elementos no textuales: la WCAG pide 3:1 para ellos. Se exige 4.5:1
-para el activo (además es el foco de la pestaña) y 3:1 para el inactivo. La activa y la inactiva
-no se distinguen por luminancia (1.29:1 en oscuro, 1.05:1 en claro), sino por tono: el azul de
-marca frente al gris azulado. Por eso el tercer test no exige contraste entre ellas, solo que
-no sean el mismo color.
+para el activo (además es el foco de la pestaña), para las etiquetas y para la inactiva, que
+también es texto. El test que de verdad protege el diseño es el tercero: la pestaña activa tiene
+que contrastar **más** que la inactiva contra el fondo de la barra. Con el set de iconos en
+contorno —que es lo que fija la spec— el estado activo no se puede marcar por relleno, así que
+lo marca el color.
 
 - [ ] **Step 2: ejecuta el test y comprueba que falla**
 
@@ -172,18 +198,34 @@ En `AtmospherePalette` (`app/src/main/java/com/usipipo/vpn/ui/theme/Atmosphere.k
 bloque «Esquema oscuro», añade exactamente:
 
 ```kotlin
-// Barra inferior (mockup: azul noche en oscuro, superficie clara en claro)
+// Barra inferior: azul noche del mockup en oscuro, superficie clara equivalente en claro.
 const val BOTTOM_BAR_DARK: Long = 0xFF000A25
 const val BOTTOM_BAR_LIGHT: Long = 0xFFE8F1FD
-const val BOTTOM_BAR_ACTIVE_DARK: Long = 0xFF4C8DFF
+// La pestaña activa usa el cian del mockup; la inactiva, un gris azulado mas apagado
+// para que el estado se lea de un vistazo.
+const val BOTTOM_BAR_ACTIVE_DARK: Long = 0xFF06D3FE
+const val BOTTOM_BAR_ACTIVE_LABEL_DARK: Long = 0xFF2DA3D3
+const val BOTTOM_BAR_INACTIVE_DARK: Long = 0xFF627E93
 const val BOTTOM_BAR_ACTIVE_LIGHT: Long = 0xFF0B57C9
-const val BOTTOM_BAR_INACTIVE_DARK: Long = 0xFF8FA6C8
-const val BOTTOM_BAR_INACTIVE_LIGHT: Long = 0xFF4A6283
+const val BOTTOM_BAR_ACTIVE_LABEL_LIGHT: Long = 0xFF0B57C9
+const val BOTTOM_BAR_INACTIVE_LIGHT: Long = 0xFF5B6E8C
 ```
 
-Valores tomados del mockup (fondo de la barra muestreado: `rgb(0,10,37)`) y verificados:
-`#4C8DFF` sobre `#000A25` da 6.13:1; `#0B57C9` sobre `#E8F1FD` da 5.72:1; `#8FA6C8` sobre
-`#000A25` da 7.90:1; `#4A6283` sobre `#E8F1FD` da 5.48:1.
+Valores tomados del mockup, no inventados:
+
+| Color | Origen | Contraste sobre su fondo |
+|---|---|---|
+| Fondo de la barra `#000A25` | muestreado del mockup (`rgb(0,10,37)`) | — |
+| Icono activo `#06D3FE` | muestreado del mockup (`rgb(6,211,254)`, trazo del icono Inicio) | 10,99:1 |
+| Etiqueta activa `#2DA3D3` | muestreado del mockup (`rgb(45,163,211)`) | 6,81:1 |
+| Icono inactivo `#627E93` | gris azulado apagado a propósito: el del mockup (`#95BEF6`, 10,25:1) brilla mas que el activo, lo que hacia que el estado seleccionado pareciera el mas apagado | 4,60:1 |
+| Fondo claro `#E8F1FD` | superficie clara del tema | — |
+| Activo claro `#0B57C9` | azul saturado sobre superficie clara | 5,72:1 |
+| Inactivo claro `#5B6E8C` | gris azulado sobre superficie clara | 4,55:1 |
+
+El invariant que hay que respetar es que **la pestaña activa contrasta mas que la inactiva**
+contra el fondo de la barra, en los dos temas. Con el set de iconos en contorno (que es lo que
+pide la spec) el estado activo no se puede marcar por relleno, asi que lo marca el color.
 
 - [ ] **Step 4: arregla el layout: el contenido de las pestañas cede el espacio sobrante**
 
@@ -217,17 +259,24 @@ un `CompositionLocal` propio, como ya hacen `LocalAtmosphere` y `LocalStatusColo
 ```kotlin
 // Theme.kt
 @Immutable
-data class BottomBarColors(val container: Color, val active: Color, val inactive: Color)
+data class BottomBarColors(
+    val container: Color,
+    val active: Color,
+    val activeLabel: Color,
+    val inactive: Color,
+)
 
 private val LightBottomBar = BottomBarColors(
     container = Color(AtmospherePalette.BOTTOM_BAR_LIGHT),
     active = Color(AtmospherePalette.BOTTOM_BAR_ACTIVE_LIGHT),
+    activeLabel = Color(AtmospherePalette.BOTTOM_BAR_ACTIVE_LABEL_LIGHT),
     inactive = Color(AtmospherePalette.BOTTOM_BAR_INACTIVE_LIGHT),
 )
 
 private val DarkBottomBar = BottomBarColors(
     container = Color(AtmospherePalette.BOTTOM_BAR_DARK),
     active = Color(AtmospherePalette.BOTTOM_BAR_ACTIVE_DARK),
+    activeLabel = Color(AtmospherePalette.BOTTOM_BAR_ACTIVE_LABEL_DARK),
     inactive = Color(AtmospherePalette.BOTTOM_BAR_INACTIVE_DARK),
 )
 
@@ -240,44 +289,44 @@ LightBottomBar`.
 En esta versión de Material 3 el `NavigationBar` **no** tiene parámetro `colors`: los colores
 del ítem van en `NavigationBarItemDefaults.colors(...)`, que se pasa a cada `NavigationBarItem`.
 El `indicatorColor = Color.Transparent` elimina la píldora de fondo, que no existe en el mockup.
-El tinte del icono y el color de la etiqueta se fijan además de forma explícita en cada ítem,
-para que no dependan de cómo los envuelva Material.
+
+Los cuatro ítems se construyen con un composable privado, para no repetir ocho condicionales
+de color:
 
 ```kotlin
-val colors = LocalBottomBarColors.current
-val itemColors = NavigationBarItemDefaults.colors(
-    selectedIconColor = colors.active,
-    selectedTextColor = colors.active,
-    indicatorColor = Color.Transparent,
-    unselectedIconColor = colors.inactive,
-    unselectedTextColor = colors.inactive,
-)
-
-NavigationBar(
-    modifier = modifier,
-    containerColor = colors.container,
+@Composable
+private fun BottomBarItem(
+    tab: MainTab,
+    current: MainTab,
+    colors: BottomBarColors,
+    icon: @Composable () -> Unit,
+    label: String,
+    onClick: () -> Unit,
 ) {
+    val selected = tab == current
+    val iconColor = if (selected) colors.active else colors.inactive
+    val labelColor = if (selected) colors.activeLabel else colors.inactive
     NavigationBarItem(
         icon = {
-            Icon(
-                Icons.Default.Home,
-                contentDescription = null,
-                tint = if (tab == MainTab.Home) colors.active else colors.inactive,
-            )
+            CompositionLocalProvider(LocalContentColor provides iconColor) { icon() }
         },
-        label = {
-            Text(
-                text = stringResource(R.string.nav_home),
-                color = if (tab == MainTab.Home) colors.active else colors.inactive,
-            )
-        },
-        selected = tab == MainTab.Home,
-        onClick = { onTabClick(MainTab.Home) },
-        colors = itemColors,
+        label = { Text(text = label, color = labelColor) },
+        selected = selected,
+        onClick = onClick,
+        colors = NavigationBarItemDefaults.colors(
+            selectedIconColor = colors.active,
+            selectedTextColor = colors.activeLabel,
+            indicatorColor = Color.Transparent,
+            unselectedIconColor = colors.inactive,
+            unselectedTextColor = colors.inactive,
+        ),
     )
-    // ... los otros tres ítems igual
 }
 ```
+
+El tinte del icono y el color de la etiqueta se fijan además de pasarlos a Material, para que
+el estado activo no dependa de cómo los envuelva. El icono recibe el tinte por
+`LocalContentColor`, que es el valor por defecto de `Icon`.
 
 Los colores salen de `AtmospherePalette` para que el test de contraste los pueda verificar.
 
@@ -302,15 +351,19 @@ private fun PreviewUsipipoBottomBar() {
 git add app/src/main/java/com/usipipo/vpn/ui/UsipipoRoot.kt \
         app/src/main/java/com/usipipo/vpn/ui/components/UsipipoBottomBar.kt \
         app/src/main/java/com/usipipo/vpn/ui/theme/Atmosphere.kt \
+        app/src/main/java/com/usipipo/vpn/ui/theme/Theme.kt \
         app/src/test/java/com/usipipo/vpn/ui/theme/PaletteContrastTest.kt
 git commit -m "fix(ui): hacer visible la barra inferior de las cuatro pestañas
 
-El AnimatedContent de las pestañas no tenía weight(1f) dentro de la Column
-de UsipipoRoot, así que cada pantalla con fillMaxSize() ocupaba todo el alto
-y la barra inferior quedaba con altura cero.
+El AnimatedContent de las pestañas no tenia weight(1f) dentro de la Column de
+UsipipoRoot, asi que cada pantalla, que usa fillMaxSize(), se comia todo el
+alto y la barra inferior se quedaba con altura cero.
 
-La barra toma ahora el azul noche del mockup, con la pestaña activa en azul
-y las inactivas en gris azulado, con contraste verificado en el test."
+La barra toma ahora el azul noche del mockup, con la pestana activa en el cian
+del mockup y las inactivas en gris azulado. Los colores viven en un
+CompositionLocal propio (BottomBarColors) porque la barra lleva su azul de
+marca y no encaja en el esquema de Material; el contraste esta verificado en el
+test de paleta, incluido que la pestana activa destaque mas que la inactiva."
 ```
 
 - [ ] **Step 8: verificación por CI**

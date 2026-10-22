@@ -6,13 +6,25 @@ Estado: diseño aprobado, pendiente de plan de implementación
 ## Contexto
 
 El rediseño del mockup (fases 1 a 3) está implementado y el CI está en verde, pero al
-probar la APK en el teléfono se ven cuatro diferencias con el mockup
-(`docs/design/mockup-ia.png`):
+probar la APK en el teléfono se ven cuatro diferencias con el mockup:
 
 1. No aparece la barra inferior de 4 pestañas.
 2. El icono de la app en la pantalla de inicio del dispositivo se ve con zoom y recortado.
 3. Hay iconos rotos o incorrectos.
 4. El Home no tiene el fondo con mapa del mundo del mockup.
+
+La referencia visual son las cinco capturas del mockup en `docs/design/`:
+
+| Captura | Pantalla |
+|---|---|
+| `Screenshot_2026-10-21-05-22-04-969_com.miui.gallery.jpg` | 1. Pantalla principal |
+| `Screenshot_2026-10-21-05-22-24-600_com.miui.gallery.jpg` | 2. Gestión de configuraciones |
+| `Screenshot_2026-10-21-05-22-39-673_com.miui.gallery.jpg` | 3. Importación |
+| `Screenshot_2026-10-21-05-23-03-578_com.miui.gallery.jpg` | 4. Diagnóstico y ajustes avanzados |
+| `Screenshot_2026-10-21-05-23-33-313_com.miui.gallery.jpg` | 5. Detalles del perfil |
+
+> `docs/design/mockup-ia.png` está vacío (0 bytes) en el repositorio: la referencia real son las
+> capturas de arriba.
 
 ## Causas encontradas en el código
 

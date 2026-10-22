@@ -37,10 +37,14 @@ object AtmospherePalette {
     // Barra inferior: azul noche del mockup en oscuro, superficie clara equivalente en claro.
     const val BOTTOM_BAR_DARK: Long = 0xFF000A25
     const val BOTTOM_BAR_LIGHT: Long = 0xFFE8F1FD
-    const val BOTTOM_BAR_ACTIVE_DARK: Long = 0xFF4C8DFF
+    // La pestaña activa usa el cian del mockup; la inactiva, un gris azulado mas apagado
+    // para que el estado se lea de un vistazo.
+    const val BOTTOM_BAR_ACTIVE_DARK: Long = 0xFF06D3FE
+    const val BOTTOM_BAR_ACTIVE_LABEL_DARK: Long = 0xFF2DA3D3
+    const val BOTTOM_BAR_INACTIVE_DARK: Long = 0xFF627E93
     const val BOTTOM_BAR_ACTIVE_LIGHT: Long = 0xFF0B57C9
-    const val BOTTOM_BAR_INACTIVE_DARK: Long = 0xFF8FA6C8
-    const val BOTTOM_BAR_INACTIVE_LIGHT: Long = 0xFF4A6283
+    const val BOTTOM_BAR_ACTIVE_LABEL_LIGHT: Long = 0xFF0B57C9
+    const val BOTTOM_BAR_INACTIVE_LIGHT: Long = 0xFF5B6E8C
     // Texto e iconos
     const val TEXT_LIGHT: Long = 0xFF0B2545 // Navy
     const val TEXT_DARK: Long = 0xFFE6F0FF

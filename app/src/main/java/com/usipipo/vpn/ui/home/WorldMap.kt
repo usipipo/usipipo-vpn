@@ -21,7 +21,7 @@ internal const val MAP_ROWS = 36
 private const val MAP_WIDTH_FRACTION = 0.98f
 
 /** Altura (fracción) donde queda el centro vertical del mapa. */
-private const val MAP_VERTICAL_CENTER = 0.34f
+private const val MAP_VERTICAL_CENTER = 0.25f
 
 /** Opacidad base de los puntos sobre el degradado. */
 private const val DOT_ALPHA_DARK = 0.30f
@@ -109,7 +109,7 @@ internal fun WorldMapLayer(
             .fillMaxSize()
             .drawWithCache {
                 val cell = size.width * MAP_WIDTH_FRACTION / MAP_COLUMNS
-                val radius = cell * 0.22f
+                val radius = cell * 0.17f
                 val mapWidth = cell * MAP_COLUMNS
                 val mapHeight = cell * MAP_ROWS
                 val left = (size.width - mapWidth) / 2f
@@ -124,7 +124,7 @@ internal fun WorldMapLayer(
                             val nx = (cx - left) / mapWidth
                             val ny = (cy - top) / mapHeight
                             val edge = sin(PI * nx.toDouble()).toFloat()
-                            val down = 1f - ny * 0.85f
+                            val down = 1f - ny * 0.55f
                             drawCircle(
                                 color = color.copy(alpha = alpha * edge * down),
                                 radius = radius,

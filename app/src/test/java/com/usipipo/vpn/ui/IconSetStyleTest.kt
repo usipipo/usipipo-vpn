@@ -33,7 +33,7 @@ class IconSetStyleTest {
     }
 
     @Test
-    fun `todo trazo del set usa el grosor 1.75 y las tapas redondeadas`() {
+    fun `todo trazo del set usa el grosor uniforme y las tapas redondeadas`() {
         iconosDelSet().forEach { nombre ->
             trazados(nombre).forEachIndexed { indice, path ->
                 if (!path.hasAttributeNS(ANDROID, "strokeColor")) return@forEachIndexed

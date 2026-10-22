@@ -3,7 +3,6 @@ package com.usipipo.vpn.ui.nav
 import com.usipipo.vpn.R
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class MainTabTest {
@@ -24,7 +23,10 @@ class MainTabTest {
     fun `cada pestana tiene su propio icono del set propio`() {
         val iconos = MainTab.entries.map { it.iconRes }
         assertEquals(MainTab.entries.size, iconos.toSet().size)
-        assertTrue("alguna pestana apunta a un recurso inexistente", iconos.all { it != 0 })
+        assertEquals(R.drawable.ic_nav_home, MainTab.Home.iconRes)
+        assertEquals(R.drawable.ic_nav_configs, MainTab.Configs.iconRes)
+        assertEquals(R.drawable.ic_nav_import, MainTab.Import.iconRes)
+        assertEquals(R.drawable.ic_nav_diagnostics, MainTab.Diagnostics.iconRes)
     }
 
     @Test

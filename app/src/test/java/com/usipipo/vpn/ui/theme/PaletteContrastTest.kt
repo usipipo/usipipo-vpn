@@ -29,6 +29,72 @@ class PaletteContrastTest {
         assertTrue(contrast(AtmospherePalette.DARK_PRIMARY, AtmospherePalette.DARK_SURFACE) >= 4.5)
     }
 
+    @Test
+    fun `la barra inferior mantiene el icono activo por encima de 4 punto 5`() {
+        assertTrue(
+            contrast(AtmospherePalette.BOTTOM_BAR_ACTIVE_DARK, AtmospherePalette.BOTTOM_BAR_DARK) >= 4.5,
+        )
+        assertTrue(
+            contrast(AtmospherePalette.BOTTOM_BAR_ACTIVE_LIGHT, AtmospherePalette.BOTTOM_BAR_LIGHT) >= 4.5,
+        )
+    }
+
+    @Test
+    fun `la barra inferior mantiene la etiqueta activa por encima de 4 punto 5`() {
+        assertTrue(
+            contrast(AtmospherePalette.BOTTOM_BAR_ACTIVE_LABEL_DARK, AtmospherePalette.BOTTOM_BAR_DARK) >= 4.5,
+        )
+        assertTrue(
+            contrast(AtmospherePalette.BOTTOM_BAR_ACTIVE_LABEL_LIGHT, AtmospherePalette.BOTTOM_BAR_LIGHT) >= 4.5,
+        )
+    }
+
+    @Test
+    fun `la barra inferior mantiene el icono inactivo por encima de 3 punto 1`() {
+        // Los iconos son elementos no textuales: la WCAG pide 3:1 para ellos.
+        assertTrue(
+            contrast(AtmospherePalette.BOTTOM_BAR_INACTIVE_DARK, AtmospherePalette.BOTTOM_BAR_DARK) >= 3.0,
+        )
+        assertTrue(
+            contrast(AtmospherePalette.BOTTOM_BAR_INACTIVE_LIGHT, AtmospherePalette.BOTTOM_BAR_LIGHT) >= 3.0,
+        )
+    }
+
+    @Test
+    fun `la etiqueta inactiva de la barra se lee como texto`() {
+        assertTrue(
+            contrast(AtmospherePalette.BOTTOM_BAR_INACTIVE_DARK, AtmospherePalette.BOTTOM_BAR_DARK) >= 4.5,
+        )
+        assertTrue(
+            contrast(AtmospherePalette.BOTTOM_BAR_INACTIVE_LIGHT, AtmospherePalette.BOTTOM_BAR_LIGHT) >= 4.5,
+        )
+    }
+
+    @Test
+    fun `la pestana activa destaca mas que la inactiva`() {
+        // Si la inactiva contrasta mas que la activa, el estado seleccionado es el mas
+        // apagado y la barra no dice que pestana esta activa.
+        assertTrue(
+            contrast(AtmospherePalette.BOTTOM_BAR_ACTIVE_DARK, AtmospherePalette.BOTTOM_BAR_DARK) >
+                contrast(AtmospherePalette.BOTTOM_BAR_INACTIVE_DARK, AtmospherePalette.BOTTOM_BAR_DARK),
+        )
+        assertTrue(
+            contrast(AtmospherePalette.BOTTOM_BAR_ACTIVE_LIGHT, AtmospherePalette.BOTTOM_BAR_LIGHT) >
+                contrast(AtmospherePalette.BOTTOM_BAR_INACTIVE_LIGHT, AtmospherePalette.BOTTOM_BAR_LIGHT),
+        )
+    }
+
+    @Test
+    fun `la barra inferior no pinta igual la pestana activa y la inactiva`() {
+        // La distincion activa/inactiva es de tono, no solo de luminancia.
+        assertTrue(
+            AtmospherePalette.BOTTOM_BAR_ACTIVE_DARK != AtmospherePalette.BOTTOM_BAR_INACTIVE_DARK,
+        )
+        assertTrue(
+            AtmospherePalette.BOTTOM_BAR_ACTIVE_LIGHT != AtmospherePalette.BOTTOM_BAR_INACTIVE_LIGHT,
+        )
+    }
+
     private fun contrast(a: Long, b: Long): Double {
         val la = luminance(a)
         val lb = luminance(b)

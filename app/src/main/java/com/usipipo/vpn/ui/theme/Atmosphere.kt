@@ -34,6 +34,9 @@ object AtmospherePalette {
     const val DARK_ON_PRIMARY: Long = 0xFF04122B
     const val DARK_SECONDARY: Long = 0xFF2DD4BF
     const val DARK_ON_SECONDARY: Long = 0xFF042A26
+    // Puntos del mapa del Inicio (turquesa azulado en oscuro, azul casi invisible en claro)
+    const val MAP_DOT_DARK: Long = 0xFF2DD4BF
+    const val MAP_DOT_LIGHT: Long = 0xFF1B4FA0
     // Barra inferior: azul noche del mockup en oscuro, superficie clara equivalente en claro.
     const val BOTTOM_BAR_DARK: Long = 0xFF000A25
     const val BOTTOM_BAR_LIGHT: Long = 0xFFE8F1FD

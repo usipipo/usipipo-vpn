@@ -9,6 +9,7 @@ import androidx.annotation.StringRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -178,8 +179,10 @@ private fun HomeBackground(
     content: @Composable () -> Unit,
 ) {
     val atmosphere = LocalAtmosphere.current.forPhase(phase)
+    val dark = isSystemInDarkTheme()
     Box(modifier = Modifier.fillMaxSize()) {
         GradientLayer(top = atmosphere.top, bottom = atmosphere.bottom, reduceMotion = reduceMotion)
+        WorldMapLayer(dark = dark)
         content()
     }
 }
@@ -344,6 +347,19 @@ private fun ProfileCard(
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+        }
+    }
+}
+
+@Preview(name = "Fondo con mapa")
+@Preview(name = "Fondo con mapa oscuro", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewFondoConMapa() {
+    UsipipoTheme {
+        Surface {
+            HomeBackground(phase = AtmospherePhase.Calm, reduceMotion = true) {
+                PreviewBackgroundContent()
+            }
         }
     }
 }

@@ -54,13 +54,13 @@ internal fun ConnectionStats(
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             StatTile(
-                icon = R.drawable.ic_arrow_down,
+                icon = R.drawable.ic_download,
                 label = stringResource(R.string.stat_download),
                 value = formatRate(stats.downBps),
                 modifier = Modifier.weight(1f),
             )
             StatTile(
-                icon = R.drawable.ic_arrow_up,
+                icon = R.drawable.ic_upload,
                 label = stringResource(R.string.stat_upload),
                 value = formatRate(stats.upBps),
                 modifier = Modifier.weight(1f),

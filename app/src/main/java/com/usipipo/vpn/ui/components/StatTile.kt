@@ -61,7 +61,7 @@ fun StatTile(
 private fun PreviewStatTile() {
     UsipipoTheme {
         Surface {
-            StatTile(R.drawable.ic_arrow_down, "Descarga", "60.00 Mbps")
+            StatTile(R.drawable.ic_download, "Descarga", "60.00 Mbps")
         }
     }
 }

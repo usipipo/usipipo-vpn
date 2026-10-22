@@ -1,11 +1,9 @@
 package com.usipipo.vpn.ui
 
 import java.io.File
-import javax.xml.parsers.DocumentBuilderFactory
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.w3c.dom.Element
 
 /**
  * El set de iconos propio declara un estilo uniforme: trazo de 1.75, tapas redondeadas y
@@ -14,15 +12,17 @@ import org.w3c.dom.Element
  * macizo en lugar de un contorno.
  *
  * El invariante se comprueba leyendo los vectores del disco, porque no hay forma de
- * assertar sobre el trazo de un `ImageVector` desde un test de JVM.
+ * assertar sobre el trazo de un `ImageVector` desde un test de JVM. El XML se lee con
+ * expresiones regulares y no con el DOM: el parser de Java no resuelve los espacios de
+ * nombres por defecto, asi que `getAttributeNS` devolveria la cadena vacia.
  */
 class IconSetStyleTest {
 
     @Test
     fun `todos los iconos declaran su relleno y ninguno se rellena de negro opaco`() {
         iconosDelSet().forEach { nombre ->
-            trazados(nombre).forEachIndexed { indice, path ->
-                val relleno = path.getAttributeNS(ANDROID, "fillColor")
+            trazados(nombre).forEachIndexed { indice, bloque ->
+                val relleno = atributo(bloque, "fillColor")
                 assertTrue("$nombre: el trazado $indice no declara fillColor", relleno.isNotEmpty())
                 assertTrue(
                     "$nombre: el trazado $indice se rellena de negro opaco",
@@ -35,17 +35,17 @@ class IconSetStyleTest {
     @Test
     fun `todo trazo del set usa el grosor uniforme y las tapas redondeadas`() {
         iconosDelSet().forEach { nombre ->
-            trazados(nombre).forEachIndexed { indice, path ->
-                if (!path.hasAttributeNS(ANDROID, "strokeColor")) return@forEachIndexed
+            trazados(nombre).forEachIndexed { indice, bloque ->
+                if (atributo(bloque, "strokeColor").isEmpty()) return@forEachIndexed
                 assertEquals(
-                    "$nombre: el trazado $indice no usa el grosor 1.75",
+                    "$nombre: el trazado $indice no usa el grosor del set",
                     "1.75",
-                    path.getAttributeNS(ANDROID, "strokeWidth"),
+                    atributo(bloque, "strokeWidth"),
                 )
                 assertEquals(
                     "$nombre: el trazado $indice no tiene las tapas redondeadas",
                     "round",
-                    path.getAttributeNS(ANDROID, "strokeLineCap"),
+                    atributo(bloque, "strokeLineCap"),
                 )
             }
         }
@@ -71,18 +71,17 @@ class IconSetStyleTest {
             .filterNot { it.name == "ic_launcher_foreground.xml" || it.name == "ic_logo_u.xml" }
             .map { it.name }
 
-    private fun trazados(nombre: String): List<Element> {
+    private fun trazados(nombre: String): List<String> {
         val archivo = File(DRAWABLES, nombre)
         assertTrue("falta $nombre", archivo.exists())
-        val documento = DocumentBuilderFactory.newInstance()
-            .newDocumentBuilder()
-            .parse(archivo)
-        val lista = documento.getElementsByTagName("path")
-        return (0 until lista.length).map { lista.item(it) as Element }
+        return PATH.findAll(archivo.readText()).map { it.value }.toList()
     }
+
+    private fun atributo(bloque: String, nombre: String): String =
+        Regex("android:${Regex.escape(nombre)}=\"([^\"]*)\"").find(bloque)?.groupValues?.get(1) ?: ""
 
     private companion object {
         const val DRAWABLES = "src/main/res/drawable"
-        const val ANDROID = "http://schemas.android.com/apk/res/android"
+        val PATH = Regex("<path\\s[^>]*?/>")
     }
 }

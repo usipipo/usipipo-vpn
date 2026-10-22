@@ -540,6 +540,20 @@ blanco, y se añaden a la galería.
 # gradle/libs.versions.toml: quitar la entrada androidx-compose-material-icons-core
 ```
 
+- [ ] **Step 5d: protege el invariante del set con un test**
+
+El motivo del commit es «trazo uniforme», y sin un test que lo compruebe, un `strokeWidth="2"`
+colado mañana en un icono pasaría el CI. El test lee los vectores del disco y comprueba que
+todos declaran su relleno, que ninguno se rellena de negro opaco y que todo trazo usa el
+grosor 1,75 con las tapas redondeadas.
+
+El XML se lee con **expresiones regulares, no con el DOM**: el parser de Java no resuelve los
+espacios de nombres por defecto, así que `getAttributeNS(uri, "fillColor")` devuelve la cadena
+vacía y el test falla siempre. La comprobación se replica en Python antes de subirla.
+
+`ic_launcher_foreground.xml` e `ic_logo_u.xml` quedan fuera del set: tienen su propia escala
+(trazo 8.4 y 11.3) y no son iconos de interfaz.
+
 - [ ] **Step 6: ata los iconos a las pestañas**
 
 En `MainTab.kt` (`com.usipipo.vpn.ui.nav`) añade:

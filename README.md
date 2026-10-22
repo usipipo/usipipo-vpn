@@ -1,4 +1,4 @@
-# uSipipo VPN (Android) — Fases 1 a 3: estructura, estilo, datos reales, país y ping
+# uSipipo VPN (Android) — Fases 1 a 4: estructura, estilo, datos reales, país, ping y correcciones visuales
 
 App Android nativa en Kotlin que importa el `.conf` de WireGuard de tu VPS y conecta con un botón.
 Este paquete incluye la **fase 1: la interfaz del mockup llevada a código real** — barra inferior de 4
@@ -10,12 +10,16 @@ IPv6; pantalla Detalles con botón Desconectar y lápiz para renombrar el perfil
 estadísticas en Inicio cuando el túnel está conectado — y la **fase 3: país y ping** — bandera del
 servidor por geolocalización del endpoint (ipapi.co, con caché de 24 h por perfil) y ping real
 dentro del túnel cada 5 s, visibles en la pantalla Detalles y con la bandera en el perfil de Inicio.
+— y la **fase 4: correcciones visuales** — la barra inferior de 4 pestañas que no aparecía por un
+fallo de layout, un set propio de iconos en contorno que sustituye a los de Material, el icono de la
+app rehecho dentro de la zona segura y el mapa del mundo punteado del fondo del Inicio.
 Se parte de la fase 0 (arquitectura, almacén cifrado, túnel WireGuard, diagnóstico, actualizaciones).
 
 Diseños aprobados:
 - [`docs/plans/2026-10-09-usipipo-vpn-android-design.md`](docs/plans/2026-10-09-usipipo-vpn-android-design.md)
 - [`docs/plans/2026-10-11-usipipo-vpn-diagnostico-design.md`](docs/plans/2026-10-11-usipipo-vpn-diagnostico-design.md) (Diagnóstico y ajustes avanzados)
 - [`docs/plans/2026-10-18-usipipo-vpn-mockup-design.md`](docs/plans/2026-10-18-usipipo-vpn-mockup-design.md) (Mockup: de la pantalla a la app real)
+- [`docs/plans/2026-10-21-correcciones-visuales-design.md`](docs/plans/2026-10-21-correcciones-visuales-design.md) (Correcciones visuales tras el rediseño del mockup)
 
 ## Antes de compilar
 
@@ -94,11 +98,12 @@ app/src/main/java/com/usipipo/vpn/
 - **Estadísticas del túnel:** `TunnelManager.counters()` (una muestra por segundo), `SpeedCalculator` (ventana de 3
   muestras, delta negativo como 0), `TunnelState.Connected(sinceMs)`, velocidad en bytes por segundo suavizada.
 - **Componentes base:** `UsipipoCard`, `IconTile`, `AppLogo`, `AppHeader`, `UsipipoBottomBar`, `StatTile`,
-  `ThroughputChart`, `UptimeText`; iconos de `material-icons-core` y vectores propios en `res/drawable`
-  (incluido el logo «u» convertido a icono adaptable).
+  `ThroughputChart`, `UptimeText`; set propio de iconos en contorno en `res/drawable` (trazo 1.75
+  uniforme, sin iconos de Material), incluido el logo «u» convertido a icono adaptable.
 - **Pruebas unitarias:** `HomeViewModel` (incluyendo favoritos y renombrar), `ConfigsFilter`, `EncryptedFileConfigStore`
   (favoritos, migración de índice antiguo y renombrar), `SpeedCalculator`, `ConfSummary`, `Formatters`, `MainTab`,
-  `PaletteContrastTest`; el registro (16 pruebas).
+  `PaletteContrastTest`, `IconSetStyleTest` (el set de iconos comparte estilo), `LauncherIconSafeZoneTest`
+  (el icono del launcher cabe en la zona segura) y `WorldMapMaskTest` (la máscara del mapa).
 - **Diagnóstico y ajustes avanzados:** registro en archivo con rotación, claves tapadas automáticamente,
   captura de cierres inesperados, modo detallado (con logcat), visor, borrado y envío del informe por
   correo a usipipo@gmail.com.
@@ -133,14 +138,15 @@ queda descartado: la app solo importa un `.conf` y no lleva gestión de usuarios
 
 ## Siguiente paso sugerido
 
-**Probar la v0.3.0 en tu teléfono** (la release firmada está en
-<https://github.com/usipipo/usipipo-vpn/releases/tag/v0.3.0>): conectar con el `.conf` de tu
+**Probar la v0.4.0 en tu teléfono** (la release firmada está en
+<https://github.com/usipipo/usipipo-vpn/releases/tag/v0.4.0>): conectar con el `.conf` de tu
 VPS (handshake, IP pública, DNS de Blocky), importar por QR, renombrar, ver el país y el ping en
 Detalles, y desconectar. Ojo: la APK firmada **no** se instala encima de la de depuración, hay que
 desinstalar la anterior antes.
 
-La **fase 4** (R8 activado, residuos cerrados y release publicada) está completa. Quedan fuera de
-alcance, sin fecha: split tunneling, conexión automática y "VPN siempre activa".
+Esta versión es la de las **correcciones visuales** respecto al mockup: barra inferior visible en las
+cuatro pestañas, set propio de iconos, icono de la app sin recorte y mapa de puntos en el Inicio.
+Quedan fuera de alcance, sin fecha: split tunneling, conexión automática y "VPN siempre activa".
 
 ## Compilar la APK con GitHub Actions
 

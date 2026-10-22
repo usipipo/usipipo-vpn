@@ -52,6 +52,13 @@ class IconSetStyleTest {
     }
 
     @Test
+    fun `el set de iconos no esta vacio`() {
+        // Si el directorio dejara de existir, el resto de tests comprobarian cero
+        // iconos y pasarian en falso.
+        assertTrue("no se encuentra ningun icono del set", iconosDelSet().isNotEmpty())
+    }
+
+    @Test
     fun `el set cubre los cuatro iconos de la barra y los de acciones`() {
         val nombres = iconosDelSet().map { it.removePrefix("ic_").removeSuffix(".xml") }
         listOf(
@@ -74,7 +81,9 @@ class IconSetStyleTest {
     private fun trazados(nombre: String): List<String> {
         val archivo = File(DRAWABLES, nombre)
         assertTrue("falta $nombre", archivo.exists())
-        return PATH.findAll(archivo.readText()).map { it.value }.toList()
+        val trazados = PATH.findAll(archivo.readText()).map { it.value }.toList()
+        assertTrue("$nombre no dibuja ninguna ruta", trazados.isNotEmpty())
+        return trazados
     }
 
     private fun atributo(bloque: String, nombre: String): String =

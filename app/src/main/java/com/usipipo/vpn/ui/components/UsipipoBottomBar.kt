@@ -1,6 +1,7 @@
 package com.usipipo.vpn.ui.components
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Home
@@ -77,7 +78,7 @@ fun UsipipoBottomBar(
  * ademas de pasarlos a Material, para que el estado activo no dependa de como los envuelva.
  */
 @Composable
-private fun BottomBarItem(
+private fun RowScope.BottomBarItem(
     tab: MainTab,
     current: MainTab,
     colors: BottomBarColors,

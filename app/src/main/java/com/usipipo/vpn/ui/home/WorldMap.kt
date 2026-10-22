@@ -3,7 +3,6 @@ package com.usipipo.vpn.ui.home
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
@@ -76,14 +75,16 @@ private const val MAP_MASK_HEX = """000000000000000000
 000004000000000000
 000000000000000000"""
 
+/** Las 36 filas de la máscara ya troceadas. */
+private val MASK_ROWS: List<String> = MAP_MASK_HEX.lines()
+
 /** Las 36 filas de la máscara, en hexadecimal. */
-internal fun mapMaskRows(): List<String> = MAP_MASK_HEX.lines()
+internal fun mapMaskRows(): List<String> = MASK_ROWS
 
 /** true si la celda (columna, fila) es tierra. Fuera de la máscara, mar. */
 internal fun isLand(column: Int, row: Int): Boolean {
     if (column !in 0 until MAP_COLUMNS || row !in 0 until MAP_ROWS) return false
-    val fila = mapMaskRows()[row]
-    val digito = fila[column / 4]
+    val digito = MASK_ROWS[row][column / 4]
     val bit = 3 - (column % 4)
     return (digito.digitToInt(16) shr bit) and 1 == 1
 }
@@ -103,7 +104,6 @@ internal fun WorldMapLayer(
         Color(AtmospherePalette.MAP_DOT_LIGHT)
     }
     val alpha = if (dark) DOT_ALPHA_DARK else DOT_ALPHA_LIGHT
-    val filas = remember { mapMaskRows() }
     Canvas(
         modifier = modifier
             .fillMaxSize()
@@ -116,10 +116,8 @@ internal fun WorldMapLayer(
                 val top = size.height * MAP_VERTICAL_CENTER - mapHeight / 2f
                 onDrawBehind {
                     for (row in 0 until MAP_ROWS) {
-                        val fila = filas[row]
                         for (column in 0 until MAP_COLUMNS) {
-                            val digito = fila[column / 4].digitToInt(16)
-                            if ((digito shr (3 - column % 4)) and 1 != 1) continue
+                            if (!isLand(column, row)) continue
                             val cx = left + cell * (column + 0.5f)
                             val cy = top + cell * (row + 0.5f)
                             // Desvanecido hacia los bordes (seno) y hacia abajo.

@@ -26,8 +26,6 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -280,7 +278,7 @@ private fun EmptyState(onImport: () -> Unit) {
         )
         Spacer(Modifier.height(16.dp))
         Button(onClick = onImport) {
-            Icon(Icons.Default.Add, contentDescription = null)
+            Icon(painterResource(R.drawable.ic_add), contentDescription = null)
             Spacer(Modifier.width(8.dp))
             Text(stringResource(R.string.import_action))
         }

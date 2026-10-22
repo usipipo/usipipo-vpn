@@ -2,10 +2,6 @@ package com.usipipo.vpn.ui.components
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.NavigationBar
@@ -20,8 +16,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.usipipo.vpn.R
 import com.usipipo.vpn.ui.nav.MainTab
+import com.usipipo.vpn.ui.nav.iconRes
+import com.usipipo.vpn.ui.nav.labelRes
 import com.usipipo.vpn.ui.theme.BottomBarColors
 import com.usipipo.vpn.ui.theme.LocalBottomBarColors
 import com.usipipo.vpn.ui.theme.UsipipoTheme
@@ -38,38 +35,16 @@ fun UsipipoBottomBar(
         modifier = modifier,
         containerColor = colors.container,
     ) {
-        BottomBarItem(
-            tab = MainTab.Home,
-            current = tab,
-            colors = colors,
-            icon = { Icon(Icons.Default.Home, contentDescription = null) },
-            label = stringResource(R.string.nav_home),
-            onClick = { onTabClick(MainTab.Home) },
-        )
-        BottomBarItem(
-            tab = MainTab.Configs,
-            current = tab,
-            colors = colors,
-            icon = { Icon(Icons.Default.Settings, contentDescription = null) },
-            label = stringResource(R.string.nav_configs),
-            onClick = { onTabClick(MainTab.Configs) },
-        )
-        BottomBarItem(
-            tab = MainTab.Import,
-            current = tab,
-            colors = colors,
-            icon = { Icon(painterResource(R.drawable.ic_import), contentDescription = null) },
-            label = stringResource(R.string.nav_import),
-            onClick = { onTabClick(MainTab.Import) },
-        )
-        BottomBarItem(
-            tab = MainTab.Diagnostics,
-            current = tab,
-            colors = colors,
-            icon = { Icon(Icons.Default.Build, contentDescription = null) },
-            label = stringResource(R.string.nav_diagnostics),
-            onClick = { onTabClick(MainTab.Diagnostics) },
-        )
+        for (entry in MainTab.entries) {
+            BottomBarItem(
+                tab = entry,
+                current = tab,
+                colors = colors,
+                icon = { Icon(painterResource(entry.iconRes), contentDescription = null) },
+                label = stringResource(entry.labelRes),
+                onClick = { onTabClick(entry) },
+            )
+        }
     }
 }
 

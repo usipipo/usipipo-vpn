@@ -392,14 +392,19 @@ de trazo `1.75`.
 - Rewrite: `ic_arrow_right.xml`, `ic_arrow_back.xml`, `ic_add.xml`, `ic_star.xml`,
   `ic_star_filled.xml`, `ic_edit.xml`, `ic_delete.xml`, `ic_qr.xml`, `ic_clock.xml`,
   `ic_server.xml`, `ic_import.xml`
+- Rewrite (extensión del alcance): `ic_power.xml`, `ic_update.xml`, `ic_shield_check.xml`,
+  `ic_empty_shield.xml`
 - Delete: `app/src/main/res/drawable/ic_arrow_down.xml`, `app/src/main/res/drawable/ic_arrow_up.xml`
 - Modify: `app/src/main/java/com/usipipo/vpn/ui/nav/MainTab.kt`
 - Modify: `app/src/main/java/com/usipipo/vpn/ui/components/UsipipoBottomBar.kt`
+- Create: `app/src/main/java/com/usipipo/vpn/ui/components/IconGallery.kt`
 - Modify: `app/src/main/java/com/usipipo/vpn/ui/home/HomeScreen.kt` (el `Icons.Default.Add` del estado vacío)
 - Modify: `app/src/main/java/com/usipipo/vpn/ui/home/ConnectionStats.kt` (descarga/subida)
 - Modify: `app/src/main/java/com/usipipo/vpn/ui/details/DetailsScreen.kt` (descarga/subida)
 - Modify: `app/src/main/java/com/usipipo/vpn/ui/components/StatTile.kt` (preview)
+- Modify: `app/build.gradle.kts` y `gradle/libs.versions.toml` (se va `material-icons-core`)
 - Test: `app/src/test/java/com/usipipo/vpn/ui/nav/MainTabTest.kt`
+- Test: `app/src/test/java/com/usipipo/vpn/ui/IconSetStyleTest.kt` (nuevo)
 
 **Interfaces:**
 - Consumes: `AtmospherePalette.BOTTOM_BAR_*` de la Tarea 1.
@@ -513,6 +518,41 @@ Todos con el mismo estilo (24×24, trazo 1.75, tapas y uniones redondeadas):
 ```bash
 git rm app/src/main/res/drawable/ic_arrow_down.xml app/src/main/res/drawable/ic_arrow_up.xml
 ```
+
+- [ ] **Step 5b: mete en el set los cuatro iconos que se quedaban fuera**
+
+`ic_power`, `ic_update`, `ic_shield_check` e `ic_empty_shield` no estaban en la lista de la
+spec, pero tienen un defecto de render real: **no declaran `android:fillColor`**, y el valor
+por defecto de Android es negro opaco. Un path abierto (el arco del botón de power, el del
+icono de actualizar) se cierra implícitamente al rellenarse, así que en la app salía un disco
+macizo del color del tinte en lugar de un contorno. `ic_shield_check` e `ic_empty_shield` sí
+declaran el relleno, pero con trazo negro y grosores 1.6/2, fuera del estilo del set.
+
+Los cuatro pasan a trazo 1.75, tapas y uniones redondeadas, `fillColor="#00000000"` y trazo
+blanco, y se añaden a la galería.
+
+- [ ] **Step 5c: quita la dependencia que se queda sin uso**
+
+`material-icons-core` solo servía para los iconos de Material, y ya no queda ninguno:
+
+```bash
+# app/build.gradle.kts: quitar implementation(libs.androidx.compose.material.icons.core)
+# gradle/libs.versions.toml: quitar la entrada androidx-compose-material-icons-core
+```
+
+- [ ] **Step 5d: protege el invariante del set con un test**
+
+El motivo del commit es «trazo uniforme», y sin un test que lo compruebe, un `strokeWidth="2"`
+colado mañana en un icono pasaría el CI. El test lee los vectores del disco y comprueba que
+todos declaran su relleno, que ninguno se rellena de negro opaco y que todo trazo usa el
+grosor 1,75 con las tapas redondeadas.
+
+El XML se lee con **expresiones regulares, no con el DOM**: el parser de Java no resuelve los
+espacios de nombres por defecto, así que `getAttributeNS(uri, "fillColor")` devuelve la cadena
+vacía y el test falla siempre. La comprobación se replica en Python antes de subirla.
+
+`ic_launcher_foreground.xml` e `ic_logo_u.xml` quedan fuera del set: tienen su propia escala
+(trazo 8.4 y 11.3) y no son iconos de interfaz.
 
 - [ ] **Step 6: ata los iconos a las pestañas**
 

@@ -44,7 +44,7 @@ object AtmospherePalette {
     // para que el estado se lea de un vistazo.
     const val BOTTOM_BAR_ACTIVE_DARK: Long = 0xFF06D3FE
     const val BOTTOM_BAR_ACTIVE_LABEL_DARK: Long = 0xFF2DA3D3
-    const val BOTTOM_BAR_INACTIVE_DARK: Long = 0xFF627E93
+    const val BOTTOM_BAR_INACTIVE_DARK: Long = 0xFF6B87A0
     const val BOTTOM_BAR_ACTIVE_LIGHT: Long = 0xFF0B57C9
     const val BOTTOM_BAR_ACTIVE_LABEL_LIGHT: Long = 0xFF0B57C9
     const val BOTTOM_BAR_INACTIVE_LIGHT: Long = 0xFF5B6E8C

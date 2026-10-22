@@ -1240,3 +1240,88 @@ Con la APK del CI instalada:
 6. El mapa de puntos se ve detrás del botón de conectar en el Inicio, y no aparece en las otras
    pestañas.
 7. Los cuatro iconos de la barra tienen el mismo grosor de trazo entre sí.
+
+---
+
+### Tarea 5: ajustes de calidad de la revisión visual
+
+La revisión de calidad de las cuatro fases midió el resultado sobre renders reales y las capturas
+del mockup, y encontró cosas que los tests no veían. Ninguna es un error de compilación; todas
+son de acabado.
+
+**Files:**
+- Rewrite: `app/src/main/res/drawable/ic_launcher_foreground.xml`
+- Rewrite: `app/src/main/res/drawable/ic_nav_configs.xml`
+- Rewrite: `app/src/main/res/drawable/ic_nav_diagnostics.xml`
+- Rewrite: `app/src/main/res/drawable/ic_star_filled.xml`
+- Rewrite: `app/src/main/res/drawable/ic_update.xml`
+- Modify: `app/src/main/java/com/usipipo/vpn/ui/home/WorldMap.kt`
+- Modify: `app/src/main/java/com/usipipo/vpn/ui/theme/Atmosphere.kt`
+- Test: `app/src/test/java/com/usipipo/vpn/ui/LauncherIconSafeZoneTest.kt`
+
+**Interfaces:**
+- Consumes: nada de tareas anteriores.
+- Produces: nada que consuman otras tareas.
+
+#### 5.1 El icono del launcher se salía de la máscara circular
+
+La zona segura cuadrada (21..87) no basta: la máscara circular de un icono adaptativo solo deja
+ver el disco de radio 36 centrado en (54,54), y la zona segura que garantiza Android es el disco
+de radio 33. Medido sobre el vector anterior, la tinta llegaba a **r = 38,42**: la punta del asta
+derecha y la esquina inferior izquierda del guion bajo quedaban shaveados en los lanzadores con
+máscara circular.
+
+La marca se escala de forma uniforme **0,84 sobre (54,54)**, con el trazo de 8,4 a 7,1. La tinta
+baja a **r = 32,27**, dentro de la zona segura circular, y la altura pasa de 58 a 48,7 unidades.
+
+> Esto se aparta del «unos 58 de los 108 dp» del diseño. La cifra estaba calculada sobre la zona
+> segura cuadrada y no tenía en cuenta la máscara circular; el objetivo del diseño —que el icono
+> no salga ni recortado— se cumple mejor con 48,7.
+
+`LauncherIconSafeZoneTest` gana un segundo test que mide el radio máximo de la tinta desde
+(54,54), contando el medio trazo. Con el vector anterior fallaría (38,42 > 33).
+
+#### 5.2 Las rosetas de la barra
+
+El mockup usa una flor de **6 pétalos** con un cubo central pequeño, no una de 8 pétalos con un
+agujero grande: la de 8 se leía como una margarita y además pesaba un 36 % más de tinta que el
+icono de Inicio, con lo que era el único icono que «gritaba» en la barra.
+
+Ambas se regeneran con `r(θ) = 6.6 + 1.6·cos(6θ)` en 72 muestras. La caja exterior pasa a 18,15
+unidades, la misma que el icono de Inicio (18,2). Configuraciones lleva un anillo central de radio
+1 y Diagnóstico un elemento vertical corto (de 8,7 a 18,6), contenido dentro de los pétalos, como
+en el mockup.
+
+#### 5.3 Otros iconos
+
+- `ic_star_filled` se escala ×1,0972 para que mida lo mismo que `ic_star`: al marcar un favorito,
+  la estrella encogía un 10 %.
+- `ic_update` se reescala y se recentra: su margen derecho era de 0,15 unidades, es decir, el
+  trazo tocaba el borde del cuadro.
+
+#### 5.4 El mapa del Inicio
+
+Medido sobre un render a 1080×2400, el centro del mapa quedaba a 719 px y el del botón de
+conectar a 522 px: un desfase de 72 dp, y el mapa se leía como dos alas a los lados del botón en
+vez de un halo. `MAP_VERTICAL_CENTER` pasa de 0,34 a **0,25**, que los deja concéntricos.
+
+El desvanecido vertical (`1 - ny·0,85`) dejaba la punta de América del Sur en un 6 % de alfa,
+prácticamente invisible; con `1 - ny·0,55` sube al 21 % y el cono sur se ve completo. El radio de
+punto pasa de `cell·0,22` a `cell·0,17`, que es el grano que tiene el mockup.
+
+#### 5.5 El gris azulado de las pestañas inactivas
+
+`#627E93` daba 4,60:1 sobre el fondo de la barra, con solo 0,10 de margen sobre el 4,5:1 que exige
+el test de la etiqueta inactiva. Sube a **`#6B87A0` (5,23:1)**, sin perder la lectura de inactivo:
+sigue a menos de la mitad del 10,99:1 del activo.
+
+#### 5.6 Lo que se deja como estaba, y por qué
+
+- **La malla del mapa se queda en 72×36.** Una malla de 120 columnas se parecería más al grano del
+  mockup, pero la spec fija 72×36 y un presupuesto de menos de 1 KB para la máscara.
+- **`ic_nav_home` no se agranda.** La revisión calculó que era un 15 % más pequeño que en el
+  mockup, pero mezcló denominadores: los 43 px de la casa del mockup son 19,3 dp sobre una
+  pantalla de 360 dp, y los nuestros son 18,2 dp sobre 360 dp. La diferencia real es del 6 %.
+- **`ic_download` no se iguala ópticamente a `ic_upload`.** La asimetría del centro de masa
+  procede de que una flecha apunte abajo y la otra arriba; el par de Material tiene la misma
+  propiedad.

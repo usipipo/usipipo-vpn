@@ -220,7 +220,7 @@ fun `fallo permite reintentar la conexion`() = runTest {
 fun `un perfil ilegible publica fallo y no pasa el conf al tunel`() = runTest {
     val store = FakeConfigStore(listOf(casa), unreadableIds = setOf("a"))
     val tunnel = FakeTunnelManager()
-    var permissionChecker = { true }
+    var permission = true
     val controller = controller(store, tunnel, permissionChecker = { permission })
 
     assertEquals(QuickConnectAction.ConfigUnreadable("a"), controller.toggle())
@@ -230,7 +230,7 @@ fun `un perfil ilegible publica fallo y no pasa el conf al tunel`() = runTest {
         controller.state.value.failure,
     )
 
-    permissionChecker = { false }
+    permission = false
     assertEquals(QuickConnectAction.VpnPermissionRequired, controller.toggle())
     assertNull(controller.state.value.failure)
 }

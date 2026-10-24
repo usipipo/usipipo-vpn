@@ -132,7 +132,7 @@
 
 ---
 
-### Tarea 1: controlador JVM de conexión rápida
+### Task 1: controlador JVM de conexión rápida
 
 **Files:**
 - Create: `app/src/main/java/com/usipipo/vpn/domain/ConfigSelection.kt`
@@ -364,7 +364,7 @@ El cuerpo del commit explica que el widget y el mosaico comparten una única dec
 
 ---
 
-### Tarea 2: mapper de estados y paleta accesible
+### Task 2: mapper de estados y paleta accesible
 
 **Files:**
 - Create: `app/src/main/java/com/usipipo/vpn/widget/WidgetStatus.kt`
@@ -615,7 +615,7 @@ git commit -m "feat(widget): mapa de estados y paleta accesible"
 
 ---
 
-### Tarea 3: permiso VPN y apertura directa de Importar
+### Task 3: permiso VPN y apertura directa de Importar
 
 **Files:**
 - Create: `app/src/main/java/com/usipipo/vpn/widget/WidgetIntents.kt`
@@ -775,7 +775,7 @@ git commit -m "feat(widget): permiso VPN y acceso directo a Importar"
 
 ---
 
-### Tarea 4: widget de pantalla de inicio
+### Task 4: widget de pantalla de inicio
 
 **Files:**
 - Create: `app/src/main/res/layout/widget_usipipo.xml`
@@ -912,7 +912,7 @@ git commit -m "feat(widget): widget de pantalla de inicio con RemoteViews"
 
 ---
 
-### Tarea 5: mosaico de ajustes rápidos
+### Task 5: mosaico de ajustes rápidos
 
 **Files:**
 - Create: `app/src/main/java/com/usipipo/vpn/widget/UsipipoTileService.kt`
@@ -994,7 +994,7 @@ git commit -m "feat(widget): mosaico de ajustes rapidos"
 
 ---
 
-### Tarea 6: actualizador reactivo, persistencia y arranque
+### Task 6: actualizador reactivo, persistencia y arranque
 
 **Files:**
 - Create: `app/src/main/java/com/usipipo/vpn/widget/PersistedWidgetState.kt`
@@ -1184,7 +1184,7 @@ git commit -m "feat(widget): actualizar widget y mosaico solo ante cambios"
 
 ---
 
-### Tarea 7: pista de accesos rápidos en Diagnóstico
+### Task 7: pista de accesos rápidos en Diagnóstico
 
 **Files:**
 - Create: `app/src/main/java/com/usipipo/vpn/ui/diagnostics/QuickAccessHint.kt`
@@ -1249,7 +1249,7 @@ git commit -m "feat(ui): pista de accesos rapidos en Diagnostico"
 
 ---
 
-### Tarea 8: verificación integral y matriz manual
+### Task 8: verificación integral y matriz manual
 
 **Files:**
 - Verify: todos los archivos de las tareas 1–7.

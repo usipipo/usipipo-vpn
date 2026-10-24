@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 class FakeConfigStore(
     configs: List<SavedConfig> = emptyList(),
     private val texts: Map<String, String> = emptyMap(),
+    private val unreadableIds: Set<String> = emptySet(),
 ) : ConfigStore {
     private val _configs = MutableStateFlow(configs)
     private val _lastUsed = MutableStateFlow<String?>(null)
@@ -31,7 +32,11 @@ class FakeConfigStore(
 
     /** Texto predecible para comprobar qué se le pasa al túnel. */
     override suspend fun readText(id: String): String? =
-        texts[id] ?: if (_configs.value.any { it.id == id }) "conf-de-$id" else null
+        if (id in unreadableIds) {
+            null
+        } else {
+            texts[id] ?: if (_configs.value.any { it.id == id }) "conf-de-$id" else null
+        }
 
     override suspend fun remove(id: String) {
         _configs.value = _configs.value.filterNot { it.id == id }

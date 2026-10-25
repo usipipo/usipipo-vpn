@@ -12,7 +12,9 @@ enum class MainTab {
     Diagnostics,
     ;
 
-    fun fromKey(key: String?): MainTab = entries.firstOrNull { it.name == key } ?: MainTab.Home
+    companion object {
+        fun fromKey(key: String?): MainTab = entries.firstOrNull { it.name == key } ?: MainTab.Home
+    }
 }
 
 /** Destino del botón Atrás: Inicio desde cualquier otra pestaña; null en Inicio (sale de la app). */

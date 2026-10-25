@@ -11,6 +11,8 @@ import com.usipipo.vpn.data.geo.PingRepository
 import com.usipipo.vpn.diagnostics.AppLog
 import com.usipipo.vpn.diagnostics.DeviceInfo
 import com.usipipo.vpn.diagnostics.DiagnosticsSettings
+import com.usipipo.vpn.quickconnect.AndroidVpnPermissionChecker
+import com.usipipo.vpn.quickconnect.QuickConnectController
 import com.usipipo.vpn.tunnel.TunnelManager
 import com.usipipo.vpn.tunnel.WireGuardTunnelManager
 import com.usipipo.vpn.update.GitHubReleaseSource
@@ -33,7 +35,7 @@ import kotlinx.coroutines.launch
 class AppContainer(context: Context) {
 
     val appContext: Context = context.applicationContext
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    internal val applicationScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     val configStore: ConfigStore by lazy {
         EncryptedFileConfigStore(
@@ -47,7 +49,16 @@ class AppContainer(context: Context) {
     val diagnosticsSettings: DiagnosticsSettings by lazy { DiagnosticsSettings(appContext) }
 
     // Lazy: la librería nativa de WireGuard solo se carga cuando se necesita.
-    val tunnelManager: TunnelManager by lazy { WireGuardTunnelManager(appContext, scope) }
+    val tunnelManager: TunnelManager by lazy { WireGuardTunnelManager(appContext, applicationScope) }
+
+    val quickConnectController: QuickConnectController by lazy {
+        QuickConnectController(
+            store = configStore,
+            tunnelManager = tunnelManager,
+            permissionChecker = AndroidVpnPermissionChecker(appContext),
+            scope = applicationScope,
+        )
+    }
 
     /** Repositorio de geolocalización de país con caché 24 h (ipapi.co). */
     val countryRepository: CountryRepository by lazy {
@@ -71,7 +82,7 @@ class AppContainer(context: Context) {
 
     /** Comprobación automática del arranque: la frena el throttle de 24 h del store. */
     fun checkForUpdatesOnStartup() {
-        scope.launch { checkForUpdates(force = false) }
+        applicationScope.launch { checkForUpdates(force = false) }
     }
 
     /** Devuelve el resultado para que la pantalla que la pidió pueda mostrarlo. */
@@ -91,7 +102,7 @@ class AppContainer(context: Context) {
 
     /** «Más tarde»: no se vuelve a avisar de esta versión concreta. */
     fun postponeUpdate(version: Version) {
-        scope.launch { updateStateStore.skippedVersion = version.toString() }
+        applicationScope.launch { updateStateStore.skippedVersion = version.toString() }
         _updateStatus.value = UpdateStatus.Postponed
     }
 

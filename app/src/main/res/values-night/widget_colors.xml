@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="widget_background_disconnected">#061631</color>
+    <color name="widget_background_connected_start">#123B78</color>
+    <color name="widget_background_connected_end">#006B5F</color>
+    <color name="widget_background_failed">#2A1724</color>
+    <color name="widget_text_primary">#E6F0FF</color>
+    <color name="widget_text_secondary">#B8D2EF</color>
+    <color name="widget_text_on_connected">#FFFFFF</color>
+    <color name="widget_text_failed">#FFD9E2</color>
+    <color name="widget_accent_disconnected">#64B5F6</color>
+    <color name="widget_accent_connected">#006B5F</color>
+    <color name="widget_accent_failed">#FFB547</color>
+    <color name="widget_status_pill_background">#102A43</color>
+    <color name="widget_status_pill_text">#E6F0FF</color>
+</resources>

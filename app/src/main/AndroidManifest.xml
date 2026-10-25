@@ -30,6 +30,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".widget.VpnPermissionActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@style/Theme.Usipipo.Transparent" />
+
         <!-- Escáner QR en vertical (la actividad por defecto de ZXing es horizontal). -->
         <activity
             android:name=".ui.importer.PortraitCaptureActivity"

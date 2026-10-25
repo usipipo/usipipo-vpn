@@ -61,8 +61,8 @@ import com.usipipo.vpn.update.UpdateStatus
 /** Navegación por pestañas con barra inferior. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun UsipipoRoot(container: AppContainer) {
-    var tab by rememberSaveable { mutableStateOf(MainTab.Home) }
+fun UsipipoRoot(container: AppContainer, initialTab: MainTab = MainTab.Home) {
+    var tab by rememberSaveable(initialTab) { mutableStateOf(initialTab) }
     var showDetails by rememberSaveable { mutableStateOf(false) }
     val updateStatus by container.updateStatus.collectAsStateWithLifecycle()
     val context = LocalContext.current

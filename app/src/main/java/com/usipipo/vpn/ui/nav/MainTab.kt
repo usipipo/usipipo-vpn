@@ -5,7 +5,15 @@ import androidx.annotation.StringRes
 import com.usipipo.vpn.R
 
 /** Las cuatro pestañas de la barra inferior. */
-enum class MainTab { Home, Configs, Import, Diagnostics }
+enum class MainTab {
+    Home,
+    Configs,
+    Import,
+    Diagnostics,
+    ;
+
+    fun fromKey(key: String?): MainTab = entries.firstOrNull { it.name == key } ?: MainTab.Home
+}
 
 /** Destino del botón Atrás: Inicio desde cualquier otra pestaña; null en Inicio (sale de la app). */
 fun backTarget(tab: MainTab): MainTab? = if (tab == MainTab.Home) null else MainTab.Home

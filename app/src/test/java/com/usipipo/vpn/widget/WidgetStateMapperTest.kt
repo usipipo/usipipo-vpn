@@ -107,4 +107,15 @@ class WidgetStateMapperTest {
 
         assertEquals("", p.countryLabel)
     }
+
+    @Test
+    fun `pais con codigo pero sin nombre no muestra etiqueta`() {
+        val p = WidgetStateMapper.map(
+            QuickConnectState(
+                selectedConfig = SavedConfig("de", "Alemania", countryCode = "DE"),
+            ),
+        )
+
+        assertEquals("", p.countryLabel)
+    }
 }

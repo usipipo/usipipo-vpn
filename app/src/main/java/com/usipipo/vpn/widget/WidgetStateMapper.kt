@@ -108,7 +108,7 @@ object WidgetStateMapper {
 
     private fun countryLabel(config: SavedConfig?): String {
         val countryCode = config?.countryCode ?: return ""
-        val countryName = config.countryName.takeIf { it.isNotBlank() } ?: return ""
+        val countryName = config.countryName?.takeIf { it.isNotBlank() } ?: return ""
         val flag = flagEmoji(countryCode)
         return if (flag.isEmpty()) "" else "$flag $countryName"
     }

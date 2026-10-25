@@ -14,7 +14,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val container = (application as UsipipoApp).container
-        val initialTab = MainTab.fromKey(intent.getStringExtra(EXTRA_INITIAL_TAB))
+        val initialTab = when (intent.getStringExtra(EXTRA_INITIAL_TAB)) {
+            "home" -> MainTab.Home
+            "configs" -> MainTab.Configs
+            "import" -> MainTab.Import
+            "diagnostics" -> MainTab.Diagnostics
+            else -> MainTab.Home
+        }
         setContent {
             UsipipoTheme {
                 UsipipoRoot(container, initialTab)

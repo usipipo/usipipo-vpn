@@ -2,6 +2,7 @@ package com.usipipo.vpn.quickconnect
 
 import com.usipipo.vpn.data.ConfigStore
 import com.usipipo.vpn.diagnostics.AppLog
+import com.usipipo.vpn.domain.isActive
 import com.usipipo.vpn.domain.selectedConfigId
 import com.usipipo.vpn.tunnel.TunnelManager
 import kotlinx.coroutines.CoroutineScope

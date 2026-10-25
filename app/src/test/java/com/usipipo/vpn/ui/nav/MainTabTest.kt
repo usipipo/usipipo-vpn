@@ -8,6 +8,17 @@ import org.junit.Test
 class MainTabTest {
 
     @Test
+    fun `una clave de pestana valida se convierte en pestana`() {
+        assertEquals(MainTab.Import, MainTab.fromKey("Import"))
+    }
+
+    @Test
+    fun `una clave desconocida abre inicio`() {
+        assertEquals(MainTab.Home, MainTab.fromKey("desconocida"))
+        assertEquals(MainTab.Home, MainTab.fromKey(null))
+    }
+
+    @Test
     fun `atras desde Inicio sale de la app`() {
         assertNull(backTarget(MainTab.Home))
     }

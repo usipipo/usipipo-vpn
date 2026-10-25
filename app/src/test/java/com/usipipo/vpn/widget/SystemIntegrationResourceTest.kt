@@ -49,7 +49,7 @@ class SystemIntegrationResourceTest {
 
     private fun Element.itemValue(name: String): String {
         val item = childElements()
-            .singleOrNull { it.tagName == "item" && it.androidAttribute("name") == name }
+            .singleOrNull { it.tagName == "item" && it.getAttribute("name") == name }
             ?: throw AssertionError("el estilo no declara el atributo $name")
         return item.textContent.trim()
     }

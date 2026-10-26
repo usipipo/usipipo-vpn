@@ -26,16 +26,35 @@ class SystemIntegrationResourceTest {
     }
 
     @Test
-    fun `los layouts del widget llenan el alto asignado`() {
+    fun `los layouts del widget llenan el alto asignado sin estirar el estado`() {
         listOf(WIDGET_LAYOUT_PATH, WIDGET_WIDE_LAYOUT_PATH).forEach { path ->
             val root = layoutRoot(path)
+            val status = root.getElementsByTagName("*").elements()
+                .single { it.androidAttribute("id") == "@+id/widget_status" }
 
             assertEquals(
                 "el layout $path no llena el alto que asigna el launcher",
                 "match_parent",
                 root.androidAttribute("layout_height"),
             )
+            assertEquals(
+                "la pastilla de estado de $path debe ajustar su contenido",
+                "wrap_content",
+                status.androidAttribute("layout_height"),
+            )
         }
+    }
+
+    @Test
+    fun `el alto minimo del widget cubre el diseno compacto`() {
+        val provider = widgetProviderInfo()
+
+        val minHeight = provider.androidAttribute("minHeight").toDp()
+
+        assertTrue(
+            "el layout compacto necesita ${COMPACT_LAYOUT_MIN_HEIGHT_DP} dp y minHeight es $minHeight dp",
+            minHeight >= COMPACT_LAYOUT_MIN_HEIGHT_DP,
+        )
     }
 
     @Test
@@ -120,6 +139,8 @@ class SystemIntegrationResourceTest {
 
     private fun layoutRoot(path: String): Element = parse(File(path)).documentElement
 
+    private fun String.toDp(): Int = removeSuffix("dp").toInt()
+
     private fun widgetProviderInfo(): Element = parse(File(WIDGET_INFO_PATH)).documentElement
 
     private fun receiverActions(receiver: Element): List<String> =
@@ -178,6 +199,12 @@ class SystemIntegrationResourceTest {
         const val WIDGET_LAYOUT_PATH = "src/main/res/layout/widget_usipipo.xml"
         const val WIDGET_WIDE_LAYOUT_PATH = "src/main/res/layout/widget_usipipo_wide.xml"
         const val WIDGET_INFO_PATH = "src/main/res/xml/usipipo_widget_info.xml"
+
+        /**
+         * Alto que necesita el layout compacto vertical: padding 16+16, cabecera 32,
+         * margen 12, botón 64, margen 10, perfil 18, margen 2 y país 16.
+         */
+        const val COMPACT_LAYOUT_MIN_HEIGHT_DP: Int = 186
         const val ACTIVITY_NAME = ".widget.VpnPermissionActivity"
         const val RECEIVER_NAME = ".widget.UsipipoWidgetProvider"
         const val TRANSPARENT_THEME = "Theme.Usipipo.Transparent"

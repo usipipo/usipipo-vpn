@@ -49,10 +49,13 @@ class SystemIntegrationResourceTest {
 
     private fun Element.itemValue(name: String): String {
         val item = childElements()
-            .singleOrNull { it.tagName == "item" && it.getAttribute("name") == name }
+            .singleOrNull { it.tagName == "item" && it.itemName() == name }
             ?: throw AssertionError("el estilo no declara el atributo $name")
         return item.textContent.trim()
     }
+
+    /** El nombre de un item puede traer prefijo de namespace: "android:windowIsTranslucent". */
+    private fun Element.itemName(): String = getAttribute("name").substringAfterLast(':')
 
     private fun Element.childElements(): List<Element> =
         (0 until childNodes.length)

@@ -74,12 +74,23 @@ class UsipipoTileService : TileService() {
             Tile.STATE_INACTIVE
         }
         tile.label = getString(R.string.app_name)
-        tile.icon = Icon.createWithResource(this, R.drawable.ic_shield_check)
+        tile.icon = Icon.createWithResource(this, iconFor(presentation.status))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             tile.stateDescription = getString(presentation.statusText)
             tile.subtitle = presentation.profileName.ifEmpty { getString(presentation.statusText) }
         }
         tile.updateTile()
+    }
+
+    /**
+     * El mosaico no tiene API de color ni admite iconos teñidos: el escudo de la app se
+     * dibuja con el acento del estado en un drawable por estado.
+     */
+    private fun iconFor(status: WidgetStatus): Int = when (status) {
+        WidgetStatus.Connected -> R.drawable.ic_tile_shield_connected
+        WidgetStatus.Failed, WidgetStatus.NoResponse -> R.drawable.ic_tile_shield_failed
+        WidgetStatus.Disconnected, WidgetStatus.Connecting, WidgetStatus.NoProfile ->
+            R.drawable.ic_tile_shield_disconnected
     }
 
     /** Recoge el panel y abre la Activity con el mecanismo propio del mosaico. */

@@ -118,6 +118,21 @@ class SystemIntegrationResourceTest {
     }
 
     @Test
+    fun `el mosaico dibuja el escudo con el acento de cada estado`() {
+        TILE_ICONS.forEach { (asset, accent) ->
+            val strokes = parse(File("src/main/res/drawable/$asset.xml"))
+                .getElementsByTagName("path")
+                .elements()
+                .map { it.androidAttribute("strokeColor") }
+
+            assertTrue(
+                "el icono $asset no se dibuja con $accent",
+                strokes.isNotEmpty() && strokes.all { it == accent },
+            )
+        }
+    }
+
+    @Test
     fun `existen los recursos graficos del widget`() {
         WIDGET_ASSETS.forEach { asset ->
             val file = File("src/main/res/$asset.xml")
@@ -267,6 +282,16 @@ class SystemIntegrationResourceTest {
             "drawable/ic_widget_power_failed",
             "drawable/ic_widget_add",
             "drawable/ic_widget_shield_check",
+        )
+
+        /**
+         * El mosaico no tiene API de color: cada estado usa el escudo de la app dibujado con
+         * su acento.
+         */
+        val TILE_ICONS: Map<String, String> = mapOf(
+            "ic_tile_shield_disconnected" to "@color/widget_accent_disconnected",
+            "ic_tile_shield_connected" to "@color/widget_accent_connected",
+            "ic_tile_shield_failed" to "@color/widget_accent_failed",
         )
     }
 }

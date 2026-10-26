@@ -92,6 +92,32 @@ class SystemIntegrationResourceTest {
     }
 
     @Test
+    fun `el manifiesto declara el mosaico de ajustes rapidos`() {
+        val service = manifestService()
+
+        assertEquals(
+            "el mosaico necesita el permiso de BIND_QUICK_SETTINGS_TILE",
+            "android.permission.BIND_QUICK_SETTINGS_TILE",
+            service.androidAttribute("permission"),
+        )
+        assertEquals(
+            "el mosaico debe estar exportado para que el sistema lo use",
+            "true",
+            service.androidAttribute("exported"),
+        )
+        assertEquals(
+            "el mosaico usa el escudo de la app",
+            "@drawable/ic_shield_check",
+            service.androidAttribute("icon"),
+        )
+        assertEquals(
+            "el mosaico se etiqueta con el nombre de la app",
+            "@string/app_name",
+            service.androidAttribute("label"),
+        )
+    }
+
+    @Test
     fun `existen los recursos graficos del widget`() {
         WIDGET_ASSETS.forEach { asset ->
             val file = File("src/main/res/$asset.xml")
@@ -128,6 +154,13 @@ class SystemIntegrationResourceTest {
             .elements()
             .singleOrNull { it.androidAttribute("name") == RECEIVER_NAME }
             ?: throw AssertionError("no existe el receiver $RECEIVER_NAME en el manifiesto")
+
+    private fun manifestService(): Element =
+        parse(File(MANIFEST_PATH))
+            .getElementsByTagName("service")
+            .elements()
+            .singleOrNull { it.androidAttribute("name") == SERVICE_NAME }
+            ?: throw AssertionError("no existe el service $SERVICE_NAME en el manifiesto")
 
     private fun layoutIds(path: String): Set<String> =
         parse(File(path))
@@ -207,6 +240,7 @@ class SystemIntegrationResourceTest {
         const val COMPACT_LAYOUT_MIN_HEIGHT_DP: Int = 186
         const val ACTIVITY_NAME = ".widget.VpnPermissionActivity"
         const val RECEIVER_NAME = ".widget.UsipipoWidgetProvider"
+        const val SERVICE_NAME = ".widget.UsipipoTileService"
         const val TRANSPARENT_THEME = "Theme.Usipipo.Transparent"
         const val APPWIDGET_UPDATE_ACTION = "android.appwidget.action.APPWIDGET_UPDATE"
         const val PROVIDER_METADATA_NAME = "android.appwidget.provider"

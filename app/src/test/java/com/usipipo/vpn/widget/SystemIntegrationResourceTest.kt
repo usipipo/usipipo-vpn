@@ -26,6 +26,19 @@ class SystemIntegrationResourceTest {
     }
 
     @Test
+    fun `los layouts del widget llenan el alto asignado`() {
+        listOf(WIDGET_LAYOUT_PATH, WIDGET_WIDE_LAYOUT_PATH).forEach { path ->
+            val root = layoutRoot(path)
+
+            assertEquals(
+                "el layout $path no llena el alto que asigna el launcher",
+                "match_parent",
+                root.androidAttribute("layout_height"),
+            )
+        }
+    }
+
+    @Test
     fun `los metadatos del widget declaran su tamano y comportamiento`() {
         val provider = widgetProviderInfo()
 
@@ -104,6 +117,8 @@ class SystemIntegrationResourceTest {
             .mapNotNull { it.androidAttribute("id").takeIf(String::isNotEmpty) }
             .map { it.substringAfterLast('/') }
             .toSet()
+
+    private fun layoutRoot(path: String): Element = parse(File(path)).documentElement
 
     private fun widgetProviderInfo(): Element = parse(File(WIDGET_INFO_PATH)).documentElement
 

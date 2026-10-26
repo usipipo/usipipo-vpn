@@ -4,20 +4,33 @@ import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.Icon
 import android.os.Build
+import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import com.usipipo.vpn.AppContainer
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import com.usipipo.vpn.R
 import com.usipipo.vpn.UsipipoApp
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-/** Mosaico de ajustes rápidos: conecta o desconecta el perfil activo sin abrir la UI. */
+/**
+ * Mosaico de ajustes rápidos: conecta o desconecta el perfil activo sin abrir la UI.
+ *
+ * El toque llega a [onClick] (la API real del mosaico: `Tile` no admite `PendingIntent` hasta
+ * la API 34 y solo para Activities). La UI que hay que abrir se lanza con
+ * [TileService.startActivityAndCollapse] para que el panel se recoja y la app pueda arrancar
+ * aunque esté en segundo plano.
+ */
 class UsipipoTileService : TileService() {
 
     companion object {
         private const val REQUEST_CODE: Int = 0
 
+        /** Pide al sistema que vuelva a escuchar el mosaico para poder repintarlo. */
         fun requestRefresh(context: Context) {
             TileService.requestListeningState(
                 context,
@@ -26,30 +39,9 @@ class UsipipoTileService : TileService() {
         }
     }
 
-    override fun onCreate() {
-        super.onCreate()
-        val intent = Intent(this, UsipipoTileService::class.java).apply {
-            action = WidgetIntents.ACTION_TOGGLE
-        }
-        qsTile.setTilePendingIntent(
-            PendingIntent.getService(
-                this,
-                REQUEST_CODE,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            ),
-        )
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == WidgetIntents.ACTION_TOGGLE) {
-            val container = (applicationContext as UsipipoApp).container
-            container.applicationScope.launch {
-                QuickActionRouter(applicationContext, container.quickConnectController).toggle()
-                renderTile()
-            }
-        }
-        return START_NOT_STICKY
+    override fun onStartListening() {
+        super.onStartListening()
+        renderTile()
     }
 
     override fun onTileAdded() {
@@ -57,35 +49,65 @@ class UsipipoTileService : TileService() {
         renderTile()
     }
 
-    override fun onStartListening() {
-        super.onStartListening()
-        renderTile()
+    /** Mismo flujo que el widget: conectar, desconectar o pedir el permiso de VPN. */
+    override fun onClick() {
+        super.onClick()
+        val container = (applicationContext as UsipipoApp).container
+        container.applicationScope.launch {
+            QuickActionRouter(
+                context = applicationContext,
+                controller = container.quickConnectController,
+                launchActivity = { _, intent -> collapseShadeAndLaunch(intent) },
+            ).toggle()
+            withContext(Dispatchers.Main) { renderTile() }
+        }
     }
 
     private fun renderTile() {
+        val tile: Tile? = qsTile
+        if (tile == null) return
+
         val container = (applicationContext as UsipipoApp).container
         val presentation = WidgetStateMapper.map(container.quickConnectController.state.value)
-        val tile = qsTile
 
-        tile.state =
-            if (presentation.status == WidgetStatus.Connected) Tile.STATE_ACTIVE
-            else Tile.STATE_INACTIVE
+        tile.state = if (presentation.status == WidgetStatus.Connected) {
+            Tile.STATE_ACTIVE
+        } else {
+            Tile.STATE_INACTIVE
+        }
         tile.label = getString(R.string.app_name)
-        tile.icon = Icon.createWithResource(this, R.drawable.ic_shield_check)
+        tile.icon = shieldIcon(presentation.status)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             tile.stateDescription = getString(presentation.statusText)
-            tile.subtitle =
-                if (presentation.profileName.isNotEmpty()) presentation.profileName
-                else getString(presentation.statusText)
+            tile.subtitle = presentation.profileName.ifEmpty { getString(presentation.statusText) }
         }
-        tile.color = colorFor(presentation.status)
         tile.updateTile()
     }
 
-    private fun colorFor(status: WidgetStatus): Int = when (status) {
+    /** El mosaico no tiene API de color: se tiñe el icono con el acento del estado. */
+    private fun shieldIcon(status: WidgetStatus): Icon {
+        val drawable: Drawable = getDrawable(R.drawable.ic_shield_check).mutate()
+        DrawableCompat.setTint(drawable, ContextCompat.getColor(this, accentFor(status)))
+        return Icon.createWithDrawable(drawable)
+    }
+
+    private fun accentFor(status: WidgetStatus): Int = when (status) {
         WidgetStatus.Connected -> R.color.widget_accent_connected
         WidgetStatus.Failed, WidgetStatus.NoResponse -> R.color.widget_accent_failed
         WidgetStatus.Disconnected, WidgetStatus.Connecting, WidgetStatus.NoProfile ->
             R.color.widget_accent_disconnected
+    }
+
+    /** Recoge el panel y abre la Activity con el mecanismo propio del mosaico. */
+    private fun collapseShadeAndLaunch(intent: Intent) {
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            REQUEST_CODE,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        ContextCompat.getMainExecutor(this).execute {
+            startActivityAndCollapse(pendingIntent)
+        }
     }
 }

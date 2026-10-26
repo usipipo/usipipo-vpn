@@ -2,11 +2,11 @@ package com.usipipo.vpn.widget
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
-import android.appwidget.RemoteViews
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.view.View
+import android.widget.RemoteViews
 import com.usipipo.vpn.R
 import com.usipipo.vpn.quickconnect.QuickConnectState
 

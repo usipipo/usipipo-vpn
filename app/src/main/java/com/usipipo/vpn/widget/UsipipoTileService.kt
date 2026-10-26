@@ -4,13 +4,11 @@ import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import com.usipipo.vpn.R
 import com.usipipo.vpn.UsipipoApp
 import kotlinx.coroutines.Dispatchers
@@ -76,26 +74,12 @@ class UsipipoTileService : TileService() {
             Tile.STATE_INACTIVE
         }
         tile.label = getString(R.string.app_name)
-        tile.icon = shieldIcon(presentation.status)
+        tile.icon = Icon.createWithResource(this, R.drawable.ic_shield_check)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             tile.stateDescription = getString(presentation.statusText)
             tile.subtitle = presentation.profileName.ifEmpty { getString(presentation.statusText) }
         }
         tile.updateTile()
-    }
-
-    /** El mosaico no tiene API de color: se tiñe el icono con el acento del estado. */
-    private fun shieldIcon(status: WidgetStatus): Icon {
-        val drawable: Drawable = getDrawable(R.drawable.ic_shield_check).mutate()
-        DrawableCompat.setTint(drawable, ContextCompat.getColor(this, accentFor(status)))
-        return Icon.createWithDrawable(drawable)
-    }
-
-    private fun accentFor(status: WidgetStatus): Int = when (status) {
-        WidgetStatus.Connected -> R.color.widget_accent_connected
-        WidgetStatus.Failed, WidgetStatus.NoResponse -> R.color.widget_accent_failed
-        WidgetStatus.Disconnected, WidgetStatus.Connecting, WidgetStatus.NoProfile ->
-            R.color.widget_accent_disconnected
     }
 
     /** Recoge el panel y abre la Activity con el mecanismo propio del mosaico. */

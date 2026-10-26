@@ -44,6 +44,17 @@
             android:theme="@style/zxing_CaptureTheme"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
+        <receiver
+            android:name=".widget.UsipipoWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/usipipo_widget_info" />
+        </receiver>
+
         <!-- Para adjuntar el informe de diagnóstico al correo. -->
         <provider
             android:name="androidx.core.content.FileProvider"

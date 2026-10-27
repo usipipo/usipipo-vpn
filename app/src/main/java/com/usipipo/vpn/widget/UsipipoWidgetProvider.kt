@@ -17,7 +17,7 @@ class UsipipoWidgetProvider : AppWidgetProvider() {
         appWidgetIds: IntArray,
     ): Unit {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
-        render(context, appWidgetIds)
+        container(context).widgetUpdater.refreshNow()
     }
 
     override fun onAppWidgetOptionsChanged(
@@ -27,22 +27,26 @@ class UsipipoWidgetProvider : AppWidgetProvider() {
         newOptions: Bundle,
     ): Unit {
         super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
-        render(context, intArrayOf(appWidgetId))
+        container(context).widgetUpdater.refreshNow()
     }
 
     override fun onEnabled(context: Context): Unit {
         super.onEnabled(context)
-
-        val container = container(context)
-        UsipipoWidgetRenderer(context).render(container.quickConnectController.state.value)
+        container(context).widgetUpdater.refreshNow()
     }
 
     override fun onReceive(context: Context, intent: Intent): Unit {
-        if (intent.action != WidgetIntents.ACTION_TOGGLE) {
-            super.onReceive(context, intent)
-            return
-        }
+        when (intent.action) {
+            WidgetIntents.ACTION_TOGGLE -> toggle(context)
 
+            Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED ->
+                container(context).widgetUpdater.refreshNow()
+
+            else -> super.onReceive(context, intent)
+        }
+    }
+
+    private fun toggle(context: Context) {
         val pendingResult = goAsync()
         val container = container(context)
         container.applicationScope.launch {
@@ -55,14 +59,6 @@ class UsipipoWidgetProvider : AppWidgetProvider() {
                 pendingResult.finish()
             }
         }
-    }
-
-    private fun render(context: Context, appWidgetIds: IntArray): Unit {
-        val container = container(context)
-        UsipipoWidgetRenderer(context).render(
-            container.quickConnectController.state.value,
-            appWidgetIds,
-        )
     }
 
     private fun container(context: Context): AppContainer =

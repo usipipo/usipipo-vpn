@@ -21,6 +21,10 @@ import com.usipipo.vpn.update.UpdateChecker
 import com.usipipo.vpn.update.UpdateStateStore
 import com.usipipo.vpn.update.UpdateStatus
 import com.usipipo.vpn.update.Version
+import com.usipipo.vpn.widget.SharedPreferencesWidgetStateStore
+import com.usipipo.vpn.widget.UsipipoTileService
+import com.usipipo.vpn.widget.UsipipoWidgetRenderer
+import com.usipipo.vpn.widget.WidgetUpdater
 import java.io.File
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -60,6 +64,19 @@ class AppContainer(context: Context) {
         )
     }
 
+    /**
+     * Mantiene el widget y el mosaico al día: redibuja solo cuando cambia el estado del túnel.
+     */
+    val widgetUpdater: WidgetUpdater by lazy {
+        WidgetUpdater(
+            scope = applicationScope,
+            states = quickConnectController.state,
+            renderWidget = { UsipipoWidgetRenderer(appContext).render(it) },
+            refreshTile = { UsipipoTileService.requestRefresh(appContext) },
+            store = SharedPreferencesWidgetStateStore(appContext),
+        )
+    }
+
     /** Repositorio de geolocalización de país con caché 24 h (ipapi.co). */
     val countryRepository: CountryRepository by lazy {
         CountryRepository(configStore, IpApiClient())
@@ -83,6 +100,11 @@ class AppContainer(context: Context) {
     /** Comprobación automática del arranque: la frena el throttle de 24 h del store. */
     fun checkForUpdatesOnStartup() {
         applicationScope.launch { checkForUpdates(force = false) }
+    }
+
+    /** Arranca el actualizador del widget y del mosaico (idempotente). */
+    fun startWidgetUpdater() {
+        widgetUpdater.start()
     }
 
     /** Devuelve el resultado para que la pantalla que la pidió pueda mostrarlo. */

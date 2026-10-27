@@ -4,24 +4,30 @@ import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.quickconnect.QuickConnectState
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
+/**
+ * El actualizador lanza su colector en el scope que recibe. Con un dispatcher eager el
+ * colector arranca y se reanuda de inmediato, así que el test comprueba el efecto sin
+ * depender de que el planificador ejecute el trabajo en segundo plano.
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
 class WidgetUpdaterTest {
 
     @Test
     fun `un estado repetido no se dibuja dos veces`() = runTest {
         val states = MutableStateFlow(desconectado)
         var renders = 0
-        val updater = updater(states, backgroundScope) { renders++ }
+        val updater = updater(states) { renders++ }
 
         updater.start()
-        advanceUntilIdle()
         states.value = desconectado
-        advanceUntilIdle()
 
         assertEquals(1, renders)
     }
@@ -31,12 +37,10 @@ class WidgetUpdaterTest {
         val states = MutableStateFlow(desconectado)
         var renders = 0
         var tileRefreshes = 0
-        val updater = updater(states, backgroundScope, refreshTile = { tileRefreshes++ }) { renders++ }
+        val updater = updater(states, refreshTile = { tileRefreshes++ }) { renders++ }
 
         updater.start()
-        advanceUntilIdle()
         states.value = conectado
-        advanceUntilIdle()
 
         assertEquals(2, renders)
         assertEquals(2, tileRefreshes)
@@ -46,11 +50,10 @@ class WidgetUpdaterTest {
     fun `arrancar dos veces no duplica la coleccion`() = runTest {
         val states = MutableStateFlow(desconectado)
         var renders = 0
-        val updater = updater(states, backgroundScope) { renders++ }
+        val updater = updater(states) { renders++ }
 
         updater.start()
         updater.start()
-        advanceUntilIdle()
 
         assertEquals(1, renders)
     }
@@ -59,10 +62,9 @@ class WidgetUpdaterTest {
     fun `el estado vivo desconectado invalida un estado activo persistido`() = runTest {
         val store = FakeWidgetStateStore(PersistedWidgetState(WidgetStatus.Connected, 1L))
         val states = MutableStateFlow(desconectado)
-        val updater = updater(states, backgroundScope, store)
+        val updater = updater(states, store = store)
 
         updater.start()
-        advanceUntilIdle()
 
         assertEquals(WidgetStatus.Disconnected, store.written?.status)
     }
@@ -71,10 +73,9 @@ class WidgetUpdaterTest {
     fun `el estado persistido guarda la hora del reloj`() = runTest {
         val store = FakeWidgetStateStore()
         val states = MutableStateFlow(desconectado)
-        val updater = updater(states, backgroundScope, store)
+        val updater = updater(states, store = store)
 
         updater.start()
-        advanceUntilIdle()
 
         assertEquals(456L, store.written?.updatedAtEpochMs ?: 0L)
     }
@@ -83,25 +84,22 @@ class WidgetUpdaterTest {
     fun `refreshNow fuerza un render explicito`() = runTest {
         val states = MutableStateFlow(desconectado)
         var renders = 0
-        val updater = updater(states, backgroundScope) { renders++ }
+        val updater = updater(states) { renders++ }
 
         updater.start()
-        advanceUntilIdle()
         updater.refreshNow()
-        advanceUntilIdle()
 
         assertEquals(2, renders)
     }
 
-    private fun updater(
+    private fun TestScope.updater(
         states: MutableStateFlow<QuickConnectState>,
-        scope: CoroutineScope,
         store: WidgetStateStore = FakeWidgetStateStore(),
         refreshTile: () -> Unit = {},
         clock: () -> Long = { 456L },
         render: (QuickConnectState) -> Unit = {},
     ): WidgetUpdater = WidgetUpdater(
-        scope = scope,
+        scope = CoroutineScope(backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler)),
         states = states,
         renderWidget = render,
         refreshTile = refreshTile,

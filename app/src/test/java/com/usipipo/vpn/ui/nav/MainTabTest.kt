@@ -13,6 +13,13 @@ class MainTabTest {
     }
 
     @Test
+    fun `la clave de pestana no depende de las mayusculas`() {
+        assertEquals(MainTab.Import, MainTab.fromKey("import"))
+        assertEquals(MainTab.Import, MainTab.fromKey("IMPORT"))
+        assertEquals(MainTab.Diagnostics, MainTab.fromKey("diagnostics"))
+    }
+
+    @Test
     fun `una clave desconocida abre inicio`() {
         assertEquals(MainTab.Home, MainTab.fromKey("desconocida"))
         assertEquals(MainTab.Home, MainTab.fromKey(null))

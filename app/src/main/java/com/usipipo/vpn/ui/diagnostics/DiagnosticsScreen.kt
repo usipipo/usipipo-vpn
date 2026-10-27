@@ -1,6 +1,7 @@
 package com.usipipo.vpn.ui.diagnostics
 
 import android.content.ActivityNotFoundException
+import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -120,6 +121,10 @@ fun DiagnosticsScreen(vm: DiagnosticsViewModel, onCheckUpdates: suspend () -> Up
 
             SectionHeader(stringResource(R.string.diag_info_title))
             InfoCard(rows = ui.infoRows)
+
+            if (shouldShowQuickAccessHint(Build.VERSION.SDK_INT)) {
+                QuickAccessHint()
+            }
 
             SectionHeader(stringResource(R.string.diag_verbose_title))
             VerboseRow(checked = ui.verbose, onChange = vm::setVerbose)

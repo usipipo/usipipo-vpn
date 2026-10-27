@@ -7,6 +7,7 @@ import com.usipipo.vpn.diagnostics.AppLog
 import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.domain.activeConfigId
+import com.usipipo.vpn.domain.selectedConfigId
 import com.usipipo.vpn.tunnel.TunnelManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -60,7 +61,7 @@ class HomeViewModel(
 
     /** Llamar solo cuando el permiso de VPN ya está concedido. */
     fun connectSelected() {
-        val id = selectedId(store.configs.value, store.lastUsedId.value) ?: return
+        val id = selectedConfigId(store.configs.value, store.lastUsedId.value) ?: return
         viewModelScope.launch {
             val text = store.readText(id)
             if (text == null) {
@@ -100,12 +101,8 @@ class HomeViewModel(
         msg: HomeMessage?,
     ) = HomeUiState(
         configs = configs,
-        selectedId = selectedId(configs, lastUsed),
+        selectedId = selectedConfigId(configs, lastUsed),
         tunnel = tunnel,
         message = msg,
     )
-
-    /** La última usada si sigue existiendo; si no, la primera de la lista. */
-    private fun selectedId(configs: List<SavedConfig>, lastUsed: String?): String? =
-        configs.firstOrNull { it.id == lastUsed }?.id ?: configs.firstOrNull()?.id
 }

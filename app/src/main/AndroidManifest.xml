@@ -3,6 +3,9 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- El widget se redibuja al arrancar el teléfono y al actualizar la app. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <!-- La cámara solo se usa para escanear el QR; la app funciona sin ella. -->
     <uses-feature
         android:name="android.hardware.camera"
@@ -30,6 +33,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".widget.VpnPermissionActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@style/Theme.Usipipo.Transparent" />
+
         <!-- Escáner QR en vertical (la actividad por defecto de ZXing es horizontal). -->
         <activity
             android:name=".ui.importer.PortraitCaptureActivity"
@@ -37,6 +46,26 @@
             android:stateNotNeeded="true"
             android:theme="@style/zxing_CaptureTheme"
             android:windowSoftInputMode="stateAlwaysHidden" />
+
+        <receiver
+            android:name=".widget.UsipipoWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/usipipo_widget_info" />
+        </receiver>
+
+        <service
+            android:name=".widget.UsipipoTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_shield_check"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE" />
 
         <!-- Para adjuntar el informe de diagnóstico al correo. -->
         <provider

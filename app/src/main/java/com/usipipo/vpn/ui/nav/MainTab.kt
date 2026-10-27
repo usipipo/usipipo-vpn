@@ -5,7 +5,24 @@ import androidx.annotation.StringRes
 import com.usipipo.vpn.R
 
 /** Las cuatro pestañas de la barra inferior. */
-enum class MainTab { Home, Configs, Import, Diagnostics }
+enum class MainTab {
+    Home,
+    Configs,
+    Import,
+    Diagnostics,
+    ;
+
+    companion object {
+        /**
+         * Convierte una clave de pestaña en la pestaña correspondiente.
+         *
+         * No distingue mayúsculas: la clave viaja en un intent y el productor y el consumidor
+         * no deben poder discrepar por la caja. Una clave desconocida abre Inicio.
+         */
+        fun fromKey(key: String?): MainTab =
+            entries.firstOrNull { it.name.equals(key, ignoreCase = true) } ?: MainTab.Home
+    }
+}
 
 /** Destino del botón Atrás: Inicio desde cualquier otra pestaña; null en Inicio (sale de la app). */
 fun backTarget(tab: MainTab): MainTab? = if (tab == MainTab.Home) null else MainTab.Home

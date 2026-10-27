@@ -31,6 +31,9 @@ class UsipipoApp : Application() {
         CrashHandler.install(settings)
         AppLog.i("App", "Inicio · ${DeviceInfo.collect(this).summary}")
 
+        // Widget y mosaico: se redibujan solos cuando cambia el estado del túnel.
+        container.startWidgetUpdater()
+
         // Comprobación silenciosa de actualizaciones: como máximo una vez cada 24 h.
         container.checkForUpdatesOnStartup()
         AppLog.i("Actualizar", "Comprobación automática al arrancar (versión ${container.currentVersion})")

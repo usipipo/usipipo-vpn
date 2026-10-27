@@ -1,5 +1,6 @@
 package com.usipipo.vpn.ui.theme
 
+import java.io.File
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -95,6 +96,105 @@ class PaletteContrastTest {
         )
     }
 
+    @Test
+    fun `el texto del widget contrasta con el fondo desconectado en ambos temas`() {
+        palettes().forEach { (theme, colors) ->
+            assertTrue(
+                "$theme: texto primario sobre fondo desconectado",
+                contrast(colors.color("widget_text_primary"), colors.color("widget_background_disconnected")) >= 4.5,
+            )
+            assertTrue(
+                "$theme: texto secundario sobre fondo desconectado",
+                contrast(colors.color("widget_text_secondary"), colors.color("widget_background_disconnected")) >= 4.5,
+            )
+        }
+    }
+
+    @Test
+    fun `el texto conectado contrasta con los extremos del degradado en ambos temas`() {
+        palettes().forEach { (theme, colors) ->
+            listOf(
+                "widget_background_connected_start",
+                "widget_background_connected_end",
+            ).forEach { background ->
+                assertTrue(
+                    "$theme: texto conectado sobre $background",
+                    contrast(colors.color("widget_text_on_connected"), colors.color(background)) >= 4.5,
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `el texto de fallo contrasta con su fondo en ambos temas`() {
+        palettes().forEach { (theme, colors) ->
+            assertTrue(
+                "$theme: texto de fallo sobre fondo de fallo",
+                contrast(colors.color("widget_text_failed"), colors.color("widget_background_failed")) >= 4.5,
+            )
+        }
+    }
+
+    @Test
+    fun `el texto de la pastilla contrasta con su fondo en ambos temas`() {
+        palettes().forEach { (theme, colors) ->
+            assertTrue(
+                "$theme: texto de la pastilla sobre su fondo",
+                contrast(colors.color("widget_status_pill_text"), colors.color("widget_status_pill_background")) >= 4.5,
+            )
+        }
+    }
+
+    @Test
+    fun `el acento desconectado contrasta con su fondo en ambos temas`() {
+        palettes().forEach { (theme, colors) ->
+            assertTrue(
+                "$theme: acento desconectado sobre su fondo",
+                contrast(colors.color("widget_accent_disconnected"), colors.color("widget_background_disconnected")) >= 3.0,
+            )
+        }
+    }
+
+    @Test
+    fun `el acento de fallo contrasta con su fondo en ambos temas`() {
+        palettes().forEach { (theme, colors) ->
+            assertTrue(
+                "$theme: acento de fallo sobre su fondo",
+                contrast(colors.color("widget_accent_failed"), colors.color("widget_background_failed")) >= 3.0,
+            )
+        }
+    }
+
+    @Test
+    fun `el icono blanco contrasta con el relleno conectado en ambos temas`() {
+        palettes().forEach { (theme, colors) ->
+            assertTrue(
+                "$theme: icono blanco sobre relleno conectado",
+                contrast(colors.color("widget_text_on_connected"), colors.color("widget_accent_connected")) >= 4.5,
+            )
+        }
+    }
+
+    private fun palettes(): Map<String, Map<String, Long>> = mapOf(
+        "claro" to readColors("src/main/res/values/widget_colors.xml"),
+        "oscuro" to readColors("src/main/res/values-night/widget_colors.xml"),
+    )
+
+    private fun readColors(path: String): Map<String, Long> {
+        val xml = File(path).readText()
+        return COLOR.findAll(xml).associate { match ->
+            match.groupValues[1] to argb(match.groupValues[2])
+        }
+    }
+
+    private fun argb(hex: String): Long {
+        val rgb = hex.removePrefix("#").toLong(16)
+        return 0xFF000000L or rgb
+    }
+
+    private fun Map<String, Long>.color(name: String): Long =
+        checkNotNull(this[name]) { "falta el color $name" }
+
     private fun contrast(a: Long, b: Long): Double {
         val la = luminance(a)
         val lb = luminance(b)
@@ -111,5 +211,9 @@ class PaletteContrastTest {
         val g = channel((argb shr 8) and 0xFF)
         val b = channel(argb and 0xFF)
         return 0.2126 * r + 0.7152 * g + 0.0722 * b
+    }
+
+    private companion object {
+        val COLOR = Regex("""<color\s+name="([^"]+)">\s*(#[0-9A-Fa-f]{6})\s*</color>""")
     }
 }

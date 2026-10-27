@@ -29,10 +29,11 @@ private class JsonReader(private val text: String) {
         pos = 0
         return try {
             skipBlank()
-            val value = readValue()
+            if (peek() != '{') return null
+            val value = readObject()
             skipBlank()
             if (pos != text.length) return null
-            value as? Map<String, Any?>
+            value
         } catch (e: MalformedJson) {
             null
         }

@@ -131,4 +131,19 @@
     <string name="ping_ms">%1$d ms</string>
     <string name="ping_unknown">—</string>
     <string name="country_loading">Consultando…</string>
+
+    <string name="widget_status_disconnected">Desconectado</string>
+    <string name="widget_status_connecting">Conectando…</string>
+    <string name="widget_status_active">Activo</string>
+    <string name="widget_status_no_response">Sin respuesta</string>
+    <string name="widget_status_failed">Fallo</string>
+    <string name="widget_import_profile">Importar perfil</string>
+    <string name="widget_description">Conectar o desconectar uSipipo VPN desde la pantalla de inicio.</string>
+    <string name="widget_cd_logo">uSipipo VPN</string>
+    <string name="widget_cd_action">Conectar o desconectar</string>
+
+    <!-- Pista de accesos rápidos -->
+    <string name="quick_access_title">Accesos rápidos</string>
+    <string name="quick_access_widget_hint">Mantén pulsada la pantalla de inicio, abre Widgets y añade uSipipo VPN.</string>
+    <string name="quick_access_tile_hint">Abre el panel de ajustes rápidos, toca Editar y añade uSipipo VPN.</string>
 </resources>

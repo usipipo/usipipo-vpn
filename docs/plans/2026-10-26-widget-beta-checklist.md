@@ -148,8 +148,8 @@ falla. Si falla, anota:
 
 | Comprobación | Resultado esperado |
 |---|---|
-| Android 13 o superior | El mosaico muestra **subtítulo** (perfil o estado) y **descripción de estado** |
-| Android 12 o anteriores | Solo icono, etiqueta «uSipipo VPN» y el color del estado: **sin subtítulo**. Esto es una limitación de la API, no un fallo |
+| Android 10 o superior (API 29+) | El mosaico muestra **subtítulo** (perfil o estado) y **descripción de estado** |
+| Android 9 o anteriores (API 26-28) | Solo icono, etiqueta «uSipipo VPN» y el estado nativo: **sin subtítulo**. Esto es una limitación de la API, no un fallo |
 | Abrir el panel de ajustes rápidos | El mosaico se repinta con el estado actual |
 
 ## 12. Consumo en reposo
@@ -170,7 +170,8 @@ falla. Si falla, anota:
 - El layout cambia a horizontal a partir de **250 dp** de ancho. Con `minResizeWidth="110dp"`
   se puede estrechar bastante: si en un launcher el diseño horizontal queda muy apretado,
   anótalo.
-- El mosaico en **API 26-28** no admite subtítulo ni descripción de estado.
+- El mosaico en **API 26-28** no admite subtítulo ni descripción de estado (el umbral de la
+  API real es API 29 / Android 10).
 - El mosaico se repinta al abrir el panel de ajustes rápidos; **no hay refresco periódico**.
 - Sin perfil con país en caché, el widget solo muestra el nombre del perfil (no es un
   fallo: el país no se consulta por red).

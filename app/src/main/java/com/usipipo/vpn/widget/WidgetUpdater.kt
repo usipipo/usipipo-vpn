@@ -5,7 +5,6 @@ import com.usipipo.vpn.quickconnect.QuickConnectState
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 /**
@@ -28,7 +27,8 @@ class WidgetUpdater(
     fun start() {
         if (!started.compareAndSet(false, true)) return
         scope.launch {
-            states.distinctUntilChanged().collect { state ->
+            // StateFlow solo emite valores distintos: no hace falta distinctUntilChanged.
+            states.collect { state ->
                 apply(state)
             }
         }

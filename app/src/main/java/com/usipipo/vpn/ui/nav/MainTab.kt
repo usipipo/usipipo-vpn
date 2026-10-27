@@ -13,7 +13,14 @@ enum class MainTab {
     ;
 
     companion object {
-        fun fromKey(key: String?): MainTab = entries.firstOrNull { it.name == key } ?: MainTab.Home
+        /**
+         * Convierte una clave de pestaña en la pestaña correspondiente.
+         *
+         * No distingue mayúsculas: la clave viaja en un intent y el productor y el consumidor
+         * no deben poder discrepar por la caja. Una clave desconocida abre Inicio.
+         */
+        fun fromKey(key: String?): MainTab =
+            entries.firstOrNull { it.name.equals(key, ignoreCase = true) } ?: MainTab.Home
     }
 }
 

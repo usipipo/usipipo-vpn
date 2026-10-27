@@ -1,362 +1,182 @@
-# uSipipo VPN (Android) — Fases 1 a 4: estructura, estilo, datos reales, país, ping y correcciones visuales
+<div align="center">
+  <img src="public/image/usipipo_logo.jpg" alt="Logotipo de uSipipo VPN" width="112">
 
-App Android nativa en Kotlin que importa el `.conf` de WireGuard de tu VPS y conecta con un botón.
-Este paquete incluye la **fase 1: la interfaz del mockup llevada a código real** — barra inferior de 4
-pestañas (Inicio, Configuraciones, Importar, Diagnóstico), tema azul noche (oscuro) y azul pastel
-(claro), pantalla de Configuraciones con "Mis perfiles" y "Favoritos", Importar con dos tarjetas
-(QR y archivo), y «Acerca de» integrado dentro de Diagnóstico — y la **fase 2: datos reales del
-túnel y pantalla Detalles** — descarga/subida con gráfica, tiempo activo, protocolo, endpoint e
-IPv6; pantalla Detalles con botón Desconectar y lápiz para renombrar el perfil; tarjetas de
-estadísticas en Inicio cuando el túnel está conectado — y la **fase 3: país y ping** — bandera del
-servidor por geolocalización del endpoint (ipapi.co, con caché de 24 h por perfil) y ping real
-dentro del túnel cada 5 s, visibles en la pantalla Detalles y con la bandera en el perfil de Inicio.
-— y la **fase 4: correcciones visuales** — la barra inferior de 4 pestañas que no aparecía por un
-fallo de layout, un set propio de iconos en contorno que sustituye a los de Material, el icono de la
-app rehecho dentro de la zona segura y el mapa del mundo punteado del fondo del Inicio.
-Se parte de la fase 0 (arquitectura, almacén cifrado, túnel WireGuard, diagnóstico, actualizaciones).
+  <h1>uSipipo VPN</h1>
 
-Diseños aprobados:
-- [`docs/plans/2026-10-09-usipipo-vpn-android-design.md`](docs/plans/2026-10-09-usipipo-vpn-android-design.md)
-- [`docs/plans/2026-10-11-usipipo-vpn-diagnostico-design.md`](docs/plans/2026-10-11-usipipo-vpn-diagnostico-design.md) (Diagnóstico y ajustes avanzados)
-- [`docs/plans/2026-10-18-usipipo-vpn-mockup-design.md`](docs/plans/2026-10-18-usipipo-vpn-mockup-design.md) (Mockup: de la pantalla a la app real)
-- [`docs/plans/2026-10-21-correcciones-visuales-design.md`](docs/plans/2026-10-21-correcciones-visuales-design.md) (Correcciones visuales tras el rediseño del mockup)
+  <p><strong>Cliente Android nativo para túneles WireGuard</strong><br>
+  Importa tu <code>.conf</code> y conecta con un botón: desde la app, desde el widget o desde el panel de ajustes rápidos.</p>
 
-## Antes de compilar
+  <p>
+    <a href="https://github.com/usipipo/usipipo-vpn/releases/latest"><img src="https://img.shields.io/github/v/release/usipipo/usipipo-vpn?label=release&color=2563EB" alt="Última release"></a>
+    <a href="https://github.com/usipipo/usipipo-vpn/actions/workflows/android-ci.yml"><img src="https://github.com/usipipo/usipipo-vpn/actions/workflows/android-ci.yml/badge.svg" alt="Estado de la CI"></a>
+    <img src="https://img.shields.io/badge/android-8.0%2B-3DDC84" alt="Requiere Android 8.0 o superior">
+    <img src="https://img.shields.io/badge/kotlin-2.3.21-7F52FF" alt="Kotlin 2.3.21">
+    <img src="https://img.shields.io/badge/jetpack%20compose-2026.08-3DDC84" alt="Jetpack Compose">
+    <img src="https://img.shields.io/badge/wireguard-tunnel-1.0.20251231-88171A" alt="WireGuard tunnel">
+  </p>
+</div>
 
-> **El proyecto Android no se ha compilado ni ejecutado todavía.** Se escribió sin acceso al SDK de Android.
-> Espera algún ajuste menor en la primera compilación (ver "Puntos a vigilar").
->
-> Lo único verificado: la lógica pura del registro (`LogRedactor`, `FileLogWriter`, `ReportBuilder`, `AppLog`)
-> se compiló con kotlinc 2.3.21 y sus 16 pruebas pasaron, más una prueba de humo de `AppLog`.
+---
 
-- Android Studio con soporte para AGP 9.3.x, JDK 17 o superior y Android SDK 37 (`compileSdk`).
-  Si tu Studio es más antiguo, baja las versiones en `gradle/libs.versions.toml` o actualiza Studio.
-- Abre la carpeta del proyecto. El wrapper descarga Gradle 9.5.0 solo.
-- Ejecuta en un teléfono real: el túnel de VPN no funciona bien en el emulador.
+> [!TIP]
+> **Descarga la APK firmada** desde la [última release](https://github.com/usipipo/usipipo-vpn/releases/latest).
+> Es la versión que se puede instalar en cualquier teléfono. La APK de depuración que genera la CI va firmada con otro certificado, así que **la primera APK firmada no se instala encima**: desinstálala una vez.
 
-## Estructura
+## Qué es
 
-```
-app/src/main/java/com/usipipo/vpn/
-├── UsipipoApp.kt, AppContainer.kt   Dependencias a mano (sin Hilt, a propósito)
-├── MainActivity.kt
-├── domain/                          SavedConfig, TunnelState, CountryInfo, PingResult
-├── data/
-│   ├── Crypto.kt                    AES-256-GCM con clave del Android Keystore
-│   ├── ConfigStore.kt               Contrato del almacén
-│   ├── EncryptedFileConfigStore.kt  Un archivo cifrado por configuración + índice sin claves
-│   ├── JsonExt.kt                   Lectura segura de strings del JSON (ausentes o null)
-│   ├── ConfigImporter.kt            Valida el .conf con el parser oficial de WireGuard
-│   └── geo/                         País y ping
-│       ├── CountryRepository.kt     Geolocalización con caché de 24 h por perfil y cooldown ante 429
-│       ├── IpApiClient.kt           Cliente HTTPS de ipapi.co (timeout 3 s, sin reintentos)
-│       └── PingRepository.kt        Ping nativo con fallback a InetAddress.isReachable
-├── diagnostics/                     Registro propio: AppLog, LogRedactor (tapa claves), FileLogWriter
-│                                    (archivo rotativo), CrashHandler, informe y envío por correo
-├── tunnel/
-│   ├── TunnelManager.kt             Contrato: state, connect, disconnect
-│   └── WireGuardTunnelManager.kt    GoBackend; "Conectado" solo tras el primer handshake
-└── ui/
-    ├── UsipipoRoot.kt               Navegación por pestañas (4 destinos, sin librería de navegación)
-    ├── nav/MainTab.kt               Enum de pestañas (Home, Configs, Import, Diagnostics) + backTarget
-    ├── theme/Theme.kt               Paleta azul noche (oscuro) y azul pastel (claro), tipografía Manrope
-    ├── components/                  Componentes base del mockup
-    │   ├── ConnectButton.kt         Botón circular con halo (respeta "reducir movimiento")
-    │   ├── UsipipoCard.kt           Tarjeta con borde fino y esquinas de 20 dp
-    │   ├── IconTile.kt              Icono en cuadro redondeado (44 dp)
-    │   ├── AppLogo.kt               Logo "u" sobre azul de marca
-    │   ├── AppHeader.kt             Cabecera con logo y nombre de la app
-    │   ├── UsipipoBottomBar.kt      Barra inferior Material 3 con 4 pestañas
-    │   └── UiSymbols.kt              Símbolos compartidos: globo y bandera emoji
-    ├── home/                        Pantalla Inicio: botón conectar, estado, tarjeta del perfil activo, tarjetas de estadísticas (descarga, subida, tiempo, "Ver detalles")
-    ├── configs/                     Pantalla Configuraciones: "Mis perfiles" y "Favoritos" con estrella
-    ├── importer/                    Archivo .conf o QR (escáner ZXing offline, dos tarjetas)
-    ├── diagnostics/                 Diagnóstico con «Acerca de» y comprobación de actualizaciones integrados
-    └── details/                     Pantalla Detalles (sub-pantalla de Inicio): estadísticas con gráfica, tiempo activo, protocolo, endpoint, IPv6, país, ping, desconectar, renombrar
-```
+uSipipo VPN es una app Android nativa (Kotlin + Jetpack Compose) para gestionar túneles WireGuard
+propios. Importa el `.conf` que te da tu servidor, conecta con un botón y te dice qué está pasando:
+velocidad, ping, tiempo activo, endpoint y país del servidor.
 
-## Qué incluye la fase 1 y la fase 2
+No hay cuenta, ni servidor de control, ni telemetría. La app habla con tu VPS y, solo cuando lo
+pides, con `ipapi.co` para geolocalizar el endpoint. Desde la **v0.5.0** también puedes conectar y
+desconectar **sin abrir la app**: con el widget de la pantalla de inicio o con el mosaico del panel
+de ajustes rápidos.
 
-- Build completo (Gradle Kotlin DSL, catálogo de versiones, wrapper) — verificado en GitHub Actions.
-- Las tres capas (UI → ViewModel → datos/túnel) con contratos por interfaz.
-- **Navegación por pestañas:** barra inferior Material 3 con 4 destinos (Inicio, Configuraciones, Importar, Diagnóstico),
-  sin librería de navegación; estado con `rememberSaveable`; Atrás desde cualquier pestaña vuelve a Inicio.
-- **Tema:** oscuro azul noche (igual al mockup) y claro con azules pastel aprobados; comprobación de contraste ≥ 4.5:1.
-- **Pantalla Inicio:** botón de conectar con Atmósfera, estado del túnel, tarjeta del perfil activo (nombre y protocolo),
-  toque lleva a Configuraciones; subtítulo «Tu privacidad está protegida» al conectar. Cuando el túnel está conectado
-  aparecen tarjetas de descarga y subida, tiempo activo y «Ver detalles».
-- **Pantalla Configuraciones:** pestañas «Mis perfiles» y «Favoritos»; reutiliza tarjetas actuales (chip «Activo»,
-  deslizar para borrar) y añade estrella de favorito; botón «+» y «Añadir configuración» llevan a Importar.
-- **Pantalla Importar:** dos tarjetas grandes (QR y archivo `.conf`), paso «Nombre» con Cancelar, Atrás cancela el paso.
-- **Pantalla Diagnóstico:** la pantalla actual de diagnóstico más la sección «Acerca de» (logo, versión, soporte,
-  comprobación de actualizaciones).
-- **Pantalla Detalles (sub-pantalla de Inicio):** chip «Activo», estadísticas con gráfica Canvas (últimos ~60 muestras),
-  tiempo activo, protocolo, endpoint, IPv6, botón rojo «Desconectar» y lápiz para renombrar el perfil.
-- **Datos:** campo `favorite` en `SavedConfig` y en el índice del almacén cifrado; perfiles existentes cargan como no favoritos.
-- **Renombrar:** `ConfigStore.rename(id, name)` con validación de duplicados (sin distinguir mayúsculas), nombre vacío,
-  e id desconocido.
-- **Estadísticas del túnel:** `TunnelManager.counters()` (una muestra por segundo), `SpeedCalculator` (ventana de 3
-  muestras, delta negativo como 0), `TunnelState.Connected(sinceMs)`, velocidad en bytes por segundo suavizada.
-- **Componentes base:** `UsipipoCard`, `IconTile`, `AppLogo`, `AppHeader`, `UsipipoBottomBar`, `StatTile`,
-  `ThroughputChart`, `UptimeText`; set propio de iconos en contorno en `res/drawable` (trazo 1.75
-  uniforme, sin iconos de Material), incluido el logo «u» convertido a icono adaptable.
-- **Pruebas unitarias:** `HomeViewModel` (incluyendo favoritos y renombrar), `ConfigsFilter`, `EncryptedFileConfigStore`
-  (favoritos, migración de índice antiguo y renombrar), `SpeedCalculator`, `ConfSummary`, `Formatters`, `MainTab`,
-  `PaletteContrastTest`, `IconSetStyleTest` (el set de iconos comparte estilo), `LauncherIconSafeZoneTest`
-  (el icono del launcher cabe en la zona segura) y `WorldMapMaskTest` (la máscara del mapa).
-- **Diagnóstico y ajustes avanzados:** registro en archivo con rotación, claves tapadas automáticamente,
-  captura de cierres inesperados, modo detallado (con logcat), visor, borrado y envío del informe por
-  correo a usipipo@gmail.com.
+### Capturas
 
-## Qué NO incluye (según el diseño)
+<p align="center">
+  <img src="docs/design/Screenshot_2026-10-21-05-22-04-969_com.miui.gallery.jpg" width="185" alt="Pantalla de Inicio conectada, con el estado, el perfil activo y las estadísticas de descarga y subida">
+  <img src="docs/design/Screenshot_2026-10-21-05-22-24-600_com.miui.gallery.jpg" width="185" alt="Configuraciones con la lista de perfiles y la pestaña de favoritos">
+  <img src="docs/design/Screenshot_2026-10-21-05-22-39-673_com.miui.gallery.jpg" width="185" alt="Importar configuración por QR o por archivo">
+  <img src="docs/design/Screenshot_2026-10-21-05-23-03-578_com.miui.gallery.jpg" width="185" alt="Diagnóstico con el registro del túnel y el envío del informe por correo">
+  <img src="docs/design/Screenshot_2026-10-21-05-23-33-313_com.miui.gallery.jpg" width="185" alt="Detalles del perfil con la gráfica, el ping y el botón de desconectar">
+</p>
 
-Conexión automática, acceso a "VPN siempre activa", pegar texto,
-split tunneling, conexión automática y "VPN siempre activa". El **modo administrador**
-queda descartado: la app solo importa un `.conf` y no lleva gestión de usuarios.
+<p align="center"><sub>Mockup aprobado del proyecto (<code>docs/plans/2026-10-18-usipipo-vpn-mockup-design.md</code>).
+El botón «Pegar configuración» del mockup todavía no está implementado: hoy se importa por QR o por archivo.</sub></p>
 
-## Supuestos que elegí yo (cámbialos si no te sirven)
+## Funcionalidades
 
-- Paquete y `applicationId`: `com.usipipo.vpn`.
-- `minSdk` 26 (Android 8.0), `targetSdk` 36, `compileSdk` 37.
-- Versiones: AGP 9.3.3, Kotlin 2.3.21, Compose BOM 2026.08.00, `wireguard-android:tunnel` 1.0.20251231.
-  Las demás (core-ktx, activity, lifecycle, coroutines, ZXing) son versiones conocidas, no necesariamente
-  las últimas.
-- Sin notificación propia mientras hay conexión: el sistema ya muestra el icono de VPN.
-
-## Puntos a vigilar en la primera compilación
-
-1. **Desugaring:** la librería de WireGuard lo pide; ya está activado en `app/build.gradle.kts`.
-2. **Kotlin integrado de AGP 9:** por eso no se aplica `org.jetbrains.kotlin.android`.
-3. **API de la librería de WireGuard:** `Statistics`/`PeerStats.latestHandshakeEpochMillis()` y
-   `Tunnel.onStateChange` se escribieron de memoria; si el compilador se queja, el cambio es local a
-   `WireGuardTunnelManager.kt`.
-4. **ZXing:** `PortraitCaptureActivity` usa el tema `zxing_CaptureTheme` de la librería.
-5. **Nombre de interfaz del túnel:** `usp` + 10 caracteres del id (WireGuard limita a 15).
-6. **Adjunto del correo:** se usa `ACTION_SENDTO` + `FileProvider`. Algunos clientes de correo ignoran el
-   adjunto; por eso el cuerpo repite la información del dispositivo.
-7. **logcat:** se lee con `logcat --pid` del propio proceso (API 24+); en algunos fabricantes puede venir vacío.
-
-## Siguiente paso sugerido
-
-**Probar la v0.4.0 en tu teléfono** (la release firmada está en
-<https://github.com/usipipo/usipipo-vpn/releases/tag/v0.4.0>): conectar con el `.conf` de tu
-VPS (handshake, IP pública, DNS de Blocky), importar por QR, renombrar, ver el país y el ping en
-Detalles, y desconectar. Ojo: la APK firmada **no** se instala encima de la de depuración, hay que
-desinstalar la anterior antes.
-
-Esta versión es la de las **correcciones visuales** respecto al mockup: barra inferior visible en las
-cuatro pestañas, set propio de iconos, icono de la app sin recorte y mapa de puntos en el Inicio.
-Quedan fuera de alcance, sin fecha: split tunneling, conexión automática y "VPN siempre activa".
-
-## Compilar la APK con GitHub Actions
-
-El repositorio incluye `.github/workflows/android-ci.yml`. Al subir cambios a `main`, `master` o
-`develop`, al abrir/actualizar un Pull Request hacia esas ramas, o al ejecutarlo manualmente,
-GitHub Actions ejecutará las pruebas unitarias y compilará la APK de depuración.
-
-### Descargar la APK
-
-**Versión para distribuir (firmada):** las releases se crean al subir una etiqueta `vX.Y.Z`
-(firmadas con el keystore de release y publicadas por `.github/workflows/release.yml`). Aparecen
-en la [página de Releases](https://github.com/usipipo/usipipo-vpn/releases) con la APK
-`app-release.apk` adjunta; el funcionamiento está explicado en «Release firmada», más abajo.
-
-**Sin esperar a una release, desde el run de Actions:**
-
-1. Abre la pestaña **Actions** y entra en la ejecución más reciente de **Android CI - Build APK**.
-2. Cuando termine correctamente, baja hasta **Artifacts** y descarga `usipipo-vpn-debug-apk`.
-3. Descomprime el artefacto y encontrarás la APK para instalar en un dispositivo Android.
-   El artefacto se conserva 14 días.
-
-La APK del artefacto es de **depuración** y no está firmada para distribución pública. El
-keystore de release y sus contraseñas nunca se guardan en el repositorio: viven en secretos de
-GitHub.
-
-> **Ojo con el cambio de certificado:** la APK de depuración está firmada con el keystore de
-> depuración de Android y la APK de release con el keystore de release. La primera APK firmada
-> **no** se instala encima de la de depuración: desinstálala una vez (se avisa también en
-> «Release firmada»).
-
-> Nota: el proyecto declara `compileSdk = 37`. El workflow instala la plataforma Android 37;
-> si esa plataforma aún no estuviera disponible en el SDK de GitHub Actions, habrá que ajustar
-> `compileSdk` a una plataforma disponible o actualizar el entorno de compilación.
-
-## Release firmada
-
-Las versiones que se distribuyen (instalables en cualquier teléfono, no solo para probar) se
-publican con una **etiqueta** `vX.Y.Z`. El workflow `.github/workflows/release.yml` compila la
-variante release, la firma con tu keystore y la publica en
-[Releases](https://github.com/usipipo/usipipo-vpn/releases) con la APK adjunta
-(`app-release.apk`) y las notas generadas automáticamente. Antes de publicar, el workflow
-ejecuta las pruebas unitarias y verifica la firma con `apksigner`. El `versionName` y el
-`versionCode` se calculan solos a partir de la etiqueta (`v0.2.3` → `0.2.3` / `2003`, con
-`major×1.000.000 + minor×1.000 + patch`; cada número debe ser menor que 1000).
-
-### 1. Configurar la firma (solo la primera vez)
-
-Hay dos caminos para crear el keystore de release y sus cuatro secretos. El recomendado
-**no instala nada en tu máquina**: el keystore se genera en un runner de GitHub Actions y
-todo se hace desde la web. El asistente de siempre, con un script local, queda como
-alternativa para quien ya tenga un JDK instalado (al final de esta sección).
-
-> **No hace falta poner el repositorio en privado.** Las contraseñas nunca se teclean en
-> el formulario del workflow ni aparecen en los logs: se guardan antes como secretos de
-> repositorio de solo escritura. Por eso todo el proceso funciona con el repositorio
-> público.
-
-#### Camino recomendado: desde la web, sin instalar nada
-
-**Paso 1. Crea un token temporal (PAT) y guárdalo como secreto `GH_PAT`.**
-
-El `GITHUB_TOKEN` automático de los workflows no puede crear secretos de repositorio, así
-que hace falta un token personal que se usa **una sola vez** y se revoca al final.
-
-1. En GitHub, arriba a la derecha, tu foto de perfil → **Settings**.
-2. En el menú lateral, baja hasta el final → **Developer settings**.
-3. **Personal access tokens** → **Fine-grained tokens** → **Generate new token**.
-4. *Repository access*: **Only select repositories** → marca **usipipo-vpn** (solo ese).
-5. *Repository permissions*: busca **Secrets** y ponlo en **Read and write**.
-6. Pulsa **Generate token** y **copia el token** (empieza por `github_pat_`). Solo se
-   muestra una vez; tenlo a mano un momento.
-
-Ahora guárdalo como secreto del repositorio:
-
-1. Entra en el repositorio → **Settings** → **Secrets and variables** → **Actions**.
-2. **New repository secret**.
-3. *Name*: `GH_PAT`. *Secret*: pega el token que acabas de copiar.
-4. **Add secret**.
-
-**Paso 2. Crea el secreto con la contraseña del keystore.**
-
-El generador necesita una sola contraseña —la del almacén— y **no** se pide en el
-formulario: la guardas tú antes, como un secreto de repositorio de solo escritura, con el
-valor que tú elijas. La clave de dentro hereda esa misma contraseña, así que solo hay una
-que recordar y guardar:
-
-1. **Settings** → **Secrets and variables** → **Actions** → **New repository secret**.
-2. *Name*: `TMP_STORE_PASSWORD`. *Secret*: la contraseña del keystore (mínimo 6 caracteres,
-   que es lo que exige `keytool`). **Add secret**.
-
-Elige una contraseña fuerte y **guárdala en tu gestor de contraseñas**: GitHub no vuelve a
-mostrar el valor de un secreto después de guardarlo, así que nadie podrá leerla por la web.
-El workflow la usa al ejecutarse y **borra el secreto temporal cuando termina**, para que
-no se quede en el repositorio.
-
-**Paso 3. Lanza el workflow «Generar keystore de release».**
-
-1. Pestaña **Actions** → **Generar keystore de release** → **Run workflow**.
-2. Rellena el formulario con solo tres campos:
-
-   | Campo | Qué poner |
-   |---|---|
-   | `key_alias` | `release` (ya viene puesto) |
-   | `validity_days` | `10000` (unos 27 años de validez) |
-   | `confirm` | `GENERAR`, exactamente así y en mayúsculas |
-
-3. Pulsa **Run workflow**.
-
-El workflow (`.github/workflows/generate-keystore.yml`) lee la contraseña del secreto
-temporal, genera el keystore en el runner, lo borra de ahí, crea los cuatro secretos
-finales, borra el temporal y verifica al final que todo existe. La contraseña nunca se
-imprime en los logs ni viaja por la línea de comandos. Si algo falla, no crea nada y puedes
-volver a lanzarlo: espera a que la ejecución se ponga **verde** antes de seguir.
-
-**Paso 4. Comprueba que están los cuatro secretos.**
-
-Vuelve a **Settings** → **Secrets and variables** → **Actions**. Deben aparecer
-`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` y
-`ANDROID_KEY_PASSWORD`. Con esos cuatro ya se puede publicar una release firmada
-(sección 2).
-
-**Paso 5. Revoca el token y borra el secreto `GH_PAT`.**
-
-Ya no hacen falta. Vuelve a **Settings** → **Developer settings** →
-**Personal access tokens** → **Fine-grained tokens**, busca el que acabas de crear y
-bórralo. Después, en **Settings** → **Secrets and variables** → **Actions**, borra también
-el secreto `GH_PAT`. Si alguna vez hay que regenerar los secretos, repites los pasos 1 y 2
-con un token nuevo.
-
-El secreto `TMP_STORE_PASSWORD` ya lo borra el propio workflow al terminar. Si el registro
-de la ejecución avisó de que no pudo borrarlo, bórralo a mano en **Settings** →
-**Secrets and variables** → **Actions**.
-
-**Guarda una copia de seguridad (no te la saltes).** Copia el contenido del secreto
-`ANDROID_KEYSTORE_BASE64` (el keystore convertido a base64) y la contraseña (la que
-elegiste en el paso 2) en tu gestor de contraseñas. Si se pierden, **no podrás publicar
-actualizaciones que se instalen encima de las anteriores**: Android exige que todas las
-versiones de una app vengan firmadas con el mismo certificado. El fichero del keystore
-solo existió en el runner, que se borra al terminar: **su única copia es ese secreto**.
-
-#### Alternativa: el asistente local (si tienes JDK)
-
-Si en tu máquina tienes `keytool` (viene con el JDK 17) y la CLI de GitHub `gh` con la
-sesión iniciada (`gh auth login`), dentro de la carpeta del repositorio ejecuta el
-asistente:
-
-```bash
-scripts/setup-release-signing.sh
-```
-
-Te pregunta la ruta del keystore (por defecto `~/usipipo-release.jks`), el alias de la
-clave (`release`) y las contraseñas; ninguna se muestra por pantalla, se guarda en el
-historial del shell ni viaja por la línea de comandos (`keytool` las lee de variables de
-entorno con `-storepass:env` y `gh` las recibe por stdin). Después genera el keystore, lo
-convierte a base64 y guarda los cuatro secretos del repositorio. Aquí sí te queda una
-copia del fichero en tu disco: guárdala también a buen recaudo.
-
-Si algo queda a medias (por ejemplo, falla uno de los `gh secret set`), vuelve a ejecutar
-el asistente con `--solo-secretos`: reutiliza el keystore que ya tienes y vuelve a subir
-los cuatro secretos sin generar uno nuevo:
-
-```bash
-scripts/setup-release-signing.sh --solo-secretos
-```
-
-### 2. Crear y subir la etiqueta
-
-```bash
-git tag v0.2.0
-git push origin v0.2.0
-```
-
-Al subir la etiqueta se dispara el workflow y, si termina bien, la release aparece en la
-página de Releases con la APK firmada lista para descargar. Si subes la misma etiqueta otra
-vez (o el run se reintenta), la release se actualiza con el nuevo adjunto en lugar de
-quedar rota. Si los secretos de firma faltan o la etiqueta no tiene el formato `vX.Y.Z`, el
-workflow falla sin publicar nada: nunca se distribuye una APK sin firmar como release.
-
-### 3. O lanzar la release sin escribir la versión a mano (recomendado)
-
-En la pestaña **Actions** → **Release firmada** → **Run workflow** (sin etiqueta), el
-workflow calcula solo la versión y la publica firmada: no hay que teclear ni el número de
-versión ni crear la etiqueta. Lanzarlo así publica una **release real y firmada**, así que
-exige los cuatro secretos de firma configurados (ver sección 1): ya no produce una
-compilación sin firmar con solo el artefacto.
-
-### 4. Versionado dinámico: la versión sale del historial
-
-La versión nunca se escribe a mano: la calcula `scripts/next-version.sh` a partir de las
-etiquetas `vX.Y.Z` y de los commits convencionales que las siguen (las reglas exactas están
-en la cabecera del script, y `scripts/next-version.test.sh` las prueba).
-
-- **Sin ninguna etiqueta `vX.Y.Z`, la versión es la inicial: `0.1.0`** (y se queda así hasta
-  que exista una etiqueta base).
-- Con etiqueta base (la más alta por semver, no por fecha), se cuentan los commits desde
-  ella y manda el cambio más grande del conjunto:
-
-| Commits desde la etiqueta base | Siguiente versión |
+| Superficie | Qué hace |
 |---|---|
-| uno con `!` (`feat!:`) o pie `BREAKING CHANGE:` | salto mayor (salvo en 0.x: salta el menor, para no llegar a 1.0.0 solo) |
-| cualquier `feat:` | salto menor |
-| cualquier `fix:` | salto de parche |
-| solo `docs:`, `chore:`, `ci:`, `test:`… | salto de parche |
+| **Inicio** | Botón de conectar con animación de atmósfera, estado del túnel y tarjeta del perfil activo. Conectado, aparecen las estadísticas de descarga, subida y tiempo activo. |
+| **Configuraciones** | «Mis perfiles» y «Favoritos», chip «Activo», renombrar, marcar favorito y deslizar para borrar. |
+| **Importar** | QR con escáner **offline** (ZXing, sin Google Play Services) o archivo `.conf` del dispositivo. La configuración se valida con el parser oficial de WireGuard antes de guardarse. |
+| **Detalles** | Descarga y subida con gráfica en vivo, tiempo de conexión, protocolo, endpoint, IPv6, país y **ping real dentro del túnel** cada 5 s. Botón de desconectar y lápiz para renombrar. |
+| **Diagnóstico** | Estado del dispositivo, registro propio con rotación, modo detallado, captura de cierres inesperados, envío del informe por correo y comprobación de actualizaciones. |
+| **Widget (2×2)** | Estado, botón de conectar/desconectar, nombre del perfil y bandera del país si está en caché. Layout vertical u horizontal según el ancho. |
+| **Mosaico de ajustes rápidos** | Conectar y desconectar desde el panel del sistema, con un icono por estado y, desde Android 10, subtítulo y descripción de estado. |
+| **Conexión rápida compartida** | App, widget y mosaico usan **el mismo camino de conexión**: un único controlador decide entre conectar, desconectar, pedir el permiso de VPN o abrir Importar. |
 
-Así, la primera release del repositorio es `v0.1.0` y las siguientes se numeran solas según
-lo que se vaya cometiendo. Si la etiqueta calculada ya existe, el workflow falla con un
-mensaje claro en lugar de republicar. El `versionCode` se deriva de la versión con
-`major×1.000.000 + minor×1.000 + patch`, sin colisiones entre versiones distintas.
+## Arquitectura
 
-> **La primera APK firmada no se instala encima de la de depuración.** La app que has estado
-> probando está firmada con el keystore de depuración de Android y la release usa tu keystore
-> propio; Android rechaza el cambio de certificado. Desinstala la app una vez y a partir de
-> ahí las actualizaciones firmadas se instalan sin problemas.
+```
+ui/            Compose. Cada pantalla en su propio paquete, con su ViewModel.
+domain/        Modelos puros: SavedConfig, TunnelState, CountryInfo, PingResult…
+data/          Almacén cifrado, importador de .conf, geolocalización y ping.
+tunnel/        Contrato TunnelManager + motor WireGuard (GoBackend).
+quickconnect/  Controlador de conexión rápida reutilizado por app, widget y mosaico.
+widget/        Widget, mosaico, router de acciones y actualizador reactivo de estado.
+diagnostics/   Registro en archivo, redacción de secretos e informe por correo.
+update/        Comprobación de actualizaciones contra la API de GitHub.
+```
+
+Decisiones que sostienen el proyecto:
+
+- **Sin Hilt ni librerías de navegación.** Las dependencias se montan a mano en `AppContainer` y la
+  navegación son 4 pestañas con `rememberSaveable`.
+- **Una sola fuente de verdad para el estado del túnel.** El widget y el mosaico observan el
+  `StateFlow` del controlador y se redibujan solo cuando el estado cambia de verdad.
+- **El estado vivo siempre manda sobre el guardado.** La instantánea en disco sirve para pintar el
+  widget cuando la app está muerta, nunca para fingir una conexión activa.
+
+## Privacidad y seguridad
+
+- **Los perfiles se cifran en el dispositivo** con AES-256-GCM. La clave se genera en el Android
+  Keystore y nunca sale de él: ni se exporta ni se commitea.
+- **El registro tapa los secretos** automáticamente (claves privadas, tokens y cadenas de
+  configuración) antes de escribirlos a disco o de mandarlos por correo.
+- **Sin telemetría, sin analítica y sin publicidad.** No hay ningún SDK de terceros que rastree al
+  usuario.
+- **Permisos mínimos**: `INTERNET` (el túnel y la geolocalización opcional), `RECEIVE_BOOT_COMPLETED`
+  (redibujar el widget al arrancar) y la cámara, declarada como **opcional** y usada solo para
+  escanear el QR. La copia de seguridad del sistema está desactivada (`allowBackup="false"`).
+- **El túnel es WireGuard de verdad**: UDP, con la implementación oficial de `wireguard-android`.
+
+## Stack
+
+| | |
+|---|---|
+| Lenguaje | Kotlin 2.3.21 |
+| UI | Jetpack Compose (BOM 2026.08.00), Material 3 |
+| Android Gradle Plugin | 9.3.3 |
+| Gradle | 9.5.0 (wrapper incluido) |
+| Túnel | `com.wireguard.android:tunnel` 1.0.20251231 |
+| Escáner QR | `zxing-android-embedded` 4.3.0 + `zxing-core` 3.5.3 (offline) |
+| Coroutines | kotlinx-coroutines 1.10.2 |
+| SDK | `minSdk` 26 · `targetSdk` 36 · `compileSdk` 37 · Java 17 |
+| Tests | JUnit 4.13.2 (219 pruebas JVM) |
+
+## Requisitos
+
+- **Android 8.0 (API 26) o superior**.
+- Para compilar: Android Studio con soporte para AGP 9.3.x, **JDK 17** y el **Android SDK 37**.
+  El wrapper descarga Gradle 9.5.0 por su cuenta.
+- **Prueba en un teléfono real**: el túnel de VPN no se comporta bien en un emulador.
+
+## Compilar y probar
+
+```bash
+./gradlew testDebugUnitTest   # 219 pruebas unitarias en la JVM
+./gradlew assembleDebug        # APK de depuración
+./gradlew assembleRelease      # APK de release (sin firmar si no hay variables de firma)
+```
+
+La CI ejecuta además una build de release **sin firmar** para validar que R8 no rompe nada.
+
+## Releases
+
+- **Última versión:** [v0.5.0](https://github.com/usipipo/usipipo-vpn/releases/tag/v0.5.0) — widget de
+  pantalla de inicio y mosaico de ajustes rápidos.
+- **La versión nunca se escribe a mano**: `scripts/next-version.sh` la deriva de las etiquetas y de
+  los commits convencionales. Las reglas están en la cabecera del script y las prueba
+  `scripts/next-version.test.sh`.
+- **Firma:** la APK de release se firma con un keystore que vive en secretos de GitHub y se verifica
+  con `apksigner` **antes** de publicarse. Nunca se distribuye una APK sin firmar.
+- **Para publicar:** *Actions → Release firmada → Run workflow*. El workflow calcula la versión,
+  compila, firma, etiqueta y publica.
+- **Para probar en un dispositivo real** antes de la siguiente versión, hay una
+  [matriz manual de 12 bloques](docs/plans/2026-10-26-widget-beta-checklist.md) (presentación,
+  tamaños, conexión, permiso de VPN, perfiles ausentes, perfil ilegible, muerte del proceso, cierre
+  externo, arranque, temas, mosaico por versión de Android y consumo en reposo).
+
+## Documentación
+
+| Documento | Para qué |
+|---|---|
+| [`docs/plans/2026-10-23-usipipo-vpn-widget-design.md`](docs/plans/2026-10-23-usipipo-vpn-widget-design.md) | Spec del widget y el mosaico |
+| [`docs/plans/2026-10-18-usipipo-vpn-mockup-design.md`](docs/plans/2026-10-18-usipipo-vpn-mockup-design.md) | Mockup aprobado de la interfaz |
+| [`docs/plans/2026-10-11-usipipo-vpn-diagnostico-design.md`](docs/plans/2026-10-11-usipipo-vpn-diagnostico-design.md) | Diagnóstico y ajustes avanzados |
+| [`docs/superpowers/specs/2026-10-11-release-firmado-y-actualizacion-design.md`](docs/superpowers/specs/2026-10-11-release-firmado-y-actualizacion-design.md) | Release firmada y actualizaciones |
+| [`AGENTS.md`](AGENTS.md) | Mapa del repositorio para agentes |
+| [`CODING_STANDARDS.md`](CODING_STANDARDS.md) | Estándares de Kotlin y Compose |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Ramas, commits, CI y pull requests |
+
+## Contribuir
+
+1. Crea una rama desde `main`: `feat/…`, `fix/…` o `docs/…`.
+2. **No se hace push a `main`**: todo entra por rama y pull request.
+3. Commits convencionales en español y minúsculas, uno por cambio lógico: `feat(ui): …`, `fix(ui): …`,
+   `docs: …`.
+4. Antes de abrir la PR, la CI tiene que estar verde.
+
+El detalle está en [`CONTRIBUTING.md`](CONTRIBUTING.md) y los estándares de código en
+[`CODING_STANDARDS.md`](CODING_STANDARDS.md).
+
+## Licencia
+
+Este repositorio **todavía no incluye un fichero de licencia**. Hasta que se añada, el código es de
+uso interno del proyecto uSipipo: no lo redistribuyas ni lo comercialices sin hablar antes con
+soporte.
+
+## Soporte
+
+- Problemas o ideas: [issues del repositorio](https://github.com/usipipo/usipipo-vpn/issues).
+- Informe de diagnóstico desde dentro de la app: **Diagnóstico → Enviar por correo**, que adjunta el
+  registro con los secretos ya tapados a `usipipo@gmail.com`.
+
+## Agradecimientos
+
+- [WireGuard for Android](https://github.com/WireGuard/wireguard-android), el motor del túnel.
+- [ZXing](https://github.com/zxing/zxing), el escáner de QR que funciona sin conexión.

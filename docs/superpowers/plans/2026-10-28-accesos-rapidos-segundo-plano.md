@@ -430,6 +430,8 @@ git commit -m "feat(tunnel): servicio en primer plano que hospeda el tunel"
 - Modify: `app/src/main/java/com/usipipo/vpn/ui/UsipipoRoot.kt`
 - Modify: `app/src/main/java/com/usipipo/vpn/AppContainer.kt`
 - Test: `app/src/test/java/com/usipipo/vpn/ui/home/HomeViewModelTest.kt`
+- Test: `app/src/test/java/com/usipipo/vpn/ui/home/HomeViewModelFavoritesTest.kt`
+- Test: `app/src/test/java/com/usipipo/vpn/ui/home/HomeViewModelRenameTest.kt`
 
 **Interfaces:**
 - Consumes: `TunnelConnector.connect(String): Boolean` (Task 1).
@@ -540,9 +542,9 @@ En `ui/UsipipoRoot.kt` cambiar `initializer { HomeViewModel(container.configStor
 initializer { HomeViewModel(container.configStore, container.tunnelManager, container.tunnelConnector) }
 ```
 
-- [ ] **Step 6: Update todos los tests de `HomeViewModelTest`**
+- [ ] **Step 6: Update las 14 instancias de `HomeViewModel` en los tres ficheros de test**
 
-Añadir `FakeTunnelConnector()` como tercer argumento en las 6 instancias de `HomeViewModel` del test.
+`HomeViewModel` gana un tercer parámetro obligatorio: hay que actualizar las 14 construcciones repartidas en `HomeViewModelTest.kt` (6), `HomeViewModelFavoritesTest.kt` (3) y `HomeViewModelRenameTest.kt` (3), añadiendo `FakeTunnelConnector()` como tercer argumento.
 
 - [ ] **Step 7: Run test — `HomeViewModelTest` pasa**
 
@@ -556,6 +558,8 @@ git add app/src/main/java/com/usipipo/vpn/ui/home/HomeViewModel.kt
 git add app/src/main/java/com/usipipo/vpn/ui/UsipipoRoot.kt
 git add app/src/main/java/com/usipipo/vpn/AppContainer.kt
 git add app/src/test/java/com/usipipo/vpn/ui/home/HomeViewModelTest.kt
+git add app/src/test/java/com/usipipo/vpn/ui/home/HomeViewModelFavoritesTest.kt
+git add app/src/test/java/com/usipipo/vpn/ui/home/HomeViewModelRenameTest.kt
 git commit -m "feat(ui): conectar desde Inicio por el servicio en primer plano"
 ```
 
@@ -940,7 +944,7 @@ git commit -m "docs(diagnostics): checklist manual de accesos rápidos en segund
 
 ## Notas de ejecución
 
-- **Orden de las tareas**: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. La 3 necesita la 1 (la excepción `BackgroundStartDeniedException`); la 4 y la 5 necesitan la 2 (la acción nueva); la 7 cierra el círculo con el mosaico.
+- **Orden de ejecución: 1 → 3 → 2 → 4 → 5 → 6 → 7 → 8.** La Task 3 va antes que la Task 2 porque la Task 2 da a `QuickConnectController` un parámetro `connector` obligatorio y `AppContainer` (único punto de construcción) necesita `TunnelForegroundService.start` para cablearlo: sin la Task 3 antes, el módulo no compilaría al terminar la Task 2. La Task 1 va la primera porque las demás usan `BackgroundStartDeniedException`; la 4 y la 5 necesitan la 2 (la acción y el fallo nuevos).
 - **Ramas**: todo el trabajo va en `feat/fase7-accesos-rapidos` (ya creada desde `main`). No se hace push a `main`.
 - **Verificación por tarea**: cada tarea termina con su comando de test en verde y su commit; la suite completa se ejecuta en la Task 8 y también antes de abrir la PR.
 - **Lo que no se toca**: `tunnel/WireGuardTunnelManager.kt`, `tunnel/TunnelManager.kt` y `gradle/libs.versions.toml`.

@@ -53,7 +53,7 @@ class UsipipoTileService : TileService() {
                 context.getString(R.string.app_name),
                 Icon.createWithResource(context, R.drawable.ic_shield_check),
                 context.mainExecutor,
-                Consumer { added -> onResult(added) },
+                Consumer { added -> onResult(added == StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED) },
             )
         }
     }

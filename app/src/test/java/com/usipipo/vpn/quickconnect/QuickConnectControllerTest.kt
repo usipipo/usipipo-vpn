@@ -75,9 +75,11 @@ class QuickConnectControllerTest {
 
     @Test
     fun `sin perfiles abre importar aunque falte el permiso`() = runTest {
-        val controller = controller(FakeConfigStore(), FakeTunnelManager(), permissionChecker = { false })
+        val connector = FakeTunnelConnector()
+        val controller = controller(FakeConfigStore(), FakeTunnelManager(), permissionChecker = { false }, connector = connector)
 
         assertEquals(QuickConnectAction.OpenImporter, controller.toggle())
+        assertTrue(connector.requestedIds.isEmpty())
     }
 
     @Test

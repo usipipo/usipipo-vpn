@@ -30,6 +30,13 @@ class QuickActionRouter(
                 },
             )
 
+            QuickConnectAction.BackgroundStartDenied -> launchActivity(
+                context,
+                Intent(context, VpnPermissionActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                },
+            )
+
             QuickConnectAction.OpenImporter -> launchActivity(
                 context,
                 WidgetIntents.importerIntent(context),

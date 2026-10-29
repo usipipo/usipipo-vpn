@@ -48,6 +48,11 @@ class VpnPermissionActivity : ComponentActivity() {
                 AppLog.w("Permiso", "El permiso VPN sigue sin estar concedido")
             }
 
+            QuickConnectAction.BackgroundStartDenied -> AppLog.w(
+                "Permiso",
+                "El sistema denegó el arranque en segundo plano",
+            )
+
             QuickConnectAction.OpenImporter -> WidgetIntents.openImporter(this)
             QuickConnectAction.DisconnectRequested,
             is QuickConnectAction.ConnectRequested,

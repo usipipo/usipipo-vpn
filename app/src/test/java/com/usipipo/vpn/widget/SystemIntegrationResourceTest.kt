@@ -276,10 +276,10 @@ class SystemIntegrationResourceTest {
         const val WIDGET_INFO_PATH = "src/main/res/xml/usipipo_widget_info.xml"
 
         /**
-         * Alto que necesita el layout compacto vertical: padding 16+16, cabecera 32,
-         * margen 12, botón 64, margen 10, perfil 18, margen 2 y país 16.
+         * Alto que necesita el layout compacto vertical: padding 8+8, cabecera 20,
+         * margen 4, botón 40, margen 2, perfil 15 (13 sp) y país 13 (11 sp).
          */
-        const val COMPACT_LAYOUT_MIN_HEIGHT_DP: Int = 186
+        const val COMPACT_LAYOUT_MIN_HEIGHT_DP: Int = 106
         const val ACTIVITY_NAME = ".widget.VpnPermissionActivity"
         const val RECEIVER_NAME = ".widget.UsipipoWidgetProvider"
         const val TILE_SERVICE_NAME = ".widget.UsipipoTileService"

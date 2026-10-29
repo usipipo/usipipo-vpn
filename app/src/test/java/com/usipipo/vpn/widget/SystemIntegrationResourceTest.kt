@@ -58,6 +58,15 @@ class SystemIntegrationResourceTest {
     }
 
     @Test
+    fun `el widget declara tamano por defecto de 2 celdas`() {
+        val provider = widgetProviderInfo()
+        assertEquals("2", provider.androidAttribute("targetCellWidth"))
+        assertEquals("2", provider.androidAttribute("targetCellHeight"))
+        assertEquals("110dp", provider.androidAttribute("minWidth"))
+        assertEquals("110dp", provider.androidAttribute("minHeight"))
+    }
+
+    @Test
     fun `los metadatos del widget declaran su tamano y comportamiento`() {
         val provider = widgetProviderInfo()
 

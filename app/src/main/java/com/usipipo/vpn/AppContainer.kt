@@ -11,8 +11,11 @@ import com.usipipo.vpn.data.geo.PingRepository
 import com.usipipo.vpn.diagnostics.AppLog
 import com.usipipo.vpn.diagnostics.DeviceInfo
 import com.usipipo.vpn.diagnostics.DiagnosticsSettings
+import com.usipipo.vpn.quickconnect.AndroidTunnelConnector
 import com.usipipo.vpn.quickconnect.AndroidVpnPermissionChecker
 import com.usipipo.vpn.quickconnect.QuickConnectController
+import com.usipipo.vpn.quickconnect.TunnelConnector
+import com.usipipo.vpn.tunnel.TunnelForegroundService
 import com.usipipo.vpn.tunnel.TunnelManager
 import com.usipipo.vpn.tunnel.WireGuardTunnelManager
 import com.usipipo.vpn.update.GitHubReleaseSource
@@ -55,12 +58,17 @@ class AppContainer(context: Context) {
     // Lazy: la librería nativa de WireGuard solo se carga cuando se necesita.
     val tunnelManager: TunnelManager by lazy { WireGuardTunnelManager(appContext, applicationScope) }
 
+    val tunnelConnector: TunnelConnector by lazy {
+        AndroidTunnelConnector { configId -> TunnelForegroundService.start(appContext, configId) }
+    }
+
     val quickConnectController: QuickConnectController by lazy {
         QuickConnectController(
             store = configStore,
             tunnelManager = tunnelManager,
             permissionChecker = AndroidVpnPermissionChecker(appContext),
             scope = applicationScope,
+            connector = tunnelConnector,
         )
     }
 

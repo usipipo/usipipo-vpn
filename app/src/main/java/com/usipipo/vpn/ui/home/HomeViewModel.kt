@@ -8,6 +8,7 @@ import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.domain.activeConfigId
 import com.usipipo.vpn.domain.selectedConfigId
+import com.usipipo.vpn.quickconnect.TunnelConnector
 import com.usipipo.vpn.tunnel.TunnelManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,6 +29,7 @@ data class HomeUiState(
 class HomeViewModel(
     private val store: ConfigStore,
     private val tunnelManager: TunnelManager,
+    private val connector: TunnelConnector,
 ) : ViewModel() {
 
     private val message = MutableStateFlow<HomeMessage?>(null)
@@ -68,7 +70,11 @@ class HomeViewModel(
                 AppLog.e("Inicio", "No se pudo leer la configuración seleccionada (cfg ${id.take(8)})")
                 message.value = HomeMessage.ConfigUnreadable
             } else {
-                tunnelManager.connect(id, text)
+                val started = connector.connect(id)
+                if (!started) {
+                    AppLog.w("Inicio", "El sistema denegó el servicio en primer plano; se conecta directamente (cfg ${id.take(8)})")
+                    tunnelManager.connect(id, text)
+                }
             }
         }
     }

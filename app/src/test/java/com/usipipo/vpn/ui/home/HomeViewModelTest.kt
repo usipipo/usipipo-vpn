@@ -53,7 +53,7 @@ class HomeViewModelTest {
     @Test
     fun `conectar pasa al tunel el texto de la configuracion seleccionada`() = runTest {
         val tunnel = FakeTunnelManager()
-        val vm = HomeViewModel(FakeConfigStore(listOf(casa, trabajo)), tunnel, FakeTunnelConnector())
+        val vm = HomeViewModel(FakeConfigStore(listOf(casa, trabajo)), tunnel, FakeTunnelConnector(result = false))
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.uiState.collect {} }
 
         vm.select("b")

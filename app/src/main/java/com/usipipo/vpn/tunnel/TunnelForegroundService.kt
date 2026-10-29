@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
@@ -130,8 +131,8 @@ class TunnelForegroundService : Service() {
         val content = TunnelNotificationMapper.map(state)
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_shield_check)
-            .setContentTitle(content.titleRes)
-            .setContentText(content.textRes)
+            .setContentTitle(getString(content.titleRes))
+            .setContentText(getString(content.textRes))
             .setSubText(profileName)
             .setOngoing(content.ongoing)
             .setOnlyAlertOnce(true)
@@ -168,7 +169,7 @@ class TunnelForegroundService : Service() {
      */
     private fun startForegroundCompat(notification: Notification) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(NOTIFICATION_ID, notification, Service.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         } else {
             startForeground(NOTIFICATION_ID, notification)
         }

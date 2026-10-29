@@ -162,6 +162,25 @@ falla. Si falla, anota:
 
 ---
 
+## 13. Accesos rápidos en segundo plano (Android 16, Xiaomi)
+
+Esta sección la ejecuta el beta tester en un dispositivo real con Android 16 y capa de personalización Xiaomi/HyperOS. Prueba lo que la CI no puede: comportamiento real del sistema, restricciones de segundo plano de HyperOS, redimensión en el launcher y permiso revocado.
+
+| # | Paso | Resultado esperado |
+|---|---|---|
+| 1 | Añadir el widget desde Widgets | Se coloca en 2×2 y el contenido es legible |
+| 2 | Cerrar la app por completo y tocar el botón del widget | Conecta; aparece la notificación «uSipipo VPN · Conectando…» y luego «Activo» |
+| 3 | Con la app cerrada, tocar «Desconectar» en la notificación | El túnel baja y la notificación desaparece |
+| 4 | Con el widget en 2×2, redimensionar a 1×2 | El launcher recorta el diseño sin romper el botón |
+| 5 | Añadir el mosaico con el botón de Diagnóstico | Aparece el diálogo del sistema y, al aceptar, el mosaico está en el panel |
+| 6 | Con la app cerrada, tocar el mosaico | Conecta y el mosaico queda encendido |
+| 7 | Cambiar el estado del túnel con el panel de ajustes abierto | El mosaico se repinta sin cerrar el panel |
+| 8 | Revocar el permiso de VPN en Ajustes y tocar el widget | La app vuelve a pedir el permiso |
+| 9 | Dejar el túnel activo 10 min con la app en segundo plano | El túnel sigue vivo; no aparece «El sistema cerró el túnel» en el registro |
+| 10 | Borrar el perfil seleccionado en la app y tocar el widget en los 2 s siguientes | El registro anota que el perfil desapareció y el widget muestra «Fallo» (no «Desconectado») |
+
+> Fila 10: es la verificación de que el servicio detecta que el perfil desapareció y el widget muestra «Fallo», no «Desconectado» silencioso. Reporta con el formato de la sección "Cómo reportar".
+
 ## Riesgos conocidos (anótalos, no son fallos)
 
 - El widget declara `minHeight="190dp"`: el launcher debería darle esa altura para que se

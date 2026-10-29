@@ -44,7 +44,8 @@ class WidgetUpdater(
         val presentation = WidgetStateMapper.map(state)
         invalidateStalePersistedState(presentation.status)
         renderWidget(state)
-        refreshTile()
+        runCatching { refreshTile() }
+            .onFailure { AppLog.w(TAG, "No se pudo refrescar el mosaico", it) }
         store.write(PersistedWidgetState(presentation.status, clock()))
     }
 

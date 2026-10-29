@@ -123,7 +123,15 @@ fun DiagnosticsScreen(vm: DiagnosticsViewModel, onCheckUpdates: suspend () -> Up
             InfoCard(rows = ui.infoRows)
 
             if (shouldShowQuickAccessHint(Build.VERSION.SDK_INT)) {
-                QuickAccessHint()
+                var tileResult by remember { mutableStateOf<Int?>(null) }
+                QuickAccessHint(
+                    onAddTile = {
+                        UsipipoTileService.requestAdd(context) { added ->
+                            tileResult = if (added) R.string.diag_tile_added else R.string.diag_tile_denied
+                        }
+                    },
+                    resultText = tileResult,
+                )
             }
 
             SectionHeader(stringResource(R.string.diag_verbose_title))

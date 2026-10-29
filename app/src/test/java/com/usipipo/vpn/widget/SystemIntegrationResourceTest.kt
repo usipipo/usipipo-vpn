@@ -127,6 +127,20 @@ class SystemIntegrationResourceTest {
     }
 
     @Test
+    fun `el manifiesto declara los metadatos del mosaico de escucha activa y conmutable`() {
+        val service = manifestService(TILE_SERVICE_NAME)
+        listOf(
+            "android.service.quicksettings.ACTIVE_TILE",
+            "android.service.quicksettings.TOGGLEABLE_TILE",
+        ).forEach { nombre ->
+            val meta = service.childElements().singleOrNull {
+                it.tagName == "meta-data" && it.androidAttribute("name") == nombre
+            } ?: throw AssertionError("falta el metadato $nombre")
+            assertEquals("true", meta.androidAttribute("value"))
+        }
+    }
+
+    @Test
     fun `el manifiesto declara los permisos del servicio en primer plano`() {
         val manifest = parse(File(MANIFEST_PATH))
         listOf(

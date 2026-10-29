@@ -145,5 +145,8 @@
     <!-- Pista de accesos rápidos -->
     <string name="quick_access_title">Accesos rápidos</string>
     <string name="quick_access_widget_hint">Mantén pulsada la pantalla de inicio, abre Widgets y añade uSipipo VPN.</string>
-    <string name="quick_access_tile_hint">Abre el panel de ajustes rápidos, toca Editar y añade uSipipo VPN.</string>
+    <string name="quick_access_tile_hint">Desliza el panel de control, toca el lápiz de editar y añade uSipipo VPN.</string>
+    <string name="quick_access_add_tile">Añadir mosaico a Ajustes rápidos</string>
+    <string name="diag_tile_added">Mosaico añadido a Ajustes rápidos</string>
+    <string name="diag_tile_denied">No se pudo añadir el mosaico</string>
 </resources>

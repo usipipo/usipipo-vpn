@@ -22,7 +22,7 @@ Flujo de trabajo para contribuir al repositorio: ramas, commits, CI y revisión 
 
 - `android-ci.yml` corre en push y PR a `main`, `master`, `develop`.
 - Ejecuta `./gradlew testDebugUnitTest` y `assembleDebug`.
-- Antes de abrir una PR, ejecuta localmente: `./gradlew testDebugUnitTest`.
+- La verificación ocurre en la CI: el toolchain (JDK 17, Android SDK, Gradle) vive en GitHub Actions, no en la máquina de trabajo. No se instala nada localmente para compilar; se sube la rama, se abre la PR y se lee el resultado del workflow.
 - Si falla en CI, no abras la PR hasta que esté verde.
 
 ## Pull requests

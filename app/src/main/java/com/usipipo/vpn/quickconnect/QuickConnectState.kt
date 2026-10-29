@@ -11,4 +11,5 @@ data class QuickConnectState(
 
 sealed interface QuickConnectFailure {
     data class ConfigUnreadable(val configId: String) : QuickConnectFailure
+    data class BackgroundStartDenied(val configId: String) : QuickConnectFailure
 }

@@ -73,6 +73,19 @@ class WidgetStateMapperTest {
     }
 
     @Test
+    fun `la denegacion del sistema se presenta como fallo si no hay tunel`() {
+        val p = WidgetStateMapper.map(
+            QuickConnectState(
+                selectedConfig = casa,
+                failure = QuickConnectFailure.BackgroundStartDenied("a"),
+            ),
+        )
+
+        assertEquals(WidgetStatus.Failed, p.status)
+        assertEquals(R.string.widget_status_failed, p.statusText)
+    }
+
+    @Test
     fun `sin perfiles presenta importar perfil`() {
         val p = WidgetStateMapper.map(QuickConnectState())
 

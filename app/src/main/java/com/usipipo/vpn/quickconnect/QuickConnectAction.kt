@@ -6,4 +6,5 @@ sealed interface QuickConnectAction {
     data object VpnPermissionRequired : QuickConnectAction
     data object OpenImporter : QuickConnectAction
     data class ConfigUnreadable(val configId: String) : QuickConnectAction
+    data object BackgroundStartDenied : QuickConnectAction
 }

@@ -16,6 +16,7 @@ class QuickConnectController(
     private val store: ConfigStore,
     private val tunnelManager: TunnelManager,
     private val permissionChecker: VpnPermissionChecker,
+    private val connector: TunnelConnector,
     private val scope: CoroutineScope,
 ) {
     private val _failure = MutableStateFlow<QuickConnectFailure?>(null)
@@ -77,7 +78,13 @@ class QuickConnectController(
         }
 
         AppLog.i("AccesoRapido", "Conexión rápida (cfg ${id.take(8)})")
-        tunnelManager.connect(id, text)
+        val started = connector.connect(id)
+        if (!started) {
+            AppLog.w("AccesoRapido", "El sistema denegó el arranque en segundo plano (cfg ${id.take(8)})")
+            _failure.value = QuickConnectFailure.BackgroundStartDenied(id)
+            _state.value = _state.value.copy(failure = _failure.value)
+            return QuickConnectAction.BackgroundStartDenied
+        }
         _state.value = _state.value.copy(
             tunnel = tunnelManager.state.value,
             selectedConfig = configs.firstOrNull { it.id == id },

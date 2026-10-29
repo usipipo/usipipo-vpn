@@ -21,7 +21,15 @@
 - El registro solo contiene metadatos (id corto del perfil, estados, nombres de excepción).
 - Las tres superficies (Inicio, widget, mosaico) usan el mismo camino de conexión.
 - La notificación del servicio no pide `POST_NOTIFICATIONS`: si el usuario no lo ha concedido, la notificación no es visible, pero el servicio sigue en primer plano y el túnel protegido (limitación conocida; el estado de VPN del sistema sí es visible).
-- Cada tarea termina con los tests pasando (`./gradlew testDebugUnitTest`) y un commit independiente (convencional commits en español, un cambio lógico por commit).
+- Cada tarea termina con un commit independiente (convencional commits en español, un cambio lógico por commit).
+
+## Verificación: la CI, no esta máquina
+
+Esta máquina **no tiene JDK, Android SDK ni Gradle, y no se instala nada** (ver la sección «Entorno» de `AGENTS.md`). Por eso:
+
+- Cada paso «Verificacion» de este plan significa: **la CI de GitHub Actions ejecuta ese comando** cuando la rama se sube (`.github/workflows/android-ci.yml`: `testDebugUnitTest`, `assembleDebug`, `assembleRelease`). El agente **no** intenta compilar en local ni a instalar el toolchain.
+- El ciclo rojo→green sigue vigente, pero **lo observa la CI**: el test se escribe primero y se sube; si la CI está en rojo, se corrige el código y se vuelve a subir. No se da por verde un test que no ha corrido.
+- Cada tarea se sube a la rama (push + PR) para que su CI sea el veredicto antes de pasar a la siguiente.
 
 ## Review Focus
 
@@ -59,8 +67,8 @@ fun `arranca el servicio con el configId y confirma la conexion`() = runTest {
 }
 ```
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.quickconnect.AndroidTunnelConnectorTest"`
-Expected: FAIL (`AndroidTunnelConnector` y `BackgroundStartDeniedException` no existen).
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.quickconnect.AndroidTunnelConnectorTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: FAIL (`AndroidTunnelConnector` y `BackgroundStartDeniedException` no existen).
 
 - [ ] **Step 2: Write failing test — `AndroidTunnelConnector` devuelve `false` cuando el sistema deniega el arranque**
 
@@ -73,8 +81,8 @@ fun `el sistema deniega el arranque en segundo plano y el conector lo cuenta`() 
 }
 ```
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.quickconnect.AndroidTunnelConnectorTest"`
-Expected: FAIL (`BackgroundStartDeniedException` no existe).
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.quickconnect.AndroidTunnelConnectorTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: FAIL (`BackgroundStartDeniedException` no existe).
 
 - [ ] **Step 3: Implement `BackgroundStartDeniedException` en `tunnel/BackgroundStartDeniedException.kt`**
 
@@ -86,8 +94,8 @@ Nota de implementación: `TunnelForegroundService.start` aún no existe; se decl
 
 - [ ] **Step 5: Run test — `AndroidTunnelConnectorTest` pasa**
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.quickconnect.AndroidTunnelConnectorTest"`
-Expected: PASS.
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.quickconnect.AndroidTunnelConnectorTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: PASS.
 
 - [ ] **Step 6: Commit**
 
@@ -134,8 +142,8 @@ fun `conectar usa el conector y devuelve ConnectRequested cuando arranca`() = ru
 }
 ```
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.quickconnect.QuickConnectControllerTest"`
-Expected: FAIL (`FakeTunnelConnector` y el parámetro `connector` del helper `controller` no existen).
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.quickconnect.QuickConnectControllerTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: FAIL (`FakeTunnelConnector` y el parámetro `connector` del helper `controller` no existen).
 
 - [ ] **Step 2: Write failing test — `toggle` devuelve `BackgroundStartDenied` si el conector devuelve `false`**
 
@@ -152,8 +160,8 @@ fun `toggle devuelve BackgroundStartDenied si el conector deniega el arranque`()
 }
 ```
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.quickconnect.QuickConnectControllerTest"`
-Expected: FAIL (`QuickConnectAction.BackgroundStartDenied` no existe).
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.quickconnect.QuickConnectControllerTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: FAIL (`QuickConnectAction.BackgroundStartDenied` no existe).
 
 - [ ] **Step 3: Write failing test — no se llama al conector si falta el permiso, no hay perfil o el perfil es ilegible**
 
@@ -168,8 +176,8 @@ fun `conectar se ignora si falta el permiso vpn sin tocar el conector`() = runTe
 }
 ```
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.quickconnect.QuickConnectControllerTest"`
-Expected: FAIL.
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.quickconnect.QuickConnectControllerTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: FAIL.
 
 - [ ] **Step 4: Implement `QuickConnectFailure.BackgroundStartDenied` en `quickconnect/QuickConnectState.kt`**
 
@@ -226,8 +234,8 @@ fun `la denegacion del sistema se presenta como fallo si no hay tunel`() {
 }
 ```
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.WidgetStateMapperTest"`
-Expected: FAIL (el fallo nuevo no está mapeado y el estado vivo «Desconectado» gana).
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.WidgetStateMapperTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: FAIL (el fallo nuevo no está mapeado y el estado vivo «Desconectado» gana).
 
 - [ ] **Step 8: Implement el mapeo del fallo nuevo en `WidgetStateMapper.status()`**
 
@@ -247,8 +255,8 @@ Añadir el parámetro `connector: TunnelConnector` al helper `TestScope.controll
 
 - [ ] **Step 10: Run tests — `QuickConnectControllerTest` y `WidgetStateMapperTest` pasan**
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.quickconnect.QuickConnectControllerTest" --tests "com.usipipo.vpn.widget.WidgetStateMapperTest"`
-Expected: PASS.
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.quickconnect.QuickConnectControllerTest" --tests "com.usipipo.vpn.widget.WidgetStateMapperTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: PASS.
 
 - [ ] **Step 11: Commit**
 
@@ -308,8 +316,8 @@ fun `desconectado y fallo retiran la notificacion`() {
 }
 ```
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.tunnel.TunnelNotificationMapperTest"`
-Expected: FAIL (`TunnelNotificationMapper` no existe).
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.tunnel.TunnelNotificationMapperTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: FAIL (`TunnelNotificationMapper` no existe).
 
 - [ ] **Step 2: Implement `TunnelNotificationMapper.kt` (paquete `tunnel`)**
 
@@ -317,8 +325,8 @@ Expected: FAIL (`TunnelNotificationMapper` no existe).
 
 - [ ] **Step 3: Run test — `TunnelNotificationMapperTest` pasa**
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.tunnel.TunnelNotificationMapperTest"`
-Expected: PASS.
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.tunnel.TunnelNotificationMapperTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: PASS.
 
 - [ ] **Step 4: Implement `TunnelForegroundService`**
 
@@ -337,8 +345,8 @@ Nota de versión: `FOREGROUND_SERVICE_TYPE_SPECIAL_USE` requiere API 34; en API 
 
 - [ ] **Step 5: Run test — `TunnelNotificationMapperTest` sigue pasando; `assembleDebug` compila el servicio**
 
-Run: `./gradlew testDebugUnitTest assembleDebug`
-Expected: PASS y APK de debug sin errores.
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest assembleDebug` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: PASS y APK de debug sin errores.
 
 - [ ] **Step 6: Escribir las sentencias del manifiesto**
 
@@ -389,8 +397,8 @@ fun `el manifiesto declara el servicio en primer plano con tipo especial`() {
 }
 ```
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.SystemIntegrationResourceTest"`
-Expected: FAIL (faltan los permisos y el servicio).
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.SystemIntegrationResourceTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: FAIL (faltan los permisos y el servicio).
 
 Antes de escribir los tests, adaptar el helper del test al nuevo manifiesto: ahora hay dos `<service>`, así que `manifestService()` pasa a recibir el nombre.
 
@@ -407,8 +415,8 @@ Añadir las constantes `TUNNEL_SERVICE_NAME = ".tunnel.TunnelForegroundService"`
 
 - [ ] **Step 8: Run test — manifiesto pasa**
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.SystemIntegrationResourceTest"`
-Expected: PASS.
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.SystemIntegrationResourceTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: PASS.
 
 - [ ] **Step 9: Commit**
 
@@ -455,8 +463,8 @@ fun `conectar pide la conexion al conector`() = runTest {
 }
 ```
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.ui.home.HomeViewModelTest"`
-Expected: FAIL (`HomeViewModel` con tres parámetros y `connector.requestedIds` no existen).
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.ui.home.HomeViewModelTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: FAIL (`HomeViewModel` con tres parámetros y `connector.requestedIds` no existen).
 
 - [ ] **Step 2: Write failing test — si el conector deniega, `connectSelected` conecta directamente porque la app está en primer plano**
 
@@ -475,8 +483,8 @@ fun `conectar con conector denegado conecta directamente`() = runTest {
 }
 ```
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.ui.home.HomeViewModelTest"`
-Expected: FAIL.
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.ui.home.HomeViewModelTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: FAIL.
 
 - [ ] **Step 3: Write failing test — perfil ilegible no conecta ni por el conector ni directamente**
 
@@ -498,8 +506,8 @@ fun `conectar con perfil ilegible no conecta y muestra ConfigUnreadable`() = run
 }
 ```
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.ui.home.HomeViewModelTest"`
-Expected: FAIL.
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.ui.home.HomeViewModelTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: FAIL.
 
 - [ ] **Step 4: Implement `HomeViewModel(store, tunnelManager, connector)`**
 
@@ -548,8 +556,8 @@ initializer { HomeViewModel(container.configStore, container.tunnelManager, cont
 
 - [ ] **Step 7: Run test — `HomeViewModelTest` pasa**
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.ui.home.HomeViewModelTest"`
-Expected: PASS.
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.ui.home.HomeViewModelTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: PASS.
 
 - [ ] **Step 8: Commit**
 
@@ -590,8 +598,8 @@ fun `denegacion del sistema abre la activity de permiso`() {
 }
 ```
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.QuickActionRouterTest"`
-Expected: FAIL (`QuickActionRouterTest`, `QuickActionTarget` y `targetFor` no existen).
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.QuickActionRouterTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: FAIL (`QuickActionRouterTest`, `QuickActionTarget` y `targetFor` no existen).
 
 - [ ] **Step 2: Implement `QuickActionTarget` y `targetFor` en `widget/QuickActionRouter.kt`**
 
@@ -638,13 +646,13 @@ QuickConnectAction.BackgroundStartDenied -> {
 
 - [ ] **Step 5: Run test — `QuickActionRouterTest` pasa**
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.QuickActionRouterTest"`
-Expected: PASS.
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.QuickActionRouterTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: PASS.
 
 - [ ] **Step 6: Compile check del resto del módulo**
 
-Run: `./gradlew compileDebugKotlin`
-Expected: PASS (el `when` exhaustivo de `handleAction` obliga a tratar la nueva acción).
+Verificacion: la CI ejecuta `./gradlew compileDebugKotlin` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: PASS (el `when` exhaustivo de `handleAction` obliga a tratar la nueva acción).
 
 - [ ] **Step 7: Commit**
 
@@ -691,8 +699,8 @@ fun `el diseno compacto cabe en 2 celdas (110 dp)`() {
 }
 ```
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.SystemIntegrationResourceTest"`
-Expected: FAIL (faltan `targetCell*` y `minWidth`/`minHeight` = 110dp).
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.SystemIntegrationResourceTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: FAIL (faltan `targetCell*` y `minWidth`/`minHeight` = 110dp).
 
 - [ ] **Step 2: Implement `usipipo_widget_info.xml`**
 
@@ -716,8 +724,8 @@ const val COMPACT_LAYOUT_MIN_HEIGHT_DP: Int = 106
 
 - [ ] **Step 5: Run test — `SystemIntegrationResourceTest` pasa**
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.SystemIntegrationResourceTest"`
-Expected: PASS.
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.SystemIntegrationResourceTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: PASS.
 
 - [ ] **Step 6: Commit**
 
@@ -761,8 +769,8 @@ fun `un fallo al refrescar el mosaico no impide guardar el estado`() = runTest {
 }
 ```
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.WidgetUpdaterTest"`
-Expected: FAIL (la excepción sale de `apply`).
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.WidgetUpdaterTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: FAIL (la excepción sale de `apply`).
 
 - [ ] **Step 2: Implement el `try/catch` en `WidgetUpdater.apply()`**
 
@@ -779,8 +787,8 @@ private fun apply(state: QuickConnectState) {
 
 - [ ] **Step 3: Run test — `WidgetUpdaterTest` pasa**
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.WidgetUpdaterTest"`
-Expected: PASS.
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.WidgetUpdaterTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: PASS.
 
 - [ ] **Step 4: Write failing test — el mosaico declara los metadatos de escucha activa**
 
@@ -800,8 +808,8 @@ fun `el mosaico declara los metadatos de escucha activa y conmutable`() {
 }
 ```
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.SystemIntegrationResourceTest"`
-Expected: FAIL (faltan los metadatos).
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.SystemIntegrationResourceTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: FAIL (faltan los metadatos).
 
 - [ ] **Step 5: Implement los metadatos del mosaico en el manifiesto**
 
@@ -814,8 +822,8 @@ Dentro del `<service android:name=".widget.UsipipoTileService" ...>`:
 
 - [ ] **Step 6: Run test — `SystemIntegrationResourceTest` pasa**
 
-Run: `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.SystemIntegrationResourceTest"`
-Expected: PASS.
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest --tests "com.usipipo.vpn.widget.SystemIntegrationResourceTest"` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: PASS.
 
 - [ ] **Step 7: Implement `UsipipoTileService.requestAdd(context, onResult)`**
 
@@ -878,8 +886,8 @@ La pista solo se muestra desde Android 13 (`shouldShowQuickAccessHint`), que es 
 
 - [ ] **Step 11: Compile check y suite**
 
-Run: `./gradlew testDebugUnitTest assembleDebug`
-Expected: PASS.
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest assembleDebug` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: PASS.
 
 - [ ] **Step 12: Commit**
 
@@ -908,13 +916,13 @@ git commit -m "feat(widget): mosaico añadible desde la app y repintado al cambi
 
 - [ ] **Step 1: Run suite completa**
 
-Run: `./gradlew testDebugUnitTest`
-Expected: PASS (todos los tests JVM verdes).
+Verificacion: la CI ejecuta `./gradlew testDebugUnitTest` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: PASS (todos los tests JVM verdes).
 
 - [ ] **Step 2: Build del APK de debug**
 
-Run: `./gradlew assembleDebug`
-Expected: BUILD SUCCESSFUL.
+Verificacion: la CI ejecuta `./gradlew assembleDebug` cuando la rama se sube (esta maquina no tiene JDK ni Gradle: no se instala nada).
+Esperado en CI: BUILD SUCCESSFUL.
 
 - [ ] **Step 3: Ampliar el checklist manual**
 
@@ -946,5 +954,5 @@ git commit -m "docs(diagnostics): checklist manual de accesos rápidos en segund
 
 - **Orden de ejecución: 1 → 3 → 2 → 4 → 5 → 6 → 7 → 8.** La Task 3 va antes que la Task 2 porque la Task 2 da a `QuickConnectController` un parámetro `connector` obligatorio y `AppContainer` (único punto de construcción) necesita `TunnelForegroundService.start` para cablearlo: sin la Task 3 antes, el módulo no compilaría al terminar la Task 2. La Task 1 va la primera porque las demás usan `BackgroundStartDeniedException`; la 4 y la 5 necesitan la 2 (la acción y el fallo nuevos).
 - **Ramas**: todo el trabajo va en `feat/fase7-accesos-rapidos` (ya creada desde `main`). No se hace push a `main`.
-- **Verificación por tarea**: cada tarea termina con su comando de test en verde y su commit; la suite completa se ejecuta en la Task 8 y también antes de abrir la PR.
+- **Verificación por tarea**: cada tarea termina con su commit y su subida a la rama; el veredicto es el resultado de `android-ci.yml` (push + PR). La suite completa se ejecuta en la Task 8 y también antes de abrir la PR.
 - **Lo que no se toca**: `tunnel/WireGuardTunnelManager.kt`, `tunnel/TunnelManager.kt` y `gradle/libs.versions.toml`.

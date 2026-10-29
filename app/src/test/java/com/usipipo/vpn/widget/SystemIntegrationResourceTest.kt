@@ -93,7 +93,7 @@ class SystemIntegrationResourceTest {
 
     @Test
     fun `el manifiesto declara el mosaico de ajustes rapidos`() {
-        val service = manifestService()
+        val service = manifestService(TILE_SERVICE_NAME)
 
         assertEquals(
             "el mosaico necesita el permiso de BIND_QUICK_SETTINGS_TILE",
@@ -114,6 +114,33 @@ class SystemIntegrationResourceTest {
             "el mosaico se etiqueta con el nombre de la app",
             "@string/app_name",
             service.androidAttribute("label"),
+        )
+    }
+
+    @Test
+    fun `el manifiesto declara los permisos del servicio en primer plano`() {
+        val manifest = parse(File(MANIFEST_PATH))
+        listOf(
+            "android.permission.FOREGROUND_SERVICE",
+            "android.permission.FOREGROUND_SERVICE_SPECIAL_USE",
+        ).forEach { permiso ->
+            assertTrue("falta el permiso $permiso en el manifiesto",
+                manifest.getElementsByTagName("uses-permission").elements()
+                    .any { it.androidAttribute("name") == permiso })
+        }
+    }
+
+    @Test
+    fun `el manifiesto declara el servicio en primer plano con tipo especial`() {
+        val service = manifestService(TUNNEL_SERVICE_NAME)
+        assertEquals("false", service.androidAttribute("exported"))
+        assertEquals("specialUse", service.androidAttribute("foregroundServiceType"))
+        val property = service.childElements().singleOrNull {
+            it.tagName == "property" && it.androidAttribute("name") == "android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+        } ?: throw AssertionError("falta la propiedad PROPERTY_SPECIAL_USE_FGS_SUBTYPE")
+        assertTrue(
+            "la propiedad PROPERTY_SPECIAL_USE_FGS_SUBTYPE debe justificar el uso",
+            property.androidAttribute("value").isNotBlank(),
         )
     }
 
@@ -170,12 +197,12 @@ class SystemIntegrationResourceTest {
             .singleOrNull { it.androidAttribute("name") == RECEIVER_NAME }
             ?: throw AssertionError("no existe el receiver $RECEIVER_NAME en el manifiesto")
 
-    private fun manifestService(): Element =
+    private fun manifestService(name: String): Element =
         parse(File(MANIFEST_PATH))
             .getElementsByTagName("service")
             .elements()
-            .singleOrNull { it.androidAttribute("name") == SERVICE_NAME }
-            ?: throw AssertionError("no existe el service $SERVICE_NAME en el manifiesto")
+            .singleOrNull { it.androidAttribute("name") == name }
+            ?: throw AssertionError("no existe el service $name en el manifiesto")
 
     private fun layoutIds(path: String): Set<String> =
         parse(File(path))
@@ -255,7 +282,8 @@ class SystemIntegrationResourceTest {
         const val COMPACT_LAYOUT_MIN_HEIGHT_DP: Int = 186
         const val ACTIVITY_NAME = ".widget.VpnPermissionActivity"
         const val RECEIVER_NAME = ".widget.UsipipoWidgetProvider"
-        const val SERVICE_NAME = ".widget.UsipipoTileService"
+        const val TILE_SERVICE_NAME = ".widget.UsipipoTileService"
+        const val TUNNEL_SERVICE_NAME = ".tunnel.TunnelForegroundService"
         const val TRANSPARENT_THEME = "Theme.Usipipo.Transparent"
         const val APPWIDGET_UPDATE_ACTION = "android.appwidget.action.APPWIDGET_UPDATE"
         const val PROVIDER_METADATA_NAME = "android.appwidget.provider"

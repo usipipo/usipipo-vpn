@@ -60,6 +60,7 @@ import com.usipipo.vpn.diagnostics.ReportSender
 import com.usipipo.vpn.ui.components.AppHeader
 import com.usipipo.vpn.ui.theme.UsipipoTheme
 import com.usipipo.vpn.update.UpdateStatus
+import com.usipipo.vpn.widget.UsipipoTileService
 
 @Composable
 fun DiagnosticsScreen(vm: DiagnosticsViewModel, onCheckUpdates: suspend () -> UpdateStatus) {

@@ -1,6 +1,7 @@
 package com.usipipo.vpn.widget
 
 import android.app.PendingIntent
+import android.app.StatusBarManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -11,6 +12,7 @@ import android.service.quicksettings.TileService
 import androidx.core.content.ContextCompat
 import com.usipipo.vpn.R
 import com.usipipo.vpn.UsipipoApp
+import java.util.function.Consumer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -33,6 +35,25 @@ class UsipipoTileService : TileService() {
             TileService.requestListeningState(
                 context,
                 ComponentName(context, UsipipoTileService::class.java),
+            )
+        }
+
+        /** Pide al sistema que añada el mosaico al panel (API 33+). En versiones anteriores no hay API. */
+        fun requestAdd(context: Context, onResult: (Boolean) -> Unit) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                onResult(false)
+                return
+            }
+            val statusBar = context.getSystemService(StatusBarManager::class.java) ?: run {
+                onResult(false)
+                return
+            }
+            statusBar.requestAddTileService(
+                ComponentName(context, UsipipoTileService::class.java),
+                context.getString(R.string.app_name),
+                Icon.createWithResource(context, R.drawable.ic_shield_check),
+                context.mainExecutor,
+                Consumer { added -> onResult(added == StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED) },
             )
         }
     }

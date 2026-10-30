@@ -219,7 +219,7 @@ private fun statsViewModel(container: AppContainer): StatsViewModel = viewModel(
 @Composable
 private fun homeViewModel(container: AppContainer): HomeViewModel = viewModel(
     factory = viewModelFactory {
-        initializer { HomeViewModel(container.configStore, container.tunnelManager) }
+        initializer { HomeViewModel(container.configStore, container.tunnelManager, container.tunnelConnector) }
     },
 )
 

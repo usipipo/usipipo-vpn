@@ -81,6 +81,17 @@ class WidgetUpdaterTest {
     }
 
     @Test
+    fun `un fallo al refrescar el mosaico no impide guardar el estado`() = runTest {
+        val store = FakeWidgetStateStore()
+        val states = MutableStateFlow(desconectado)
+        val updater = updater(states, store = store, refreshTile = { error("el mosaico no responde") })
+
+        updater.start()
+
+        assertEquals(WidgetStatus.Disconnected, store.written?.status)
+    }
+
+    @Test
     fun `refreshNow fuerza un render explicito`() = runTest {
         val states = MutableStateFlow(desconectado)
         var renders = 0

@@ -12,7 +12,16 @@ No restates lo que el entorno ya confiesa. Consulta directamente:
 
 - `gradle/libs.versions.toml` — AGP 9.3.3, Kotlin 2.3.21, Compose BOM 2026.08.00, dependencias
 - `app/build.gradle.kts` — compileSdk 37, minSdk 26, targetSdk 36, Java 17, Compose habilitado
-- `.github/workflows/android-ci.yml` — CI: `./gradlew testDebugUnitTest` + `assembleDebug`
+- `.github/workflows/android-ci.yml` — CI: `./gradlew testDebugUnitTest` + `assembleDebug` + `assembleRelease`
+
+## Entorno: máquina de escritura, verificación en CI
+
+Esta máquina es **solo de escritura de código**: el toolchain (JDK 17, Android SDK, Gradle) vive en GitHub Actions, no aquí.
+
+- **No se instala nada**: ni JDK, ni Android SDK, ni Gradle, ni dependencias del sistema, ni con `apt`, ni con `sdkmanager`, ni por descarga directa. El repo ya trae `gradlew` y su wrapper: son de CI, aquí no se ejecutan.
+- **El agente escribe código; la CI verifica**: `android-ci.yml` corre en cada push y PR a `main` (`testDebugUnitTest`, `assembleDebug`, `assembleRelease`). El veredicto de la CI es el que manda.
+- **Un test que no se puede ejecutar aquí no bloquea el trabajo**: escribe el test primero, deja documentado qué falla y por qué (el rojo), y deja que la CI lo confirme.
+- Si una tarea parece pedir un build local, la respuesta es el código y la CI, no preparar la máquina.
 
 ## Estructura del código (paquete `com.usipipo.vpn`)
 
@@ -40,8 +49,8 @@ Regla de co-locación: cada pantalla vive en su propio paquete bajo `ui/` con su
 
 1. **Lee el plan antes de implementar.** Las fases están en `docs/plans/`. Cada fase compila y se prueba por separado.
 2. **Crea una rama por fase.** `feat/mockup-fase<N>` desde `main`. No hagas push a `main` directamente.
-3. **Escribe tests antes del código** (TDD) cuando la tarea lo requiera. Los tests corren en JVM con JUnit 4.
-4. **Ejecuta la suite completa antes de commitear:** `./gradlew testDebugUnitTest`
+3. **Escribe tests antes del código** (TDD) cuando la tarea lo requiera: el test se escribe primero; el rojo→verde lo confirma la CI. Los tests corren en JVM con JUnit 4.
+4. **Verifica en la CI, no en local:** push a la rama + PR → `android-ci.yml` ejecuta `testDebugUnitTest`, `assembleDebug` y `assembleRelease`. Antes de pedir revisión, comprueba que el workflow está en verde.
 5. **Commitea en español con convencional commits:** `feat(ui): …`, `fix(ui): …`, `docs: …`
 6. **No toques la lógica de conexión del túnel** salvo que la fase lo autorice explícitamente.
 

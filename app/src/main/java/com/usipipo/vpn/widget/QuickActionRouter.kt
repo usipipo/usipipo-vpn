@@ -17,23 +17,30 @@ class QuickActionRouter(
     private val launchActivity: (Context, Intent) -> Unit = { ctx, intent -> ctx.startActivity(intent) },
 ) {
     suspend fun toggle(): Unit {
-        when (controller.toggle()) {
-            QuickConnectAction.DisconnectRequested,
-            is QuickConnectAction.ConnectRequested,
-            is QuickConnectAction.ConfigUnreadable,
-            -> Unit
-
-            QuickConnectAction.VpnPermissionRequired -> launchActivity(
+        when (targetFor(controller.toggle())) {
+            QuickActionTarget.None -> Unit
+            QuickActionTarget.PermissionActivity -> launchActivity(
                 context,
                 Intent(context, VpnPermissionActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 },
             )
-
-            QuickConnectAction.OpenImporter -> launchActivity(
-                context,
-                WidgetIntents.importerIntent(context),
-            )
+            QuickActionTarget.Importer -> launchActivity(context, WidgetIntents.importerIntent(context))
         }
     }
+}
+
+internal enum class QuickActionTarget { None, PermissionActivity, Importer }
+
+internal fun targetFor(action: QuickConnectAction): QuickActionTarget = when (action) {
+    QuickConnectAction.DisconnectRequested,
+    is QuickConnectAction.ConnectRequested,
+    is QuickConnectAction.ConfigUnreadable,
+    -> QuickActionTarget.None
+
+    QuickConnectAction.VpnPermissionRequired,
+    QuickConnectAction.BackgroundStartDenied,
+    -> QuickActionTarget.PermissionActivity
+
+    QuickConnectAction.OpenImporter -> QuickActionTarget.Importer
 }

@@ -3,6 +3,7 @@ package com.usipipo.vpn.widget
 import com.usipipo.vpn.R
 import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.domain.TunnelState
+import com.usipipo.vpn.domain.isActive
 import com.usipipo.vpn.quickconnect.QuickConnectFailure
 import com.usipipo.vpn.quickconnect.QuickConnectState
 import com.usipipo.vpn.ui.components.flagEmoji
@@ -25,6 +26,10 @@ object WidgetStateMapper {
         val localFailureMatches = state.failure is QuickConnectFailure.ConfigUnreadable &&
             state.failure.configId == selectedConfigId
         if (localFailureMatches) return WidgetStatus.Failed
+
+        val deniedMatches = state.failure is QuickConnectFailure.BackgroundStartDenied &&
+            state.failure.configId == selectedConfigId
+        if (deniedMatches && !state.tunnel.isActive) return WidgetStatus.Failed
 
         return when (state.tunnel) {
             is TunnelState.Connecting -> WidgetStatus.Connecting

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -26,7 +27,7 @@ fun shouldShowQuickAccessHint(sdkInt: Int): Boolean = sdkInt >= Build.VERSION_CO
 
 /** Tarjeta que explica cómo añadir el widget y el mosaico de uSipipo VPN. */
 @Composable
-fun QuickAccessHint() {
+fun QuickAccessHint(onAddTile: () -> Unit, resultText: Int? = null) {
     UsipipoCard(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -40,6 +41,12 @@ fun QuickAccessHint() {
             )
             HintStep(number = 1, text = stringResource(R.string.quick_access_widget_hint))
             HintStep(number = 2, text = stringResource(R.string.quick_access_tile_hint))
+            Button(onClick = onAddTile) {
+                Text(stringResource(R.string.quick_access_add_tile))
+            }
+            resultText?.let {
+                Text(stringResource(it))
+            }
         }
     }
 }
@@ -71,7 +78,7 @@ private fun HintStep(number: Int, text: String) {
 private fun PreviewQuickAccessHint() {
     UsipipoTheme {
         Surface {
-            QuickAccessHint()
+            QuickAccessHint(onAddTile = {})
         }
     }
 }

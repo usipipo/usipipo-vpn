@@ -2,6 +2,7 @@ package com.usipipo.vpn.ui.home
 
 import com.usipipo.vpn.data.DuplicateNameException
 import com.usipipo.vpn.domain.SavedConfig
+import com.usipipo.vpn.quickconnect.FakeTunnelConnector
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -33,7 +34,7 @@ class HomeViewModelRenameTest {
 
     @Test
     fun `renombrar actualiza el nombre en el estado`() = runTest {
-        val vm = HomeViewModel(FakeConfigStore(listOf(casa, trabajo)), FakeTunnelManager())
+        val vm = HomeViewModel(FakeConfigStore(listOf(casa, trabajo)), FakeTunnelManager(), FakeTunnelConnector())
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.uiState.collect {} }
 
         val result = vm.rename("a", "Oficina")
@@ -44,14 +45,14 @@ class HomeViewModelRenameTest {
 
     @Test
     fun `renombrar con un nombre repetido devuelve el error de duplicado`() = runTest {
-        val vm = HomeViewModel(FakeConfigStore(listOf(casa, trabajo)), FakeTunnelManager())
+        val vm = HomeViewModel(FakeConfigStore(listOf(casa, trabajo)), FakeTunnelManager(), FakeTunnelConnector())
 
         assertTrue(vm.rename("a", "Trabajo").exceptionOrNull() is DuplicateNameException)
     }
 
     @Test
     fun `renombrar con un nombre vacio devuelve error`() = runTest {
-        val vm = HomeViewModel(FakeConfigStore(listOf(casa, trabajo)), FakeTunnelManager())
+        val vm = HomeViewModel(FakeConfigStore(listOf(casa, trabajo)), FakeTunnelManager(), FakeTunnelConnector())
 
         assertTrue(vm.rename("a", " ").exceptionOrNull() is IllegalArgumentException)
     }

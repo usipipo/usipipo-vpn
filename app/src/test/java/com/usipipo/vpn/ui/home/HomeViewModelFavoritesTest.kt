@@ -1,6 +1,7 @@
 package com.usipipo.vpn.ui.home
 
 import com.usipipo.vpn.domain.SavedConfig
+import com.usipipo.vpn.quickconnect.FakeTunnelConnector
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -33,7 +34,7 @@ class HomeViewModelFavoritesTest {
 
     @Test
     fun `marcar una configuracion como favorita se refleja en el estado`() = runTest {
-        val vm = HomeViewModel(FakeConfigStore(listOf(casa, trabajo)), FakeTunnelManager())
+        val vm = HomeViewModel(FakeConfigStore(listOf(casa, trabajo)), FakeTunnelManager(), FakeTunnelConnector())
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.uiState.collect {} }
 
         vm.toggleFavorite("a")
@@ -43,7 +44,7 @@ class HomeViewModelFavoritesTest {
 
     @Test
     fun `desmarcar una favorita la devuelve a no favorita`() = runTest {
-        val vm = HomeViewModel(FakeConfigStore(listOf(casa, trabajo)), FakeTunnelManager())
+        val vm = HomeViewModel(FakeConfigStore(listOf(casa, trabajo)), FakeTunnelManager(), FakeTunnelConnector())
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.uiState.collect {} }
 
         vm.toggleFavorite("b")
@@ -53,7 +54,7 @@ class HomeViewModelFavoritesTest {
 
     @Test
     fun `un id desconocido no cambia nada`() = runTest {
-        val vm = HomeViewModel(FakeConfigStore(listOf(casa, trabajo)), FakeTunnelManager())
+        val vm = HomeViewModel(FakeConfigStore(listOf(casa, trabajo)), FakeTunnelManager(), FakeTunnelConnector())
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.uiState.collect {} }
 
         vm.toggleFavorite("zzz")

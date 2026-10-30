@@ -30,17 +30,28 @@ object DiagnosticEmailBuilder {
         verbose: Boolean,
     ): Parts {
         return runCatching {
+            // Todos los textos se sanean: el asunto siempre tiene cuatro campos
+            // separados por " | " y la cabecera cinco líneas, pase lo que pase.
+            val cleanVersion = sanitize(version)
+            val cleanAndroid = sanitize(androidRelease)
             val cleanManufacturer = sanitize(manufacturer).ifEmpty { UNKNOWN }
             val cleanModel = sanitize(model).ifEmpty { UNKNOWN }
             val deviceText = joinDevice(cleanManufacturer, cleanModel)
 
-            val subject = buildSubject(version, deviceText, androidRelease)
-            val header = buildHeader(appName, version, deviceText, androidRelease, verbose)
+            val subject = buildSubject(cleanVersion, deviceText, cleanAndroid)
+            val header = buildHeader(
+                appName = sanitize(appName),
+                version = cleanVersion,
+                deviceText = deviceText,
+                androidRelease = cleanAndroid,
+                verbose = verbose,
+            )
 
             Parts(subject, header)
         }.getOrElse { fallback(appName, version, verbose) }
     }
 
+    /** Quita saltos de línea y el separador de campos, y recorta los espacios sobrantes. */
     private fun sanitize(text: String): String =
         text.replace("\n", " ").replace("\r", " ").replace("|", " ").trim()
 
@@ -57,9 +68,9 @@ object DiagnosticEmailBuilder {
     ): String =
         listOf(
             PREFIX,
-            "v$version",
+            "v${trimField(version)}",
             trimField(deviceText),
-            "Android $androidRelease",
+            "Android ${trimField(androidRelease)}",
         ).joinToString(" | ")
 
     private fun buildHeader(
@@ -77,15 +88,18 @@ object DiagnosticEmailBuilder {
             appendLine("verbose: ${if (verbose) "si" else "no"}")
         }
 
-    private fun fallback(appName: String, version: String, verbose: Boolean): Parts =
-        Parts(
-            subject = "$PREFIX | $version | $UNKNOWN | Android $UNKNOWN",
+    /** El correo nunca se pierde por un error de formato: siempre sale el prefijo. */
+    private fun fallback(appName: String, version: String, verbose: Boolean): Parts {
+        val cleanVersion = sanitize(version)
+        return Parts(
+            subject = "$PREFIX | ${trimField(cleanVersion)} | $UNKNOWN | Android $UNKNOWN",
             header = buildString {
-                appendLine("app: $appName")
-                appendLine("version: $version")
+                appendLine("app: ${trimField(sanitize(appName))}")
+                appendLine("version: ${trimField(cleanVersion)}")
                 appendLine("model: $UNKNOWN")
                 appendLine("android: $UNKNOWN")
                 appendLine("verbose: ${if (verbose) "si" else "no"}")
             },
         )
+    }
 }

@@ -41,6 +41,17 @@ verbose: no
     }
 
     @Test
+    fun `el asunto tiene exactamente cuatro campos separados por pipe`() {
+        val campos = build().subject.split(" | ")
+
+        assertEquals(4, campos.size)
+        assertEquals("uSipipo-Diag", campos[0])
+        assertEquals("v0.4.0", campos[1])
+        assertEquals("Samsung SM-A256E", campos[2])
+        assertEquals("Android 16", campos[3])
+    }
+
+    @Test
     fun `cabecera con modo detallado activado dice si`() {
         val parts = build(verbose = true)
 
@@ -63,10 +74,13 @@ verbose: no
     }
 
     @Test
-    fun `marca y modelo vacios usan desconocido`() {
+    fun `marca y modelo vacios colapsan en un solo desconocido`() {
+        // El plan aplica en orden: vacío -> desconocido, y luego marca repetida
+        // dentro del modelo -> sin duplicar. "desconocido desconocido" sería redundante.
         val parts = build(manufacturer = "", model = "")
 
-        assertTrue(parts.subject.contains("desconocido desconocido"))
+        assertEquals("uSipipo-Diag | v0.4.0 | desconocido | Android 16", parts.subject)
+        assertFalse(parts.subject.contains("desconocido desconocido"))
     }
 
     @Test
@@ -87,31 +101,53 @@ verbose: no
 
     @Test
     fun `se elimina el caracter pipe del texto del dispositivo`() {
-        val parts = build(manufacturer = "Samsung|", model = "SM-A256E")
+        // El separador de campos del asunto es " | ": el pipe se elimina del texto
+        // del dispositivo, no del asunto completo.
+        val campos = build(manufacturer = "Samsung|", model = "SM-A256E").subject.split(" | ")
 
-        assertFalse(parts.subject.contains("|"))
+        assertEquals(4, campos.size)
+        assertEquals("Samsung SM-A256E", campos[2])
     }
 
     @Test
     fun `cada campo del asunto se recorta a 40 caracteres`() {
         val largo = "A".repeat(60)
-        val parts = build(model = largo)
+        val campos = build(model = largo).subject.split(" | ")
 
-        val devicePart = parts.subject.substringAfter("v0.4.0 | ").substringBefore(" | Android")
-        assertTrue(devicePart.length <= 40)
+        assertEquals(4, campos.size)
+        assertTrue(campos[2].length <= 40)
+    }
+
+    @Test
+    fun `la version del asunto se recorta a 40 caracteres`() {
+        val campos = build(version = "B".repeat(60)).subject.split(" | ")
+
+        assertEquals(4, campos.size)
+        assertEquals("B".repeat(40), campos[1].removePrefix("v"))
+    }
+
+    @Test
+    fun `la version de android del asunto se recorta a 40 caracteres`() {
+        val campos = build(androidRelease = "C".repeat(60)).subject.split(" | ")
+
+        assertEquals(4, campos.size)
+        assertEquals("Android " + "C".repeat(40), campos[3])
     }
 
     @Test
     fun `la cabecera contiene solo los cinco campos`() {
-        val parts = build()
+        val lineas = build().header.lines().filter { it.isNotBlank() }
 
-        val lineas = parts.header.lines()
         assertEquals(5, lineas.size)
-        assertTrue(lineas.first { it.startsWith("app:") }.startsWith("app: uSipipo VPN"))
-        assertTrue(lineas.first { it.startsWith("version:") }.startsWith("version: 0.4.0"))
-        assertTrue(lineas.first { it.startsWith("model:") }.startsWith("model: Samsung SM-A256E"))
-        assertTrue(lineas.first { it.startsWith("android:") }.startsWith("android: 16"))
-        assertTrue(lineas.first { it.startsWith("verbose:") }.startsWith("verbose: no"))
+        assertEquals(
+            listOf("app", "version", "model", "android", "verbose"),
+            lineas.map { it.substringBefore(":") },
+        )
+        assertEquals("app: uSipipo VPN", lineas[0])
+        assertEquals("version: 0.4.0", lineas[1])
+        assertEquals("model: Samsung SM-A256E", lineas[2])
+        assertEquals("android: 16", lineas[3])
+        assertEquals("verbose: no", lineas[4])
     }
 
     @Test
@@ -127,6 +163,6 @@ verbose: no
     fun `version vacia se mantiene en el asunto`() {
         val parts = build(version = "")
 
-        assertTrue(parts.subject.startsWith("uSipipo-Diag | v | "))
+        assertEquals("uSipipo-Diag | v | Samsung SM-A256E | Android 16", parts.subject)
     }
 }

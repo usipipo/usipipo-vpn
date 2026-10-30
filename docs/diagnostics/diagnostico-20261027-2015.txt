@@ -1,0 +1,1013 @@
+=== uSipipo VPN · informe de diagnóstico ===
+Generado: 2026-10-27 20:15:13
+Modo detallado: activado
+
+--- Información ---
+Aplicación: 0.5.0 (5000)
+Android: 16 (API 36)
+Dispositivo: Xiaomi 24117RN76L
+Arquitectura: arm64-v8a
+Estado del túnel: Conectado
+Permiso de VPN: Concedido
+Configuraciones guardadas: 1
+
+--- Registro de la app ---
+2026-10-13 06:21:30.523 I/App: Inicio · app 0.1.0 (1000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-13 06:21:30.531 I/Actualizar: Comprobación automática al arrancar (versión 0.1.0)
+2026-10-13 06:22:25.395 I/Importar: Archivo leído (314 caracteres)
+2026-10-13 06:22:25.416 I/Importar: Configuración válida
+2026-10-13 06:22:27.685 I/Crypto: Creando clave en el Keystore
+2026-10-13 06:22:27.700 I/Importar: Configuración guardada
+2026-10-13 06:22:33.117 I/Tunel: Conectar solicitado (cfg 0be79ba8)
+2026-10-13 06:22:33.118 I/Tunel: Estado: Conectando (cfg 0be79ba8)
+2026-10-13 06:22:33.676 I/Tunel: Handshake recibido a los 503 ms
+2026-10-13 06:22:33.677 I/Tunel: Estado: Conectado (cfg 0be79ba8)
+2026-10-13 06:23:36.816 I/Tunel: Desconectar solicitado
+2026-10-13 06:23:36.868 I/Tunel: Estado: Desconectado
+2026-10-14 06:04:27.784 I/App: Inicio · app 0.1.0 (1000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-14 06:04:27.792 I/Actualizar: Comprobación automática al arrancar (versión 0.1.0)
+2026-10-14 06:05:30.708 I/Tunel: Conectar solicitado (cfg 0be79ba8)
+2026-10-14 06:05:30.709 I/Tunel: Estado: Conectando (cfg 0be79ba8)
+2026-10-14 06:05:31.287 I/Tunel: Handshake recibido a los 506 ms
+2026-10-14 06:05:31.287 I/Tunel: Estado: Conectado (cfg 0be79ba8)
+2026-10-14 06:06:06.369 I/Diagnostico: Modo detallado activado
+2026-10-14 06:09:35.555 I/Tunel: Desconectar solicitado
+2026-10-14 06:09:35.628 I/Tunel: Estado: Desconectado
+2026-10-15 21:46:46.095 I/App: Inicio · app 0.1.0 (1000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-15 21:46:46.099 I/Actualizar: Comprobación automática al arrancar (versión 0.1.0)
+2026-10-15 21:46:47.865 I/Tunel: Conectar solicitado (cfg 0be79ba8)
+2026-10-15 21:46:47.866 I/Tunel: Estado: Conectando (cfg 0be79ba8)
+2026-10-15 21:46:47.880 D/Tunel: Subiendo túnel usp0be79ba857
+2026-10-15 21:46:47.930 D/Tunel: Túnel usp0be79ba857 arriba; esperando handshake
+2026-10-15 21:46:47.932 D/Tunel: Sondeo de handshake: pendiente (t=2 ms)
+2026-10-15 21:46:48.433 D/Tunel: Sondeo de handshake: pendiente (t=503 ms)
+2026-10-15 21:46:48.936 D/Tunel: Sondeo de handshake: pendiente (t=1006 ms)
+2026-10-15 21:46:49.438 D/Tunel: Sondeo de handshake: pendiente (t=1508 ms)
+2026-10-15 21:46:49.940 D/Tunel: Sondeo de handshake: pendiente (t=2010 ms)
+2026-10-15 21:46:50.442 D/Tunel: Sondeo de handshake: pendiente (t=2512 ms)
+2026-10-15 21:46:50.944 D/Tunel: Sondeo de handshake: pendiente (t=3014 ms)
+2026-10-15 21:46:51.447 D/Tunel: Sondeo de handshake: pendiente (t=3516 ms)
+2026-10-15 21:46:51.949 D/Tunel: Sondeo de handshake: pendiente (t=4019 ms)
+2026-10-15 21:46:52.452 D/Tunel: Sondeo de handshake: pendiente (t=4522 ms)
+2026-10-15 21:46:52.955 D/Tunel: Sondeo de handshake: pendiente (t=5024 ms)
+2026-10-15 21:46:53.458 D/Tunel: Sondeo de handshake: pendiente (t=5527 ms)
+2026-10-15 21:46:53.961 D/Tunel: Sondeo de handshake: recibido (t=6030 ms)
+2026-10-15 21:46:53.962 I/Tunel: Handshake recibido a los 6030 ms
+2026-10-15 21:46:53.962 I/Tunel: Estado: Conectado (cfg 0be79ba8)
+2026-10-15 21:47:02.882 W/Actualizar: Fallo de red al consultar la última release
+java.net.SocketTimeoutException: Read timed out
+	at java.net.SocketInputStream.socketRead0(Native Method)
+	at java.net.SocketInputStream.socketRead(SocketInputStream.java:118)
+	at java.net.SocketInputStream.read(SocketInputStream.java:173)
+	at java.net.SocketInputStream.read(SocketInputStream.java:143)
+	at com.android.org.conscrypt.ConscryptEngineSocket$SSLInputStream.readFromSocket(ConscryptEngineSocket.java:1015)
+	at com.android.org.conscrypt.ConscryptEngineSocket$SSLInputStream.processDataFromSocket(ConscryptEngineSocket.java:979)
+	at com.android.org.conscrypt.ConscryptEngineSocket$SSLInputStream.-$$Nest$mprocessDataFromSocket(ConscryptEngineSocket.java:0)
+	at com.android.org.conscrypt.ConscryptEngineSocket.doHandshake(ConscryptEngineSocket.java:243)
+	at com.android.org.conscrypt.ConscryptEngineSocket.startHandshake(ConscryptEngineSocket.java:225)
+	at com.android.okhttp.internal.io.RealConnection.connectTls(RealConnection.java:196)
+	at com.android.okhttp.internal.io.RealConnection.connectSocket(RealConnection.java:153)
+	at com.android.okhttp.internal.io.RealConnection.connect(RealConnection.java:116)
+	at com.android.okhttp.internal.http.StreamAllocation.findConnection(StreamAllocation.java:186)
+	at com.android.okhttp.internal.http.StreamAllocation.findHealthyConnection(StreamAllocation.java:128)
+	at com.android.okhttp.internal.http.StreamAllocation.newStream(StreamAllocation.java:97)
+	at com.android.okhttp.internal.http.HttpEngine.connect(HttpEngine.java:289)
+	at com.android.okhttp.internal.http.HttpEngine.sendRequest(HttpEngine.java:232)
+	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.execute(HttpURLConnectionImpl.java:465)
+	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.getResponse(HttpURLConnectionImpl.java:411)
+	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.getResponseCode(HttpURLConnectionImpl.java:542)
+	at com.android.okhttp.internal.huc.DelegatingHttpsURLConnection.getResponseCode(DelegatingHttpsURLConnection.java:106)
+	at com.android.okhttp.internal.huc.HttpsURLConnectionImpl.getResponseCode(HttpsURLConnectionImpl.java:30)
+	at com.usipipo.vpn.update.GitHubReleaseSource$latest$2.invokeSuspend(ReleaseSource.kt:35)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.internal.LimitedDispatcher$Worker.run(LimitedDispatcher.kt:124)
+	at kotlinx.coroutines.scheduling.TaskImpl.run(Tasks.kt:89)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:586)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:820)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:717)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:704)
+2026-10-15 21:47:02.896 W/Actualizar: No hay release que comparar con la versión instalada
+2026-10-15 22:14:59.703 I/Tunel: Desconectar solicitado
+2026-10-15 22:14:59.805 I/Tunel: Estado: Desconectado
+2026-10-17 21:47:10.211 I/App: Inicio · app 0.1.0 (1000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-17 21:47:10.215 I/Actualizar: Comprobación automática al arrancar (versión 0.1.0)
+2026-10-17 22:03:52.082 I/App: Inicio · app 0.2.0 (2000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-17 22:03:52.086 I/Actualizar: Comprobación automática al arrancar (versión 0.2.0)
+2026-10-17 22:03:52.098 D/Actualizar: Comprobación automática frenada por el throttle de 24 h
+2026-10-17 22:04:50.331 I/Tunel: Conectar solicitado (cfg 0be79ba8)
+2026-10-17 22:04:50.332 I/Tunel: Estado: Conectando (cfg 0be79ba8)
+2026-10-17 22:04:50.351 D/Tunel: Subiendo túnel usp0be79ba857
+2026-10-17 22:04:50.399 D/Tunel: Túnel usp0be79ba857 arriba; esperando handshake
+2026-10-17 22:04:50.403 D/Tunel: Sondeo de handshake: pendiente (t=3 ms)
+2026-10-17 22:04:50.905 D/Tunel: Sondeo de handshake: recibido (t=505 ms)
+2026-10-17 22:04:50.906 I/Tunel: Handshake recibido a los 505 ms
+2026-10-17 22:04:50.906 I/Tunel: Estado: Conectado (cfg 0be79ba8)
+2026-10-18 05:28:39.452 I/App: Inicio · app 0.2.0 (2000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-18 05:28:39.462 I/Actualizar: Comprobación automática al arrancar (versión 0.2.0)
+2026-10-18 05:28:39.469 D/Actualizar: Comprobación automática frenada por el throttle de 24 h
+2026-10-18 05:28:50.824 I/Tunel: Conectar solicitado (cfg 0be79ba8)
+2026-10-18 05:28:50.824 I/Tunel: Estado: Conectando (cfg 0be79ba8)
+2026-10-18 05:28:50.850 D/Tunel: Subiendo túnel usp0be79ba857
+2026-10-18 05:28:50.939 D/Tunel: Túnel usp0be79ba857 arriba; esperando handshake
+2026-10-18 05:28:50.965 D/Tunel: Sondeo de handshake: pendiente (t=26 ms)
+2026-10-18 05:28:51.474 D/Tunel: Sondeo de handshake: recibido (t=535 ms)
+2026-10-18 05:28:51.474 I/Tunel: Handshake recibido a los 535 ms
+2026-10-18 05:28:51.474 I/Tunel: Estado: Conectado (cfg 0be79ba8)
+2026-10-18 08:07:18.178 W/Tunel: El sistema cerró el túnel
+2026-10-18 08:07:18.192 I/Tunel: Estado: Desconectado
+2026-10-18 11:54:38.154 I/App: Inicio · app 0.2.0 (2000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-18 11:54:38.158 I/Actualizar: Comprobación automática al arrancar (versión 0.2.0)
+2026-10-18 11:54:38.187 D/Actualizar: Comprobación automática frenada por el throttle de 24 h
+2026-10-18 11:54:40.068 I/Tunel: Conectar solicitado (cfg 0be79ba8)
+2026-10-18 11:54:40.069 I/Tunel: Estado: Conectando (cfg 0be79ba8)
+2026-10-18 11:54:40.090 D/Tunel: Subiendo túnel usp0be79ba857
+2026-10-18 11:54:40.163 D/Tunel: Túnel usp0be79ba857 arriba; esperando handshake
+2026-10-18 11:54:40.168 D/Tunel: Sondeo de handshake: pendiente (t=4 ms)
+2026-10-18 11:54:40.672 D/Tunel: Sondeo de handshake: recibido (t=507 ms)
+2026-10-18 11:54:40.672 I/Tunel: Handshake recibido a los 507 ms
+2026-10-18 11:54:40.673 I/Tunel: Estado: Conectado (cfg 0be79ba8)
+2026-10-18 14:47:08.145 I/Tunel: Desconectar solicitado
+2026-10-18 14:47:08.224 I/Tunel: Estado: Desconectado
+2026-10-18 16:45:39.133 I/Tunel: Conectar solicitado (cfg 0be79ba8)
+2026-10-18 16:45:39.135 I/Tunel: Estado: Conectando (cfg 0be79ba8)
+2026-10-18 16:45:39.143 D/Tunel: Subiendo túnel usp0be79ba857
+2026-10-18 16:45:39.216 D/Tunel: Túnel usp0be79ba857 arriba; esperando handshake
+2026-10-18 16:45:39.221 D/Tunel: Sondeo de handshake: pendiente (t=5 ms)
+2026-10-18 16:45:39.724 D/Tunel: Sondeo de handshake: pendiente (t=508 ms)
+2026-10-18 16:45:40.227 D/Tunel: Sondeo de handshake: recibido (t=1011 ms)
+2026-10-18 16:45:40.227 I/Tunel: Handshake recibido a los 1011 ms
+2026-10-18 16:45:40.228 I/Tunel: Estado: Conectado (cfg 0be79ba8)
+2026-10-18 17:03:33.342 I/Tunel: Desconectar solicitado
+2026-10-18 17:03:33.399 I/Tunel: Estado: Desconectado
+2026-10-18 20:15:57.018 I/App: Inicio · app 0.2.0 (2000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-18 20:15:57.027 I/Actualizar: Comprobación automática al arrancar (versión 0.2.0)
+2026-10-18 20:15:57.031 D/Actualizar: Comprobación automática frenada por el throttle de 24 h
+2026-10-18 20:15:58.482 I/Tunel: Conectar solicitado (cfg 0be79ba8)
+2026-10-18 20:15:58.483 I/Tunel: Estado: Conectando (cfg 0be79ba8)
+2026-10-18 20:15:58.508 D/Tunel: Subiendo túnel usp0be79ba857
+2026-10-18 20:15:58.556 D/Tunel: Túnel usp0be79ba857 arriba; esperando handshake
+2026-10-18 20:15:58.561 D/Tunel: Sondeo de handshake: pendiente (t=4 ms)
+2026-10-18 20:15:59.063 D/Tunel: Sondeo de handshake: recibido (t=506 ms)
+2026-10-18 20:15:59.064 I/Tunel: Handshake recibido a los 506 ms
+2026-10-18 20:15:59.064 I/Tunel: Estado: Conectado (cfg 0be79ba8)
+2026-10-18 20:18:36.848 I/Tunel: Desconectar solicitado
+2026-10-18 20:18:36.944 I/Tunel: Estado: Desconectado
+2026-10-19 05:30:38.081 I/App: Inicio · app 0.2.0 (2000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-19 05:30:38.090 I/Actualizar: Comprobación automática al arrancar (versión 0.2.0)
+2026-10-19 05:30:39.612 I/Tunel: Conectar solicitado (cfg 0be79ba8)
+2026-10-19 05:30:39.613 I/Tunel: Estado: Conectando (cfg 0be79ba8)
+2026-10-19 05:30:39.627 D/Tunel: Subiendo túnel usp0be79ba857
+2026-10-19 05:30:39.710 D/Tunel: Túnel usp0be79ba857 arriba; esperando handshake
+2026-10-19 05:30:39.713 D/Tunel: Sondeo de handshake: pendiente (t=3 ms)
+2026-10-19 05:30:40.215 D/Tunel: Sondeo de handshake: recibido (t=505 ms)
+2026-10-19 05:30:40.215 I/Tunel: Handshake recibido a los 505 ms
+2026-10-19 05:30:40.215 I/Tunel: Estado: Conectado (cfg 0be79ba8)
+2026-10-19 14:01:28.535 I/Tunel: Desconectar solicitado
+2026-10-19 14:01:28.599 I/Tunel: Estado: Desconectado
+2026-10-21 05:06:08.132 I/App: Inicio · app 0.2.0 (2000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-21 05:06:08.138 I/Actualizar: Comprobación automática al arrancar (versión 0.2.0)
+2026-10-21 05:12:08.784 I/App: Inicio · app 0.3.0 (3000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-21 05:12:08.788 I/Actualizar: Comprobación automática al arrancar (versión 0.3.0)
+2026-10-21 05:12:08.795 D/Actualizar: Comprobación automática frenada por el throttle de 24 h
+2026-10-21 05:13:47.185 I/Tunel: Conectar solicitado (cfg 0be79ba8)
+2026-10-21 05:13:47.187 I/Tunel: Estado: Conectando (cfg 0be79ba8)
+2026-10-21 05:13:47.202 D/Tunel: Subiendo túnel usp0be79ba857
+2026-10-21 05:13:47.246 D/Tunel: Túnel usp0be79ba857 arriba; esperando handshake
+2026-10-21 05:13:47.247 D/Tunel: Sondeo de handshake: pendiente (t=1 ms)
+2026-10-21 05:13:47.753 D/Tunel: Sondeo de handshake: pendiente (t=507 ms)
+2026-10-21 05:13:48.256 D/Tunel: Sondeo de handshake: recibido (t=1010 ms)
+2026-10-21 05:13:48.257 I/Tunel: Handshake recibido a los 1010 ms
+2026-10-21 05:13:48.257 I/Tunel: Estado: Conectado (cfg 0be79ba8)
+2026-10-21 05:13:53.004 E/Geo: Fallo de geolocalización para IP 165.140.x.x (IOException: ipapi.co respondió HTTP 404 para 165.140)
+2026-10-21 05:14:43.383 I/Tunel: Desconectar solicitado
+2026-10-21 05:14:43.433 I/Tunel: Estado: Desconectado
+2026-10-21 05:15:06.144 I/Inicio: Configuración eliminada (cfg 0be79ba8)
+2026-10-21 05:15:43.084 I/Importar: Archivo leído (314 caracteres)
+2026-10-21 05:15:43.089 I/Importar: Configuración válida
+2026-10-21 05:15:47.164 I/Importar: Configuración guardada
+2026-10-21 05:16:08.105 I/Tunel: Conectar solicitado (cfg c55f6b42)
+2026-10-21 05:16:08.105 I/Tunel: Estado: Conectando (cfg c55f6b42)
+2026-10-21 05:16:08.108 D/Tunel: Subiendo túnel uspc55f6b4286
+2026-10-21 05:16:08.169 D/Tunel: Túnel uspc55f6b4286 arriba; esperando handshake
+2026-10-21 05:16:08.170 D/Tunel: Sondeo de handshake: pendiente (t=0 ms)
+2026-10-21 05:16:08.676 D/Tunel: Sondeo de handshake: recibido (t=505 ms)
+2026-10-21 05:16:08.677 I/Tunel: Handshake recibido a los 505 ms
+2026-10-21 05:16:08.678 I/Tunel: Estado: Conectado (cfg c55f6b42)
+2026-10-21 05:16:10.167 E/Geo: Fallo de geolocalización para IP 165.140.x.x (IOException: ipapi.co respondió HTTP 404 para 165.140)
+2026-10-21 05:24:06.491 I/Tunel: Desconectar solicitado
+2026-10-21 05:24:06.550 I/Tunel: Estado: Desconectado
+2026-10-21 05:26:45.062 I/Tunel: Conectar solicitado (cfg c55f6b42)
+2026-10-21 05:26:45.063 I/Tunel: Estado: Conectando (cfg c55f6b42)
+2026-10-21 05:26:45.066 D/Tunel: Subiendo túnel uspc55f6b4286
+2026-10-21 05:26:45.121 D/Tunel: Túnel uspc55f6b4286 arriba; esperando handshake
+2026-10-21 05:26:45.123 D/Tunel: Sondeo de handshake: pendiente (t=2 ms)
+2026-10-21 05:26:45.625 D/Tunel: Sondeo de handshake: recibido (t=504 ms)
+2026-10-21 05:26:45.626 I/Tunel: Handshake recibido a los 504 ms
+2026-10-21 05:26:45.627 I/Tunel: Estado: Conectado (cfg c55f6b42)
+2026-10-21 05:26:46.971 E/Geo: Fallo de geolocalización para IP 165.140.x.x (IOException: ipapi.co respondió HTTP 404 para 165.140)
+2026-10-21 05:32:36.835 I/Tunel: Desconectar solicitado
+2026-10-21 05:32:36.913 I/Tunel: Estado: Desconectado
+2026-10-21 05:33:04.400 I/Tunel: Conectar solicitado (cfg c55f6b42)
+2026-10-21 05:33:04.401 I/Tunel: Estado: Conectando (cfg c55f6b42)
+2026-10-21 05:33:04.404 D/Tunel: Subiendo túnel uspc55f6b4286
+2026-10-21 05:33:04.432 D/Tunel: Túnel uspc55f6b4286 arriba; esperando handshake
+2026-10-21 05:33:04.434 D/Tunel: Sondeo de handshake: pendiente (t=1 ms)
+2026-10-21 05:33:04.936 D/Tunel: Sondeo de handshake: pendiente (t=503 ms)
+2026-10-21 05:33:05.437 D/Tunel: Sondeo de handshake: recibido (t=1004 ms)
+2026-10-21 05:33:05.438 I/Tunel: Handshake recibido a los 1004 ms
+2026-10-21 05:33:05.438 I/Tunel: Estado: Conectado (cfg c55f6b42)
+2026-10-21 05:33:06.902 E/Geo: Fallo de geolocalización para IP 165.140.x.x (IOException: ipapi.co respondió HTTP 404 para 165.140)
+2026-10-21 05:41:02.749 W/Tunel: El sistema cerró el túnel
+2026-10-21 05:41:02.752 I/Tunel: Estado: Desconectado
+2026-10-21 05:43:09.795 I/App: Inicio · app 0.3.0 (3000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-21 05:43:09.797 I/Actualizar: Comprobación automática al arrancar (versión 0.3.0)
+2026-10-21 05:43:09.809 D/Actualizar: Comprobación automática frenada por el throttle de 24 h
+2026-10-21 05:43:11.111 I/Tunel: Conectar solicitado (cfg c55f6b42)
+2026-10-21 05:43:11.112 I/Tunel: Estado: Conectando (cfg c55f6b42)
+2026-10-21 05:43:11.126 D/Tunel: Subiendo túnel uspc55f6b4286
+2026-10-21 05:43:11.178 D/Tunel: Túnel uspc55f6b4286 arriba; esperando handshake
+2026-10-21 05:43:11.187 D/Tunel: Sondeo de handshake: pendiente (t=7 ms)
+2026-10-21 05:43:11.689 D/Tunel: Sondeo de handshake: pendiente (t=509 ms)
+2026-10-21 05:43:12.191 D/Tunel: Sondeo de handshake: pendiente (t=1011 ms)
+2026-10-21 05:43:12.696 D/Tunel: Sondeo de handshake: pendiente (t=1516 ms)
+2026-10-21 05:43:13.198 D/Tunel: Sondeo de handshake: pendiente (t=2018 ms)
+2026-10-21 05:43:13.699 D/Tunel: Sondeo de handshake: pendiente (t=2519 ms)
+2026-10-21 05:43:14.201 D/Tunel: Sondeo de handshake: pendiente (t=3021 ms)
+2026-10-21 05:43:14.703 D/Tunel: Sondeo de handshake: pendiente (t=3523 ms)
+2026-10-21 05:43:15.205 D/Tunel: Sondeo de handshake: pendiente (t=4025 ms)
+2026-10-21 05:43:15.711 D/Tunel: Sondeo de handshake: pendiente (t=4531 ms)
+2026-10-21 05:43:16.216 D/Tunel: Sondeo de handshake: pendiente (t=5036 ms)
+2026-10-21 05:43:16.719 D/Tunel: Sondeo de handshake: pendiente (t=5539 ms)
+2026-10-21 05:43:17.221 D/Tunel: Sondeo de handshake: pendiente (t=6041 ms)
+2026-10-21 05:43:17.723 D/Tunel: Sondeo de handshake: pendiente (t=6543 ms)
+2026-10-21 05:43:18.225 D/Tunel: Sondeo de handshake: pendiente (t=7045 ms)
+2026-10-21 05:43:18.727 D/Tunel: Sondeo de handshake: pendiente (t=7547 ms)
+2026-10-21 05:43:19.229 D/Tunel: Sondeo de handshake: pendiente (t=8049 ms)
+2026-10-21 05:43:19.730 D/Tunel: Sondeo de handshake: pendiente (t=8550 ms)
+2026-10-21 05:43:20.232 D/Tunel: Sondeo de handshake: pendiente (t=9051 ms)
+2026-10-21 05:43:20.736 D/Tunel: Sondeo de handshake: pendiente (t=9556 ms)
+2026-10-21 05:43:21.238 D/Tunel: Sondeo de handshake: pendiente (t=10058 ms)
+2026-10-21 05:43:21.238 W/Tunel: Sin handshake tras 10 s
+2026-10-21 05:43:21.239 I/Tunel: Estado: Sin respuesta (cfg c55f6b42)
+2026-10-21 05:43:23.241 D/Tunel: Sondeo de handshake: pendiente (t=12061 ms)
+2026-10-21 05:43:25.242 D/Tunel: Sondeo de handshake: pendiente (t=14062 ms)
+2026-10-21 05:43:27.244 D/Tunel: Sondeo de handshake: pendiente (t=16064 ms)
+2026-10-21 05:43:29.252 D/Tunel: Sondeo de handshake: pendiente (t=18066 ms)
+2026-10-21 05:43:29.307 I/Tunel: Desconectar solicitado
+2026-10-21 05:43:29.360 I/Tunel: Estado: Desconectado
+2026-10-21 05:43:30.491 I/Tunel: Conectar solicitado (cfg c55f6b42)
+2026-10-21 05:43:30.492 I/Tunel: Estado: Conectando (cfg c55f6b42)
+2026-10-21 05:43:30.496 D/Tunel: Subiendo túnel uspc55f6b4286
+2026-10-21 05:43:30.527 D/Tunel: Túnel uspc55f6b4286 arriba; esperando handshake
+2026-10-21 05:43:30.532 D/Tunel: Sondeo de handshake: pendiente (t=3 ms)
+2026-10-21 05:43:31.033 D/Tunel: Sondeo de handshake: pendiente (t=506 ms)
+2026-10-21 05:43:31.536 D/Tunel: Sondeo de handshake: pendiente (t=1008 ms)
+2026-10-21 05:43:32.039 D/Tunel: Sondeo de handshake: pendiente (t=1511 ms)
+2026-10-21 05:43:32.541 D/Tunel: Sondeo de handshake: pendiente (t=2014 ms)
+2026-10-21 05:43:33.042 D/Tunel: Sondeo de handshake: pendiente (t=2515 ms)
+2026-10-21 05:43:33.544 D/Tunel: Sondeo de handshake: pendiente (t=3017 ms)
+2026-10-21 05:43:34.045 D/Tunel: Sondeo de handshake: pendiente (t=3518 ms)
+2026-10-21 05:43:34.548 D/Tunel: Sondeo de handshake: pendiente (t=4021 ms)
+2026-10-21 05:43:35.050 D/Tunel: Sondeo de handshake: pendiente (t=4523 ms)
+2026-10-21 05:43:35.554 D/Tunel: Sondeo de handshake: pendiente (t=5027 ms)
+2026-10-21 05:43:36.056 D/Tunel: Sondeo de handshake: pendiente (t=5529 ms)
+2026-10-21 05:43:36.558 D/Tunel: Sondeo de handshake: pendiente (t=6031 ms)
+2026-10-21 05:43:37.059 D/Tunel: Sondeo de handshake: pendiente (t=6532 ms)
+2026-10-21 05:43:37.561 D/Tunel: Sondeo de handshake: pendiente (t=7034 ms)
+2026-10-21 05:43:38.065 D/Tunel: Sondeo de handshake: pendiente (t=7538 ms)
+2026-10-21 05:43:38.567 D/Tunel: Sondeo de handshake: pendiente (t=8040 ms)
+2026-10-21 05:43:39.069 D/Tunel: Sondeo de handshake: pendiente (t=8542 ms)
+2026-10-21 05:43:39.570 D/Tunel: Sondeo de handshake: pendiente (t=9043 ms)
+2026-10-21 05:43:40.073 D/Tunel: Sondeo de handshake: pendiente (t=9546 ms)
+2026-10-21 05:43:40.576 D/Tunel: Sondeo de handshake: pendiente (t=10049 ms)
+2026-10-21 05:43:40.577 W/Tunel: Sin handshake tras 10 s
+2026-10-21 05:43:40.578 I/Tunel: Estado: Sin respuesta (cfg c55f6b42)
+2026-10-21 05:43:42.584 D/Tunel: Sondeo de handshake: pendiente (t=12057 ms)
+2026-10-21 05:43:44.589 D/Tunel: Sondeo de handshake: pendiente (t=14062 ms)
+2026-10-21 05:43:46.593 D/Tunel: Sondeo de handshake: pendiente (t=16065 ms)
+2026-10-21 05:43:47.363 I/Tunel: Desconectar solicitado
+2026-10-21 05:43:47.409 I/Tunel: Estado: Desconectado
+2026-10-21 05:44:35.836 I/Tunel: Conectar solicitado (cfg c55f6b42)
+2026-10-21 05:44:35.836 I/Tunel: Estado: Conectando (cfg c55f6b42)
+2026-10-21 05:44:35.840 D/Tunel: Subiendo túnel uspc55f6b4286
+2026-10-21 05:44:35.872 D/Tunel: Túnel uspc55f6b4286 arriba; esperando handshake
+2026-10-21 05:44:35.873 D/Tunel: Sondeo de handshake: pendiente (t=1 ms)
+2026-10-21 05:44:36.375 D/Tunel: Sondeo de handshake: pendiente (t=503 ms)
+2026-10-21 05:44:36.877 D/Tunel: Sondeo de handshake: pendiente (t=1005 ms)
+2026-10-21 05:44:37.379 D/Tunel: Sondeo de handshake: pendiente (t=1507 ms)
+2026-10-21 05:44:37.881 D/Tunel: Sondeo de handshake: pendiente (t=2009 ms)
+2026-10-21 05:44:38.383 D/Tunel: Sondeo de handshake: pendiente (t=2511 ms)
+2026-10-21 05:44:38.886 D/Tunel: Sondeo de handshake: pendiente (t=3013 ms)
+2026-10-21 05:44:39.388 D/Tunel: Sondeo de handshake: pendiente (t=3516 ms)
+2026-10-21 05:44:39.891 D/Tunel: Sondeo de handshake: pendiente (t=4019 ms)
+2026-10-21 05:44:40.395 D/Tunel: Sondeo de handshake: pendiente (t=4523 ms)
+2026-10-21 05:44:40.898 D/Tunel: Sondeo de handshake: pendiente (t=5026 ms)
+2026-10-21 05:44:41.404 D/Tunel: Sondeo de handshake: pendiente (t=5531 ms)
+2026-10-21 05:44:41.909 D/Tunel: Sondeo de handshake: pendiente (t=6037 ms)
+2026-10-21 05:44:42.413 D/Tunel: Sondeo de handshake: pendiente (t=6540 ms)
+2026-10-21 05:44:42.917 D/Tunel: Sondeo de handshake: pendiente (t=7045 ms)
+2026-10-21 05:44:43.420 D/Tunel: Sondeo de handshake: pendiente (t=7548 ms)
+2026-10-21 05:44:43.922 D/Tunel: Sondeo de handshake: pendiente (t=8049 ms)
+2026-10-21 05:44:44.426 D/Tunel: Sondeo de handshake: pendiente (t=8554 ms)
+2026-10-21 05:44:44.930 D/Tunel: Sondeo de handshake: pendiente (t=9058 ms)
+2026-10-21 05:44:45.435 D/Tunel: Sondeo de handshake: pendiente (t=9562 ms)
+2026-10-21 05:44:45.939 D/Tunel: Sondeo de handshake: pendiente (t=10066 ms)
+2026-10-21 05:44:45.940 W/Tunel: Sin handshake tras 10 s
+2026-10-21 05:44:45.942 I/Tunel: Estado: Sin respuesta (cfg c55f6b42)
+2026-10-21 05:44:47.454 I/Tunel: Desconectar solicitado
+2026-10-21 05:44:47.521 I/Tunel: Estado: Desconectado
+2026-10-22 06:24:06.435 I/App: Inicio · app 0.3.0 (3000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-22 06:24:06.440 I/Actualizar: Comprobación automática al arrancar (versión 0.3.0)
+2026-10-22 06:25:29.037 I/App: Inicio · app 0.4.0 (4000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-22 06:25:29.042 I/Actualizar: Comprobación automática al arrancar (versión 0.4.0)
+2026-10-22 06:25:29.053 D/Actualizar: Comprobación automática frenada por el throttle de 24 h
+2026-10-22 06:26:24.529 I/Tunel: Conectar solicitado (cfg c55f6b42)
+2026-10-22 06:26:24.529 I/Tunel: Estado: Conectando (cfg c55f6b42)
+2026-10-22 06:26:24.547 D/Tunel: Subiendo túnel uspc55f6b4286
+2026-10-22 06:26:24.585 D/Tunel: Túnel uspc55f6b4286 arriba; esperando handshake
+2026-10-22 06:26:24.586 D/Tunel: Sondeo de handshake: pendiente (t=1 ms)
+2026-10-22 06:26:25.089 D/Tunel: Sondeo de handshake: recibido (t=502 ms)
+2026-10-22 06:26:25.089 I/Tunel: Handshake recibido a los 502 ms
+2026-10-22 06:26:25.090 I/Tunel: Estado: Conectado (cfg c55f6b42)
+2026-10-22 06:26:26.088 E/Geo: Fallo de geolocalización para IP 165.140.x.x (IOException: ipapi.co respondió HTTP 404 para 165.140)
+2026-10-22 06:26:46.572 I/Tunel: Desconectar solicitado
+2026-10-22 06:26:46.623 I/Tunel: Estado: Desconectado
+2026-10-22 06:26:52.074 I/Inicio: Configuración eliminada (cfg c55f6b42)
+2026-10-22 06:27:42.691 I/Importar: Archivo leído (314 caracteres)
+2026-10-22 06:27:42.698 I/Importar: Configuración válida
+2026-10-22 06:27:44.424 I/Importar: Configuración guardada
+2026-10-22 20:18:53.424 I/App: Inicio · app 0.4.0 (4000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-22 20:18:53.440 I/Actualizar: Comprobación automática al arrancar (versión 0.4.0)
+2026-10-22 20:18:53.450 D/Actualizar: Comprobación automática frenada por el throttle de 24 h
+2026-10-22 20:19:02.083 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-22 20:19:02.083 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-22 20:19:02.099 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-22 20:19:02.149 D/Tunel: Túnel uspd9f430a0bb arriba; esperando handshake
+2026-10-22 20:19:02.152 D/Tunel: Sondeo de handshake: pendiente (t=2 ms)
+2026-10-22 20:19:02.654 D/Tunel: Sondeo de handshake: recibido (t=503 ms)
+2026-10-22 20:19:02.654 I/Tunel: Handshake recibido a los 503 ms
+2026-10-22 20:19:02.654 I/Tunel: Estado: Conectado (cfg d9f430a0)
+2026-10-22 20:19:04.585 E/Geo: Fallo de geolocalización para IP 165.140.x.x (IOException: ipapi.co respondió HTTP 404 para 165.140)
+2026-10-22 20:47:11.981 I/App: Inicio · app 0.4.0 (4000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-22 20:47:11.983 I/Actualizar: Comprobación automática al arrancar (versión 0.4.0)
+2026-10-22 20:47:11.990 D/Actualizar: Comprobación automática frenada por el throttle de 24 h
+2026-10-24 15:00:20.378 I/App: Inicio · app 0.4.0 (4000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-24 15:00:20.379 I/Actualizar: Comprobación automática al arrancar (versión 0.4.0)
+2026-10-24 15:00:21.879 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-24 15:00:21.882 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-24 15:00:21.892 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-24 15:00:22.012 D/Tunel: Túnel uspd9f430a0bb arriba; esperando handshake
+2026-10-24 15:00:22.014 D/Tunel: Sondeo de handshake: pendiente (t=1 ms)
+2026-10-24 15:00:22.514 D/Tunel: Sondeo de handshake: recibido (t=502 ms)
+2026-10-24 15:00:22.514 I/Tunel: Handshake recibido a los 502 ms
+2026-10-24 15:00:22.514 I/Tunel: Estado: Conectado (cfg d9f430a0)
+2026-10-24 15:00:24.435 E/Geo: Fallo de geolocalización para IP 165.140.x.x (IOException: ipapi.co respondió HTTP 404 para 165.140)
+2026-10-24 20:31:47.402 W/Tunel: El sistema cerró el túnel
+2026-10-24 20:31:47.424 I/Tunel: Estado: Desconectado
+2026-10-24 22:13:27.586 I/App: Inicio · app 0.4.0 (4000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-24 22:13:27.589 I/Actualizar: Comprobación automática al arrancar (versión 0.4.0)
+2026-10-24 22:13:27.597 D/Actualizar: Comprobación automática frenada por el throttle de 24 h
+2026-10-24 22:14:42.416 I/Diagnostico: Informe preparado (67590 bytes)
+2026-10-25 09:41:24.741 I/App: Inicio · app 0.4.0 (4000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-25 09:41:24.743 I/Actualizar: Comprobación automática al arrancar (versión 0.4.0)
+2026-10-25 09:41:24.750 D/Actualizar: Comprobación automática frenada por el throttle de 24 h
+2026-10-25 09:41:27.016 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-25 09:41:27.016 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-25 09:41:27.025 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-25 09:41:27.098 D/Tunel: Túnel uspd9f430a0bb arriba; esperando handshake
+2026-10-25 09:41:27.100 D/Tunel: Sondeo de handshake: pendiente (t=1 ms)
+2026-10-25 09:41:27.603 D/Tunel: Sondeo de handshake: pendiente (t=505 ms)
+2026-10-25 09:41:28.108 D/Tunel: Sondeo de handshake: pendiente (t=1010 ms)
+2026-10-25 09:41:28.614 D/Tunel: Sondeo de handshake: pendiente (t=1516 ms)
+2026-10-25 09:41:29.115 D/Tunel: Sondeo de handshake: recibido (t=2017 ms)
+2026-10-25 09:41:29.115 I/Tunel: Handshake recibido a los 2017 ms
+2026-10-25 09:41:29.116 I/Tunel: Estado: Conectado (cfg d9f430a0)
+2026-10-25 09:41:39.572 E/Geo: Fallo de geolocalización para IP 165.140.x.x (SocketTimeoutException: timeout)
+2026-10-25 09:42:31.682 W/Tunel: El sistema cerró el túnel
+2026-10-25 09:42:31.682 I/Tunel: Estado: Desconectado
+2026-10-25 09:48:10.779 I/App: Inicio · app 0.4.0 (4000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-25 09:48:10.780 I/Actualizar: Comprobación automática al arrancar (versión 0.4.0)
+2026-10-25 09:48:10.797 D/Actualizar: Comprobación automática frenada por el throttle de 24 h
+2026-10-25 09:48:12.337 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-25 09:48:12.337 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-25 09:48:12.346 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-25 09:48:12.412 D/Tunel: Túnel uspd9f430a0bb arriba; esperando handshake
+2026-10-25 09:48:12.413 D/Tunel: Sondeo de handshake: pendiente (t=0 ms)
+2026-10-25 09:48:12.913 D/Tunel: Sondeo de handshake: pendiente (t=501 ms)
+2026-10-25 09:48:13.416 D/Tunel: Sondeo de handshake: pendiente (t=1004 ms)
+2026-10-25 09:48:13.917 D/Tunel: Sondeo de handshake: recibido (t=1505 ms)
+2026-10-25 09:48:13.917 I/Tunel: Handshake recibido a los 1505 ms
+2026-10-25 09:48:13.917 I/Tunel: Estado: Conectado (cfg d9f430a0)
+2026-10-25 09:48:20.891 E/Geo: Fallo de geolocalización para IP 165.140.x.x (SocketTimeoutException: timeout)
+2026-10-25 10:11:23.579 I/Tunel: Desconectar solicitado
+2026-10-25 10:11:23.642 I/Tunel: Estado: Desconectado
+2026-10-25 10:36:51.834 I/App: Inicio · app 0.4.0 (4000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-25 10:36:51.835 I/Actualizar: Comprobación automática al arrancar (versión 0.4.0)
+2026-10-25 10:36:51.850 D/Actualizar: Comprobación automática frenada por el throttle de 24 h
+2026-10-25 10:51:40.304 I/App: Inicio · app 0.4.0 (4000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-25 10:51:40.305 I/Actualizar: Comprobación automática al arrancar (versión 0.4.0)
+2026-10-25 10:51:40.317 D/Actualizar: Comprobación automática frenada por el throttle de 24 h
+2026-10-25 10:51:41.982 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-25 10:51:41.983 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-25 10:51:41.994 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-25 10:51:42.049 D/Tunel: Túnel uspd9f430a0bb arriba; esperando handshake
+2026-10-25 10:51:42.051 D/Tunel: Sondeo de handshake: pendiente (t=1 ms)
+2026-10-25 10:51:42.554 D/Tunel: Sondeo de handshake: pendiente (t=504 ms)
+2026-10-25 10:51:43.055 D/Tunel: Sondeo de handshake: recibido (t=1005 ms)
+2026-10-25 10:51:43.055 I/Tunel: Handshake recibido a los 1005 ms
+2026-10-25 10:51:43.055 I/Tunel: Estado: Conectado (cfg d9f430a0)
+2026-10-25 10:51:47.590 E/Geo: Fallo de geolocalización para IP 165.140.x.x (IOException: ipapi.co respondió HTTP 404 para 165.140)
+2026-10-25 11:21:49.116 I/Tunel: Desconectar solicitado
+2026-10-25 11:21:49.172 I/Tunel: Estado: Desconectado
+2026-10-25 14:42:15.142 I/App: Inicio · app 0.4.0 (4000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-25 14:42:15.145 I/Actualizar: Comprobación automática al arrancar (versión 0.4.0)
+2026-10-25 14:42:15.158 D/Actualizar: Comprobación automática frenada por el throttle de 24 h
+2026-10-25 14:43:29.203 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-25 14:43:29.203 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-25 14:43:29.214 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-25 14:43:29.285 D/Tunel: Túnel uspd9f430a0bb arriba; esperando handshake
+2026-10-25 14:43:29.286 D/Tunel: Sondeo de handshake: pendiente (t=1 ms)
+2026-10-25 14:43:29.787 D/Tunel: Sondeo de handshake: pendiente (t=502 ms)
+2026-10-25 14:43:30.288 D/Tunel: Sondeo de handshake: pendiente (t=1002 ms)
+2026-10-25 14:43:30.790 D/Tunel: Sondeo de handshake: pendiente (t=1505 ms)
+2026-10-25 14:43:31.292 D/Tunel: Sondeo de handshake: pendiente (t=2007 ms)
+2026-10-25 14:43:31.794 D/Tunel: Sondeo de handshake: pendiente (t=2509 ms)
+2026-10-25 14:43:32.298 D/Tunel: Sondeo de handshake: pendiente (t=3013 ms)
+2026-10-25 14:43:32.801 D/Tunel: Sondeo de handshake: pendiente (t=3516 ms)
+2026-10-25 14:43:33.303 D/Tunel: Sondeo de handshake: pendiente (t=4018 ms)
+2026-10-25 14:43:33.806 D/Tunel: Sondeo de handshake: pendiente (t=4521 ms)
+2026-10-25 14:43:34.310 D/Tunel: Sondeo de handshake: pendiente (t=5024 ms)
+2026-10-25 14:43:34.812 D/Tunel: Sondeo de handshake: pendiente (t=5527 ms)
+2026-10-25 14:43:35.315 D/Tunel: Sondeo de handshake: recibido (t=6029 ms)
+2026-10-25 14:43:35.315 I/Tunel: Handshake recibido a los 6029 ms
+2026-10-25 14:43:35.315 I/Tunel: Estado: Conectado (cfg d9f430a0)
+2026-10-25 14:43:37.461 E/Geo: Fallo de geolocalización para IP 165.140.x.x (IOException: ipapi.co respondió HTTP 404 para 165.140)
+2026-10-25 14:51:26.351 I/Diagnostico: Informe preparado (343535 bytes)
+2026-10-26 04:06:08.176 I/App: Inicio · app 0.4.0 (4000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-26 04:06:08.179 I/Actualizar: Comprobación automática al arrancar (versión 0.4.0)
+2026-10-26 04:06:09.614 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-26 04:06:09.615 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-26 04:06:09.622 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-26 04:06:09.666 D/Tunel: Túnel uspd9f430a0bb arriba; esperando handshake
+2026-10-26 04:06:09.667 D/Tunel: Sondeo de handshake: pendiente (t=1 ms)
+2026-10-26 04:06:10.168 D/Tunel: Sondeo de handshake: recibido (t=502 ms)
+2026-10-26 04:06:10.168 I/Tunel: Handshake recibido a los 502 ms
+2026-10-26 04:06:10.168 I/Tunel: Estado: Conectado (cfg d9f430a0)
+2026-10-26 04:06:11.152 E/Geo: Fallo de geolocalización para IP 165.140.x.x (IOException: ipapi.co respondió HTTP 404 para 165.140)
+2026-10-26 04:06:14.873 W/Actualizar: Fallo de red al consultar la última release
+java.io.IOException: unexpected end of stream on com.android.okhttp.Address@5605a1c7
+	at com.android.okhttp.internal.http.Http1xStream.readResponse(Http1xStream.java:203)
+	at com.android.okhttp.internal.http.Http1xStream.readResponseHeaders(Http1xStream.java:129)
+	at com.android.okhttp.internal.http.HttpEngine.readNetworkResponse(HttpEngine.java:750)
+	at com.android.okhttp.internal.http.HttpEngine.readResponse(HttpEngine.java:622)
+	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.execute(HttpURLConnectionImpl.java:475)
+	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.getResponse(HttpURLConnectionImpl.java:411)
+	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.getResponseCode(HttpURLConnectionImpl.java:542)
+	at com.android.okhttp.internal.huc.DelegatingHttpsURLConnection.getResponseCode(DelegatingHttpsURLConnection.java:106)
+	at com.android.okhttp.internal.huc.HttpsURLConnectionImpl.getResponseCode(HttpsURLConnectionImpl.java:30)
+	at jo.q(r8-map-id-41c39b9d72bbe65c027b4f71978d3182ade892f2883371e641bbe05781743071:105)
+	at bf.h(r8-map-id-41c39b9d72bbe65c027b4f71978d3182ade892f2883371e641bbe05781743071:8)
+	at vy.run(r8-map-id-41c39b9d72bbe65c027b4f71978d3182ade892f2883371e641bbe05781743071:114)
+	at cj.run(r8-map-id-41c39b9d72bbe65c027b4f71978d3182ade892f2883371e641bbe05781743071:21)
+	at wp1.run(r8-map-id-41c39b9d72bbe65c027b4f71978d3182ade892f2883371e641bbe05781743071:3)
+	at ft.run(r8-map-id-41c39b9d72bbe65c027b4f71978d3182ade892f2883371e641bbe05781743071:88)
+Caused by: java.io.EOFException: \n not found: size=0 content=...
+	at com.android.okhttp.okio.RealBufferedSource.readUtf8LineStrict(RealBufferedSource.java:202)
+	at com.android.okhttp.internal.http.Http1xStream.readResponse(Http1xStream.java:188)
+	... 14 more
+2026-10-26 04:06:14.874 W/Actualizar: No hay release que comparar con la versión instalada
+2026-10-26 05:26:15.850 W/Tunel: El sistema cerró el túnel
+2026-10-26 05:26:15.865 I/Tunel: Estado: Desconectado
+2026-10-27 18:43:00.492 I/App: Inicio · app 0.4.0 (4000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-27 18:43:00.493 I/Actualizar: Comprobación automática al arrancar (versión 0.4.0)
+2026-10-27 18:43:03.199 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-27 18:43:03.200 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-27 18:43:03.203 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-27 18:43:03.341 D/Tunel: Túnel uspd9f430a0bb arriba; esperando handshake
+2026-10-27 18:43:03.346 D/Tunel: Sondeo de handshake: pendiente (t=5 ms)
+2026-10-27 18:43:03.847 D/Tunel: Sondeo de handshake: pendiente (t=506 ms)
+2026-10-27 18:43:04.348 D/Tunel: Sondeo de handshake: pendiente (t=1007 ms)
+2026-10-27 18:43:04.849 D/Tunel: Sondeo de handshake: recibido (t=1508 ms)
+2026-10-27 18:43:04.849 I/Tunel: Handshake recibido a los 1508 ms
+2026-10-27 18:43:04.849 I/Tunel: Estado: Conectado (cfg d9f430a0)
+2026-10-27 18:43:09.121 E/Geo: Fallo de geolocalización para IP 165.140.x.x (IOException: ipapi.co respondió HTTP 404 para 165.140)
+2026-10-27 18:43:12.276 W/Actualizar: Fallo de red al consultar la última release
+java.io.IOException: unexpected end of stream on com.android.okhttp.Address@af07effa
+	at com.android.okhttp.internal.http.Http1xStream.readResponse(Http1xStream.java:203)
+	at com.android.okhttp.internal.http.Http1xStream.readResponseHeaders(Http1xStream.java:129)
+	at com.android.okhttp.internal.http.HttpEngine.readNetworkResponse(HttpEngine.java:750)
+	at com.android.okhttp.internal.http.HttpEngine.readResponse(HttpEngine.java:622)
+	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.execute(HttpURLConnectionImpl.java:475)
+	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.getResponse(HttpURLConnectionImpl.java:411)
+	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.getResponseCode(HttpURLConnectionImpl.java:542)
+	at com.android.okhttp.internal.huc.DelegatingHttpsURLConnection.getResponseCode(DelegatingHttpsURLConnection.java:106)
+	at com.android.okhttp.internal.huc.HttpsURLConnectionImpl.getResponseCode(HttpsURLConnectionImpl.java:30)
+	at jo.q(r8-map-id-41c39b9d72bbe65c027b4f71978d3182ade892f2883371e641bbe05781743071:105)
+	at bf.h(r8-map-id-41c39b9d72bbe65c027b4f71978d3182ade892f2883371e641bbe05781743071:8)
+	at vy.run(r8-map-id-41c39b9d72bbe65c027b4f71978d3182ade892f2883371e641bbe05781743071:114)
+	at cj.run(r8-map-id-41c39b9d72bbe65c027b4f71978d3182ade892f2883371e641bbe05781743071:21)
+	at wp1.run(r8-map-id-41c39b9d72bbe65c027b4f71978d3182ade892f2883371e641bbe05781743071:3)
+	at ft.run(r8-map-id-41c39b9d72bbe65c027b4f71978d3182ade892f2883371e641bbe05781743071:88)
+Caused by: java.io.EOFException: \n not found: size=0 content=...
+	at com.android.okhttp.okio.RealBufferedSource.readUtf8LineStrict(RealBufferedSource.java:202)
+	at com.android.okhttp.internal.http.Http1xStream.readResponse(Http1xStream.java:188)
+	... 14 more
+2026-10-27 18:43:12.277 W/Actualizar: No hay release que comparar con la versión instalada
+2026-10-27 18:43:21.596 I/Tunel: Desconectar solicitado
+2026-10-27 18:43:21.642 I/Tunel: Estado: Desconectado
+2026-10-27 20:02:05.726 I/App: Inicio · app 0.4.0 (4000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-27 20:02:05.727 I/Actualizar: Comprobación automática al arrancar (versión 0.4.0)
+2026-10-27 20:07:54.249 I/App: Inicio · app 0.5.0 (5000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-27 20:07:54.256 I/Actualizar: Comprobación automática al arrancar (versión 0.5.0)
+2026-10-27 20:07:54.281 D/Actualizar: Comprobación automática frenada por el throttle de 24 h
+2026-10-27 20:11:28.285 I/AccesoRapido: Conexión rápida (cfg d9f430a0)
+2026-10-27 20:11:28.285 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-27 20:11:28.286 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-27 20:11:28.327 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-27 20:11:28.340 E/Tunel: Fallo al subir el túnel
+android.app.BackgroundServiceStartNotAllowedException: Not allowed to start service Intent { xflg=0x4 cmp=com.usipipo.vpn/com.wireguard.android.backend.GoBackend$VpnService }: app is in background uid UidRecord{2c6f71d u0a70 LAST bg:+3m3s240ms idle change:cached|procstate|procadj procs:0 seq(4556411,4556411)} caps=--------
+	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:2059)
+	at android.app.ContextImpl.startService(ContextImpl.java:2014)
+	at android.content.ContextWrapper.startService(ContextWrapper.java:871)
+	at com.wireguard.android.backend.GoBackend.setStateInternal(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:73)
+	at com.wireguard.android.backend.GoBackend.setState(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:42)
+	at n32.q(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:20)
+	at cf.h(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:8)
+	at vy.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:114)
+	at gj.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:21)
+	at kq1.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:3)
+	at ft.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:88)
+2026-10-27 20:11:28.342 I/Tunel: Estado: Fallo (cfg d9f430a0)
+2026-10-27 20:11:33.306 I/AccesoRapido: Conexión rápida (cfg d9f430a0)
+2026-10-27 20:11:33.306 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-27 20:11:33.307 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-27 20:11:33.319 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-27 20:11:33.323 E/Tunel: Fallo al subir el túnel
+android.app.BackgroundServiceStartNotAllowedException: Not allowed to start service Intent { xflg=0x4 cmp=com.usipipo.vpn/com.wireguard.android.backend.GoBackend$VpnService }: app is in background uid UidRecord{2c6f71d u0a70 LAST bg:+3m8s223ms idle change:cached|procstate|procadj procs:0 seq(4556425,4556425)} caps=--------
+	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:2059)
+	at android.app.ContextImpl.startService(ContextImpl.java:2014)
+	at android.content.ContextWrapper.startService(ContextWrapper.java:871)
+	at com.wireguard.android.backend.GoBackend.setStateInternal(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:73)
+	at com.wireguard.android.backend.GoBackend.setState(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:42)
+	at n32.q(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:20)
+	at cf.h(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:8)
+	at vy.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:114)
+	at gj.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:21)
+	at kq1.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:3)
+	at ft.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:88)
+2026-10-27 20:11:33.324 I/Tunel: Estado: Fallo (cfg d9f430a0)
+2026-10-27 20:11:34.266 I/AccesoRapido: Conexión rápida (cfg d9f430a0)
+2026-10-27 20:11:34.266 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-27 20:11:34.267 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-27 20:11:34.273 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-27 20:11:34.276 E/Tunel: Fallo al subir el túnel
+android.app.BackgroundServiceStartNotAllowedException: Not allowed to start service Intent { xflg=0x4 cmp=com.usipipo.vpn/com.wireguard.android.backend.GoBackend$VpnService }: app is in background uid UidRecord{2c6f71d u0a70 LAST bg:+3m9s176ms idle change:cached|procstate|procadj procs:0 seq(4556428,4556428)} caps=--------
+	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:2059)
+	at android.app.ContextImpl.startService(ContextImpl.java:2014)
+	at android.content.ContextWrapper.startService(ContextWrapper.java:871)
+	at com.wireguard.android.backend.GoBackend.setStateInternal(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:73)
+	at com.wireguard.android.backend.GoBackend.setState(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:42)
+	at n32.q(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:20)
+	at cf.h(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:8)
+	at vy.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:114)
+	at gj.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:21)
+	at kq1.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:3)
+	at ft.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:88)
+2026-10-27 20:11:34.278 I/Tunel: Estado: Fallo (cfg d9f430a0)
+2026-10-27 20:11:35.053 I/AccesoRapido: Conexión rápida (cfg d9f430a0)
+2026-10-27 20:11:35.053 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-27 20:11:35.053 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-27 20:11:35.062 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-27 20:11:35.066 E/Tunel: Fallo al subir el túnel
+android.app.BackgroundServiceStartNotAllowedException: Not allowed to start service Intent { xflg=0x4 cmp=com.usipipo.vpn/com.wireguard.android.backend.GoBackend$VpnService }: app is in background uid UidRecord{2c6f71d u0a70 LAST bg:+3m9s966ms idle change:cached|procstate|procadj procs:0 seq(4556430,4556430)} caps=--------
+	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:2059)
+	at android.app.ContextImpl.startService(ContextImpl.java:2014)
+	at android.content.ContextWrapper.startService(ContextWrapper.java:871)
+	at com.wireguard.android.backend.GoBackend.setStateInternal(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:73)
+	at com.wireguard.android.backend.GoBackend.setState(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:42)
+	at n32.q(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:20)
+	at cf.h(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:8)
+	at vy.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:114)
+	at gj.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:21)
+	at kq1.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:3)
+	at ft.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:88)
+2026-10-27 20:11:35.068 I/Tunel: Estado: Fallo (cfg d9f430a0)
+2026-10-27 20:11:36.107 I/AccesoRapido: Conexión rápida (cfg d9f430a0)
+2026-10-27 20:11:36.107 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-27 20:11:36.107 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-27 20:11:36.115 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-27 20:11:36.119 E/Tunel: Fallo al subir el túnel
+android.app.BackgroundServiceStartNotAllowedException: Not allowed to start service Intent { xflg=0x4 cmp=com.usipipo.vpn/com.wireguard.android.backend.GoBackend$VpnService }: app is in background uid UidRecord{2c6f71d u0a70 LAST bg:+3m11s19ms idle change:cached|procstate|procadj procs:0 seq(4556438,4556438)} caps=--------
+	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:2059)
+	at android.app.ContextImpl.startService(ContextImpl.java:2014)
+	at android.content.ContextWrapper.startService(ContextWrapper.java:871)
+	at com.wireguard.android.backend.GoBackend.setStateInternal(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:73)
+	at com.wireguard.android.backend.GoBackend.setState(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:42)
+	at n32.q(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:20)
+	at cf.h(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:8)
+	at vy.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:114)
+	at gj.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:21)
+	at kq1.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:3)
+	at ft.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:88)
+2026-10-27 20:11:36.120 I/Tunel: Estado: Fallo (cfg d9f430a0)
+2026-10-27 20:11:58.806 I/AccesoRapido: Conexión rápida (cfg d9f430a0)
+2026-10-27 20:11:58.806 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-27 20:11:58.807 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-27 20:11:58.814 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-27 20:11:58.818 E/Tunel: Fallo al subir el túnel
+android.app.BackgroundServiceStartNotAllowedException: Not allowed to start service Intent { xflg=0x4 cmp=com.usipipo.vpn/com.wireguard.android.backend.GoBackend$VpnService }: app is in background uid UidRecord{2c6f71d u0a70 LAST bg:+3m33s718ms idle change:cached|procstate|procadj procs:0 seq(4556506,4556506)} caps=--------
+	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:2059)
+	at android.app.ContextImpl.startService(ContextImpl.java:2014)
+	at android.content.ContextWrapper.startService(ContextWrapper.java:871)
+	at com.wireguard.android.backend.GoBackend.setStateInternal(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:73)
+	at com.wireguard.android.backend.GoBackend.setState(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:42)
+	at n32.q(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:20)
+	at cf.h(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:8)
+	at vy.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:114)
+	at gj.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:21)
+	at kq1.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:3)
+	at ft.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:88)
+2026-10-27 20:11:58.819 I/Tunel: Estado: Fallo (cfg d9f430a0)
+2026-10-27 20:12:01.738 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-27 20:12:01.739 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-27 20:12:01.742 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-27 20:12:01.787 D/Tunel: Túnel uspd9f430a0bb arriba; esperando handshake
+2026-10-27 20:12:01.789 D/Tunel: Sondeo de handshake: pendiente (t=2 ms)
+2026-10-27 20:12:02.297 D/Tunel: Sondeo de handshake: pendiente (t=510 ms)
+2026-10-27 20:12:02.800 D/Tunel: Sondeo de handshake: pendiente (t=1013 ms)
+2026-10-27 20:12:03.304 D/Tunel: Sondeo de handshake: pendiente (t=1516 ms)
+2026-10-27 20:12:03.808 D/Tunel: Sondeo de handshake: recibido (t=2021 ms)
+2026-10-27 20:12:03.809 I/Tunel: Handshake recibido a los 2021 ms
+2026-10-27 20:12:03.810 I/Tunel: Estado: Conectado (cfg d9f430a0)
+2026-10-27 20:12:05.873 E/Geo: Fallo de geolocalización para IP 165.140.x.x (IOException: ipapi.co respondió HTTP 404 para 165.140)
+2026-10-27 20:12:07.370 I/Tunel: Desconectar solicitado
+2026-10-27 20:12:07.467 I/Tunel: Estado: Desconectado
+2026-10-27 20:12:07.469 I/Widget: El estado vivo desconectado invalida el estado activo persistido
+2026-10-27 20:12:09.243 I/AccesoRapido: Conexión rápida (cfg d9f430a0)
+2026-10-27 20:12:09.243 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-27 20:12:09.244 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-27 20:12:09.250 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-27 20:12:09.292 D/Tunel: Túnel uspd9f430a0bb arriba; esperando handshake
+2026-10-27 20:12:09.293 D/Tunel: Sondeo de handshake: pendiente (t=1 ms)
+2026-10-27 20:12:09.796 D/Tunel: Sondeo de handshake: recibido (t=503 ms)
+2026-10-27 20:12:09.796 I/Tunel: Handshake recibido a los 503 ms
+2026-10-27 20:12:09.797 I/Tunel: Estado: Conectado (cfg d9f430a0)
+2026-10-27 20:12:16.180 I/Tunel: Desconectar solicitado
+2026-10-27 20:12:16.193 E/Geo: Fallo de geolocalización para IP 165.140.x.x (SocketException: Software caused connection abort)
+2026-10-27 20:12:16.233 I/Tunel: Estado: Desconectado
+2026-10-27 20:12:16.236 I/Widget: El estado vivo desconectado invalida el estado activo persistido
+2026-10-27 20:12:18.322 I/AccesoRapido: Conexión rápida (cfg d9f430a0)
+2026-10-27 20:12:18.322 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-27 20:12:18.323 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-27 20:12:18.329 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-27 20:12:18.359 D/Tunel: Túnel uspd9f430a0bb arriba; esperando handshake
+2026-10-27 20:12:18.363 D/Tunel: Sondeo de handshake: pendiente (t=2 ms)
+2026-10-27 20:12:18.866 D/Tunel: Sondeo de handshake: pendiente (t=505 ms)
+2026-10-27 20:12:19.369 D/Tunel: Sondeo de handshake: recibido (t=1008 ms)
+2026-10-27 20:12:19.370 I/Tunel: Handshake recibido a los 1008 ms
+2026-10-27 20:12:19.371 I/Tunel: Estado: Conectado (cfg d9f430a0)
+2026-10-27 20:12:23.690 I/Tunel: Desconectar solicitado
+2026-10-27 20:12:23.710 E/Geo: Fallo de geolocalización para IP 165.140.x.x (SocketException: Software caused connection abort)
+2026-10-27 20:12:23.759 I/Tunel: Estado: Desconectado
+2026-10-27 20:12:23.761 I/Widget: El estado vivo desconectado invalida el estado activo persistido
+2026-10-27 20:12:44.174 I/App: Inicio · app 0.5.0 (5000) · Android 16 (API 36) · Xiaomi 24117RN76L · arm64-v8a
+2026-10-27 20:12:44.185 I/Actualizar: Comprobación automática al arrancar (versión 0.5.0)
+2026-10-27 20:12:44.200 D/Actualizar: Comprobación automática frenada por el throttle de 24 h
+2026-10-27 20:12:46.371 I/AccesoRapido: Conexión rápida (cfg d9f430a0)
+2026-10-27 20:12:46.372 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-27 20:12:46.372 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-27 20:12:46.405 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-27 20:12:46.459 D/Tunel: Túnel uspd9f430a0bb arriba; esperando handshake
+2026-10-27 20:12:46.460 D/Tunel: Sondeo de handshake: pendiente (t=1 ms)
+2026-10-27 20:12:46.962 D/Tunel: Sondeo de handshake: pendiente (t=503 ms)
+2026-10-27 20:12:47.465 D/Tunel: Sondeo de handshake: pendiente (t=1005 ms)
+2026-10-27 20:12:47.968 D/Tunel: Sondeo de handshake: pendiente (t=1509 ms)
+2026-10-27 20:12:48.471 D/Tunel: Sondeo de handshake: pendiente (t=2012 ms)
+2026-10-27 20:12:48.975 D/Tunel: Sondeo de handshake: pendiente (t=2515 ms)
+2026-10-27 20:12:49.479 D/Tunel: Sondeo de handshake: pendiente (t=3020 ms)
+2026-10-27 20:12:49.982 D/Tunel: Sondeo de handshake: pendiente (t=3523 ms)
+2026-10-27 20:12:50.484 D/Tunel: Sondeo de handshake: pendiente (t=4025 ms)
+2026-10-27 20:12:50.988 D/Tunel: Sondeo de handshake: pendiente (t=4528 ms)
+2026-10-27 20:12:51.492 D/Tunel: Sondeo de handshake: pendiente (t=5033 ms)
+2026-10-27 20:12:51.995 D/Tunel: Sondeo de handshake: pendiente (t=5536 ms)
+2026-10-27 20:12:52.502 D/Tunel: Sondeo de handshake: recibido (t=6043 ms)
+2026-10-27 20:12:52.503 I/Tunel: Handshake recibido a los 6043 ms
+2026-10-27 20:12:52.503 I/Tunel: Estado: Conectado (cfg d9f430a0)
+2026-10-27 20:12:59.646 I/Tunel: Desconectar solicitado
+2026-10-27 20:12:59.666 E/Geo: Fallo de geolocalización para IP 165.140.x.x (SocketException: Software caused connection abort)
+2026-10-27 20:12:59.712 I/Tunel: Estado: Desconectado
+2026-10-27 20:12:59.715 I/Widget: El estado vivo desconectado invalida el estado activo persistido
+2026-10-27 20:14:32.617 I/AccesoRapido: Conexión rápida (cfg d9f430a0)
+2026-10-27 20:14:32.618 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-27 20:14:32.620 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-27 20:14:32.634 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-27 20:14:32.650 E/Tunel: Fallo al subir el túnel
+android.app.BackgroundServiceStartNotAllowedException: Not allowed to start service Intent { xflg=0x4 cmp=com.usipipo.vpn/com.wireguard.android.backend.GoBackend$VpnService }: app is in background uid UidRecord{8bc5e65 u0a70 LAST bg:+1m32s986ms idle change:cached|procstate|procadj procs:0 seq(4558006,4558006)} caps=--------
+	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:2059)
+	at android.app.ContextImpl.startService(ContextImpl.java:2014)
+	at android.content.ContextWrapper.startService(ContextWrapper.java:871)
+	at com.wireguard.android.backend.GoBackend.setStateInternal(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:73)
+	at com.wireguard.android.backend.GoBackend.setState(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:42)
+	at n32.q(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:20)
+	at cf.h(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:8)
+	at vy.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:114)
+	at gj.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:21)
+	at kq1.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:3)
+	at ft.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:88)
+2026-10-27 20:14:32.652 I/Tunel: Estado: Fallo (cfg d9f430a0)
+2026-10-27 20:14:35.022 I/AccesoRapido: Conexión rápida (cfg d9f430a0)
+2026-10-27 20:14:35.024 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-27 20:14:35.025 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-27 20:14:35.029 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-27 20:14:35.034 E/Tunel: Fallo al subir el túnel
+android.app.BackgroundServiceStartNotAllowedException: Not allowed to start service Intent { xflg=0x4 cmp=com.usipipo.vpn/com.wireguard.android.backend.GoBackend$VpnService }: app is in background uid UidRecord{8bc5e65 u0a70 LAST bg:+1m35s370ms idle change:cached|procstate|procadj procs:0 seq(4558016,4558016)} caps=--------
+	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:2059)
+	at android.app.ContextImpl.startService(ContextImpl.java:2014)
+	at android.content.ContextWrapper.startService(ContextWrapper.java:871)
+	at com.wireguard.android.backend.GoBackend.setStateInternal(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:73)
+	at com.wireguard.android.backend.GoBackend.setState(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:42)
+	at n32.q(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:20)
+	at cf.h(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:8)
+	at vy.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:114)
+	at gj.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:21)
+	at kq1.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:3)
+	at ft.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:88)
+2026-10-27 20:14:35.035 I/Tunel: Estado: Fallo (cfg d9f430a0)
+2026-10-27 20:14:35.793 I/AccesoRapido: Conexión rápida (cfg d9f430a0)
+2026-10-27 20:14:35.793 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-27 20:14:35.793 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-27 20:14:35.803 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-27 20:14:35.807 E/Tunel: Fallo al subir el túnel
+android.app.BackgroundServiceStartNotAllowedException: Not allowed to start service Intent { xflg=0x4 cmp=com.usipipo.vpn/com.wireguard.android.backend.GoBackend$VpnService }: app is in background uid UidRecord{8bc5e65 u0a70 LAST bg:+1m36s144ms idle change:cached|procstate|procadj procs:0 seq(4558018,4558018)} caps=--------
+	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:2059)
+	at android.app.ContextImpl.startService(ContextImpl.java:2014)
+	at android.content.ContextWrapper.startService(ContextWrapper.java:871)
+	at com.wireguard.android.backend.GoBackend.setStateInternal(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:73)
+	at com.wireguard.android.backend.GoBackend.setState(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:42)
+	at n32.q(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:20)
+	at cf.h(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:8)
+	at vy.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:114)
+	at gj.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:21)
+	at kq1.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:3)
+	at ft.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:88)
+2026-10-27 20:14:35.809 I/Tunel: Estado: Fallo (cfg d9f430a0)
+2026-10-27 20:14:36.503 I/AccesoRapido: Conexión rápida (cfg d9f430a0)
+2026-10-27 20:14:36.503 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-27 20:14:36.503 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-27 20:14:36.516 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-27 20:14:36.520 E/Tunel: Fallo al subir el túnel
+android.app.BackgroundServiceStartNotAllowedException: Not allowed to start service Intent { xflg=0x4 cmp=com.usipipo.vpn/com.wireguard.android.backend.GoBackend$VpnService }: app is in background uid UidRecord{8bc5e65 u0a70 LAST bg:+1m36s857ms idle change:cached|procstate|procadj procs:0 seq(4558020,4558020)} caps=--------
+	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:2059)
+	at android.app.ContextImpl.startService(ContextImpl.java:2014)
+	at android.content.ContextWrapper.startService(ContextWrapper.java:871)
+	at com.wireguard.android.backend.GoBackend.setStateInternal(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:73)
+	at com.wireguard.android.backend.GoBackend.setState(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:42)
+	at n32.q(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:20)
+	at cf.h(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:8)
+	at vy.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:114)
+	at gj.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:21)
+	at kq1.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:3)
+	at ft.run(r8-map-id-630b0189874aeae514c154cc0d5e75f53048edf632bca50c3a5b40bdd3596cb7:88)
+2026-10-27 20:14:36.521 I/Tunel: Estado: Fallo (cfg d9f430a0)
+2026-10-27 20:14:42.651 I/AccesoRapido: Conexión rápida (cfg d9f430a0)
+2026-10-27 20:14:42.652 I/Tunel: Conectar solicitado (cfg d9f430a0)
+2026-10-27 20:14:42.653 I/Tunel: Estado: Conectando (cfg d9f430a0)
+2026-10-27 20:14:42.661 D/Tunel: Subiendo túnel uspd9f430a0bb
+2026-10-27 20:14:42.744 D/Tunel: Túnel uspd9f430a0bb arriba; esperando handshake
+2026-10-27 20:14:42.746 D/Tunel: Sondeo de handshake: pendiente (t=1 ms)
+2026-10-27 20:14:43.247 D/Tunel: Sondeo de handshake: pendiente (t=502 ms)
+2026-10-27 20:14:43.748 D/Tunel: Sondeo de handshake: pendiente (t=1003 ms)
+2026-10-27 20:14:44.250 D/Tunel: Sondeo de handshake: pendiente (t=1505 ms)
+2026-10-27 20:14:44.752 D/Tunel: Sondeo de handshake: pendiente (t=2007 ms)
+2026-10-27 20:14:45.255 D/Tunel: Sondeo de handshake: pendiente (t=2510 ms)
+2026-10-27 20:14:45.761 D/Tunel: Sondeo de handshake: pendiente (t=3016 ms)
+2026-10-27 20:14:46.266 D/Tunel: Sondeo de handshake: pendiente (t=3520 ms)
+2026-10-27 20:14:46.769 D/Tunel: Sondeo de handshake: pendiente (t=4024 ms)
+2026-10-27 20:14:47.273 D/Tunel: Sondeo de handshake: pendiente (t=4527 ms)
+2026-10-27 20:14:47.775 D/Tunel: Sondeo de handshake: pendiente (t=5029 ms)
+2026-10-27 20:14:48.277 D/Tunel: Sondeo de handshake: pendiente (t=5532 ms)
+2026-10-27 20:14:48.782 D/Tunel: Sondeo de handshake: recibido (t=6037 ms)
+2026-10-27 20:14:48.783 I/Tunel: Handshake recibido a los 6037 ms
+2026-10-27 20:14:48.784 I/Tunel: Estado: Conectado (cfg d9f430a0)
+2026-10-27 20:14:53.994 E/Geo: Fallo de geolocalización para IP 165.140.x.x (IOException: ipapi.co respondió HTTP 404 para 165.140)
+
+
+--- logcat (proceso de la app) ---
+--------- beginning of system
+10-27 20:12:44.619   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:12:44.619   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:12:44.620   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:12:44.620   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:12:45.402   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:12:45.402   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:12:45.402   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:12:45.402   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:12:46.334   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:12:46.334   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:12:46.334   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:12:46.334   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:12:46.385   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:12:46.385   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:12:46.385   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:12:46.385   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:39.720   829   829 I ForceDarkHelperStubImpl: setViewRootImplForceDark: false for com.usipipo.vpn.MainActivity@882a3bc, reason: AppDarkModeEnable
+10-27 20:14:39.795   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:39.795   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:39.795   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:39.795   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:39.810   829   829 D Activity: Activity = ActivityInfo{4c6f424 com.usipipo.vpn.MainActivity}, Resume onConfigurationChanged = {1.0 368mcc1mnc [es_US] ldltr sw384dp w384dp h853dp 450dpi nrml long widecg port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2400) mAppBounds=Rect(0, 0 - 1080, 2400) mMaxBounds=Rect(0, 0 - 1080, 2400) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0 mInSplitScreen=false letterBoxed=false foScaled=false isSpecificEmbedded=false embeddingScale=1.0} s.2 fontWeightAdjustment=0/d/0 themeChanged=0 themeChangedFlags=0 display=0 extraData = Bundle[{}] screenType=0/0}
+10-27 20:14:39.839   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:39.839   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:39.839   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:39.839   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:39.964   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:39.964   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:39.964   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:39.964   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:41.829   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:41.829   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:41.829   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:41.829   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:42.601   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:42.601   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:42.601   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:42.601   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:42.681   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:42.681   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:42.681   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:42.681   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:50.175   829   829 I ForceDarkHelperStubImpl: setViewRootImplForceDark: false for com.usipipo.vpn.MainActivity@882a3bc, reason: AppDarkModeEnable
+10-27 20:14:50.239   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:50.239   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:50.239   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:50.239   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:50.242   829   829 D Activity: Activity = ActivityInfo{4c6f424 com.usipipo.vpn.MainActivity}, Resume onConfigurationChanged = {1.0 368mcc1mnc [es_US] ldltr sw384dp w384dp h853dp 450dpi nrml long widecg port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2400) mAppBounds=Rect(0, 0 - 1080, 2400) mMaxBounds=Rect(0, 0 - 1080, 2400) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0 mInSplitScreen=false letterBoxed=false foScaled=false isSpecificEmbedded=false embeddingScale=1.0} s.2 fontWeightAdjustment=0/d/0 themeChanged=0 themeChangedFlags=0 display=0 extraData = Bundle[{}] screenType=0/0}
+10-27 20:14:50.276   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:50.276   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:50.276   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:50.276   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:50.402   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:50.402   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:50.402   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:50.402   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:14:52.091   829   829 I MIUIInput: [MotionEvent] ViewRootImpl windowName 'com.usipipo.vpn/com.usipipo.vpn.MainActivity', { action=ACTION_DOWN, id[0]=0, pointerCount=1, eventTime=1442971521, downTime=1442971521, phoneEventTime=1793146492083 } moveCount:0
+--------- beginning of main
+10-27 20:14:52.095   829   829 W MirrorManager: this model don't Support
+10-27 20:14:52.095   829   829 D VRI[MainActivity]: getMiuiFreeformStackInfo mTmpFrames.miuiFreeFormStackInfo: null
+10-27 20:14:52.103   829  8183 I SKIA    : CreateGraphicsPipeline pipeline cache hit. elpased time: 0.27 ms.
+10-27 20:14:52.112   829   829 I MIUIInput: [MotionEvent] ViewRootImpl windowName 'com.usipipo.vpn/com.usipipo.vpn.MainActivity', { action=ACTION_UP, id[0]=0, pointerCount=1, eventTime=1442971549, downTime=1442971521, phoneEventTime=1793146492111 } moveCount:0
+10-27 20:14:52.270   829  8183 I SKIA    : CreateGraphicsPipeline pipeline cache hit. elpased time: 0.41 ms.
+10-27 20:14:53.993   829  8178 E Geo     : Fallo de geolocalización para IP 165.140.x.x (IOException: ipapi.co respondió HTTP 404 para 165.140)
+10-27 20:14:57.179   829   829 I MIUIInput: [MotionEvent] ViewRootImpl windowName 'com.usipipo.vpn/com.usipipo.vpn.MainActivity', { action=ACTION_DOWN, id[0]=0, pointerCount=1, eventTime=1442976613, downTime=1442976613, phoneEventTime=1793146497175 } moveCount:0
+10-27 20:14:57.179   829   829 D VRI[MainActivity]: getMiuiFreeformStackInfo mTmpFrames.miuiFreeFormStackInfo: null
+10-27 20:14:57.229   829  8183 I SKIA    : CreateGraphicsPipeline pipeline cache hit. elpased time: 0.17 ms.
+10-27 20:14:57.229   829  8183 I SKIA    : CreateGraphicsPipeline pipeline cache hit. elpased time: 0.16 ms.
+10-27 20:14:57.259   829   829 I MIUIInput: [MotionEvent] ViewRootImpl windowName 'com.usipipo.vpn/com.usipipo.vpn.MainActivity', { action=ACTION_UP, id[0]=0, pointerCount=1, eventTime=1442976690, downTime=1442976613, phoneEventTime=1793146497252 } moveCount:4
+10-27 20:14:57.260   829   829 I ScrollIdentify: on fling
+10-27 20:14:57.263   829  8183 I SKIA    : CreateGraphicsPipeline pipeline cache hit. elpased time: 0.17 ms.
+10-27 20:14:57.263   829  8183 I SKIA    : CreateGraphicsPipeline pipeline cache hit. elpased time: 0.17 ms.
+10-27 20:14:57.268   829  8183 E com.usipipo.vpn: legacy_receive_flag: 1
+10-27 20:14:57.268   829  8183 D com.usipipo.vpn: /proc/perfmgr_sbe/sbe_ioctl not exists: No such file or directory
+10-27 20:14:57.268   829   829 I PowerHalWrapper: PowerHalWrapper.getInstance 
+10-27 20:14:57.437   829  8183 I SKIA    : CreateGraphicsPipeline pipeline cache hit. elpased time: 0.19 ms.
+10-27 20:15:01.975   829   829 I MIUIInput: [MotionEvent] ViewRootImpl windowName 'com.usipipo.vpn/com.usipipo.vpn.MainActivity', { action=ACTION_DOWN, id[0]=0, pointerCount=1, eventTime=1442981406, downTime=1442981406, phoneEventTime=1793146501968 } moveCount:0
+10-27 20:15:01.976   829   829 D VRI[MainActivity]: getMiuiFreeformStackInfo mTmpFrames.miuiFreeFormStackInfo: null
+10-27 20:15:02.077   829   829 I MIUIInput: [MotionEvent] ViewRootImpl windowName 'com.usipipo.vpn/com.usipipo.vpn.MainActivity', { action=ACTION_UP, id[0]=0, pointerCount=1, eventTime=1442981513, downTime=1442981406, phoneEventTime=1793146502075 } moveCount:5
+10-27 20:15:02.078   829   829 I ScrollIdentify: on fling
+10-27 20:15:02.333   829  8183 I SKIA    : CreateGraphicsPipeline pipeline cache hit. elpased time: 0.53 ms.
+10-27 20:15:03.125   829   829 I MIUIInput: [MotionEvent] ViewRootImpl windowName 'com.usipipo.vpn/com.usipipo.vpn.MainActivity', { action=ACTION_DOWN, id[0]=0, pointerCount=1, eventTime=1442982561, downTime=1442982561, phoneEventTime=1793146503123 } moveCount:0
+10-27 20:15:03.125   829   829 D VRI[MainActivity]: getMiuiFreeformStackInfo mTmpFrames.miuiFreeFormStackInfo: null
+10-27 20:15:03.449   829   829 I MiInputConsumer: optimized resample latency: 940051 ns
+10-27 20:15:03.472   829   829 I MIUIInput: [MotionEvent] ViewRootImpl windowName 'com.usipipo.vpn/com.usipipo.vpn.MainActivity', { action=ACTION_UP, id[0]=0, pointerCount=1, eventTime=1442982909, downTime=1442982561, phoneEventTime=1793146503471 } moveCount:21
+10-27 20:15:04.733   829   829 I MIUIInput: [MotionEvent] ViewRootImpl windowName 'com.usipipo.vpn/com.usipipo.vpn.MainActivity', { action=ACTION_DOWN, id[0]=0, pointerCount=1, eventTime=1442984165, downTime=1442984165, phoneEventTime=1793146504727 } moveCount:0
+10-27 20:15:04.734   829   829 D VRI[MainActivity]: getMiuiFreeformStackInfo mTmpFrames.miuiFreeFormStackInfo: null
+10-27 20:15:04.835   829   829 I MIUIInput: [MotionEvent] ViewRootImpl windowName 'com.usipipo.vpn/com.usipipo.vpn.MainActivity', { action=ACTION_UP, id[0]=0, pointerCount=1, eventTime=1442984271, downTime=1442984165, phoneEventTime=1793146504833 } moveCount:4
+10-27 20:15:04.835   829   829 I ScrollIdentify: on fling
+10-27 20:15:04.931   829  8183 I SKIA    : CreateGraphicsPipeline pipeline cache hit. elpased time: 0.15 ms.
+10-27 20:15:04.933   829  8183 I SKIA    : CreateGraphicsPipeline pipeline cache hit. elpased time: 1.24 ms.
+10-27 20:15:05.936   829   829 I MIUIInput: [MotionEvent] ViewRootImpl windowName 'com.usipipo.vpn/com.usipipo.vpn.MainActivity', { action=ACTION_DOWN, id[0]=0, pointerCount=1, eventTime=1442985372, downTime=1442985372, phoneEventTime=1793146505934 } moveCount:0
+10-27 20:15:05.936   829   829 D VRI[MainActivity]: getMiuiFreeformStackInfo mTmpFrames.miuiFreeFormStackInfo: null
+10-27 20:15:06.105   829   829 I MIUIInput: [MotionEvent] ViewRootImpl windowName 'com.usipipo.vpn/com.usipipo.vpn.MainActivity', { action=ACTION_UP, id[0]=0, pointerCount=1, eventTime=1442985542, downTime=1442985372, phoneEventTime=1793146506104 } moveCount:9
+10-27 20:15:06.106   829   829 I ScrollIdentify: on fling
+10-27 20:15:06.739   829   829 I MIUIInput: [MotionEvent] ViewRootImpl windowName 'com.usipipo.vpn/com.usipipo.vpn.MainActivity', { action=ACTION_DOWN, id[0]=0, pointerCount=1, eventTime=1442986174, downTime=1442986174, phoneEventTime=1793146506736 } moveCount:0
+10-27 20:15:06.740   829   829 D VRI[MainActivity]: getMiuiFreeformStackInfo mTmpFrames.miuiFreeFormStackInfo: null
+10-27 20:15:06.846   829   829 I MIUIInput: [MotionEvent] ViewRootImpl windowName 'com.usipipo.vpn/com.usipipo.vpn.MainActivity', { action=ACTION_UP, id[0]=0, pointerCount=1, eventTime=1442986283, downTime=1442986174, phoneEventTime=1793146506845 } moveCount:0
+10-27 20:15:06.866   829   829 D DecorView: updateFreeformOutlineFromActivity, inFreeform=false,inFreeformWindowMode=false
+10-27 20:15:06.870   829  8183 D HWUI    : TAG_DDRE, CanvasContext::setDdreActivities: 
+10-27 20:15:06.870   829   829 I ForceDarkHelperStubImpl: setViewRootImplForceDark: false for com.usipipo.vpn.MainActivity@882a3bc, reason: AppDarkModeEnable
+10-27 20:15:06.878   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.878   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.878   829   829 D InputEventReceiver: Input log is disabled in InputEventReceiver.
+10-27 20:15:06.881   829   829 D DecorViewImmersiveImpl: onAttachedToWindow. pkg: com.usipipo.vpn
+10-27 20:15:06.881   829   829 I ComputilityLevel: getComputilityLevel(): 2
+10-27 20:15:06.883   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.883   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.883   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.883   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.883   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.883   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.883   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =45 hasIntersection =false
+10-27 20:15:06.883   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =45 hasIntersection =false
+10-27 20:15:06.883   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.883   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.883   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.883   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.883   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =110 hasIntersection =false
+10-27 20:15:06.883   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =110 hasIntersection =false
+10-27 20:15:06.883   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =45 hasIntersection =false
+10-27 20:15:06.883   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.884   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =110 hasIntersection =false
+10-27 20:15:06.891   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.891   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.891   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.891   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =45 hasIntersection =false
+10-27 20:15:06.891   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.891   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.891   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.891   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =110 hasIntersection =false
+10-27 20:15:06.892   829   829 D BufferQueueConsumer: [](id:33d00000003,api:0,p:-1,c:829) connect: controlledByApp=false
+10-27 20:15:06.892   829   829 D BLASTBufferQueue: [VRI[MainActivity]#3](f:0,a:0) constructor()
+10-27 20:15:06.892   829   829 D BLASTBufferQueue: [VRI[MainActivity]#3](f:0,a:0) update width=1080 height=941 format=-2 mTransformHint=0
+10-27 20:15:06.894   829   829 I ForceDarkHelperStubImpl: setViewRootImplForceDark: false for com.usipipo.vpn.MainActivity@882a3bc, reason: AppDarkModeEnable
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =90 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =90 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =45 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =45 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =34 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =34 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =110 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =110 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =45 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.895   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =110 hasIntersection =false
+10-27 20:15:06.897   829   829 D VRI[MainActivity]: vri.Setup new sync=wmsSync-VRI[MainActivity]#6
+10-27 20:15:06.901   829  8183 D BLASTBufferQueue: [VRI[MainActivity]#3](f:0,a:1) acquireNextBufferLocked size=1080x941 mFrameNumber=1 applyTransaction=true mTimestamp=1442986338854003(auto) mPendingTransactions.size=0 graphicBufferId=3560527888405 transform=0
+10-27 20:15:06.901   829   829 D VRI[MainActivity]: vri.reportDrawFinished 0 0 Rect(90, 852 - 990, 1613)
+10-27 20:15:06.902   829  8183 D HWUI    : [HWUI] Flag vulkan_enhance_pipeline_cache enabled
+10-27 20:15:06.902   829  8183 D HWUI    : [HWUI] EnhanceVkPipelineCache is disabled
+10-27 20:15:06.902   829  8183 D HWUI    : [HWUI] Flag ddre enabled
+10-27 20:15:06.904   829   829 D VRI[MainActivity]: getMiuiFreeformStackInfo mTmpFrames.miuiFreeFormStackInfo: null
+10-27 20:15:06.933   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.933   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.933   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =90 hasIntersection =false
+10-27 20:15:06.933   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.933   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =45 hasIntersection =false
+10-27 20:15:06.933   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.933   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.933   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.933   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =34 hasIntersection =false
+10-27 20:15:06.933   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =110 hasIntersection =false
+10-27 20:15:06.933   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.933   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.933   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.933   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:06.963   829   829 I HandWritingStubImpl: refreshLastKeyboardType: 1
+10-27 20:15:06.963   829   829 I HandWritingStubImpl: getCurrentKeyboardType: 1
+10-27 20:15:06.965   829   829 D InsetsController: hide(ime(), fromIme=false)
+10-27 20:15:06.965   829   829 I ImeTracker: com.usipipo.vpn:66451761: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+10-27 20:15:07.015   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:07.015   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:07.015   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =90 hasIntersection =false
+10-27 20:15:07.015   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:07.015   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =45 hasIntersection =false
+10-27 20:15:07.016   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:07.016   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:07.016   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:07.016   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =34 hasIntersection =false
+10-27 20:15:07.016   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =110 hasIntersection =false
+10-27 20:15:07.016   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:07.016   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:07.016   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:07.016   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:13.230   829   829 I MIUIInput: [MotionEvent] ViewRootImpl windowName 'com.usipipo.vpn/com.usipipo.vpn.MainActivity', { action=ACTION_DOWN, id[0]=0, pointerCount=1, eventTime=1442992662, downTime=1442992662, phoneEventTime=1793146513224 } moveCount:0
+10-27 20:15:13.231   829   829 D VRI[MainActivity]: getMiuiFreeformStackInfo mTmpFrames.miuiFreeFormStackInfo: null
+10-27 20:15:13.320   829   829 I MIUIInput: [MotionEvent] ViewRootImpl windowName 'com.usipipo.vpn/com.usipipo.vpn.MainActivity', { action=ACTION_UP, id[0]=0, pointerCount=1, eventTime=1442992757, downTime=1442992662, phoneEventTime=1793146513319 } moveCount:0
+10-27 20:15:13.332   829   829 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=gy0@e236916
+10-27 20:15:13.333   829   829 D DecorViewImmersiveImpl: onDetachedFromWindow
+10-27 20:15:13.334   829  8183 D HWUI    : endAllActiveAnimators on 0xb400007bc3a940b0 (cy1) with handle 0xb400007bf3a75230
+10-27 20:15:13.334   829   829 W com.usipipo.vpn: Binder 0xb400007db3a310e0 destroyed after setInheritRt before being parceled.
+10-27 20:15:13.334   829   829 D BLASTBufferQueue: [VRI[MainActivity]#3](f:0,a:5) destructor()
+10-27 20:15:13.334   829   829 D BufferQueueConsumer: [VRI[MainActivity]#3(BLAST Consumer)3](id:33d00000003,api:0,p:-1,c:829) disconnect: caller 829
+10-27 20:15:13.347   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:13.347   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:13.347   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =90 hasIntersection =false
+10-27 20:15:13.347   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:13.347   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =45 hasIntersection =false
+10-27 20:15:13.347   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:13.347   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:13.347   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =0 hasIntersection =false
+10-27 20:15:13.347   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =34 hasIntersection =false
+10-27 20:15:13.347   829   829 W InsetsSource: Has no intersection or mTmpFrame.height(), return Insets.NONE mTmpFrame.height() =110 hasIntersection =false
+10-27 20:15:13.351   829  8183 I SKIA    : CreateGraphicsPipeline pipeline cache hit. elpased time: 0.18 ms.
+

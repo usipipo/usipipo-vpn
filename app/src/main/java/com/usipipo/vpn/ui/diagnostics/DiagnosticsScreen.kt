@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.usipipo.vpn.R
+import com.usipipo.vpn.diagnostics.DiagnosticEmailBuilder
 import com.usipipo.vpn.diagnostics.DeviceInfo
 import com.usipipo.vpn.diagnostics.ReportSender
 import com.usipipo.vpn.ui.components.AppHeader
@@ -77,14 +78,23 @@ fun DiagnosticsScreen(vm: DiagnosticsViewModel, onCheckUpdates: suspend () -> Up
         vm.events.collect { event ->
             when (event) {
                 is DiagnosticsEvent.SendReport -> {
-                    val version = DeviceInfo.collect(context).versionName
-                    val body = context.getString(R.string.report_intro) + "\n\n" +
+                    val device = DeviceInfo.collect(context)
+                    val email = DiagnosticEmailBuilder.build(
+                        appName = context.getString(R.string.app_name),
+                        version = device.versionName,
+                        manufacturer = device.manufacturer,
+                        model = device.model,
+                        androidRelease = device.androidRelease,
+                        verbose = ui.verbose,
+                    )
+                    val body = email.header + "\n\n" +
+                        context.getString(R.string.report_intro) + "\n\n" +
                         event.infoRows.joinToString("\n") { (label, value) -> "$label: $value" }
                     val intent = ReportSender.emailIntent(
                         context = context,
                         file = event.file,
                         address = context.getString(R.string.support_email),
-                        subject = context.getString(R.string.report_subject, version),
+                        subject = email.subject,
                         body = body,
                     )
                     try {

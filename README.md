@@ -29,9 +29,9 @@ propios. Importa el `.conf` que te da tu servidor, conecta con un botón y te di
 velocidad, ping, tiempo activo, endpoint y país del servidor.
 
 No hay cuenta, ni servidor de control, ni telemetría. La app habla con tu VPS y, solo cuando lo
-pides, con `ipapi.co` para geolocalizar el endpoint. Desde la **v0.5.0** también puedes conectar y
-desconectar **sin abrir la app**: con el widget de la pantalla de inicio o con el mosaico del panel
-de ajustes rápidos.
+pides, con `IPinfo Lite` (y con `ipwho.is` como respaldo) para geolocalizar el endpoint. Desde la
+**v0.5.0** también puedes conectar y desconectar **sin abrir la app**: con el widget de la pantalla
+de inicio o con el mosaico del panel de ajustes rápidos.
 
 ### Capturas
 

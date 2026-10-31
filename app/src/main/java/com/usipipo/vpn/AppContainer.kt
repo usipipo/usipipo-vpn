@@ -6,7 +6,9 @@ import com.usipipo.vpn.data.ConfigStore
 import com.usipipo.vpn.data.EncryptedFileConfigStore
 import com.usipipo.vpn.data.KeystoreCrypto
 import com.usipipo.vpn.data.geo.CountryRepository
-import com.usipipo.vpn.data.geo.IpApiClient
+import com.usipipo.vpn.data.geo.GeoLocator
+import com.usipipo.vpn.data.geo.IpinfoLiteClient
+import com.usipipo.vpn.data.geo.IpwhoIsClient
 import com.usipipo.vpn.data.geo.PingRepository
 import com.usipipo.vpn.diagnostics.AppLog
 import com.usipipo.vpn.diagnostics.DeviceInfo
@@ -85,9 +87,20 @@ class AppContainer(context: Context) {
         )
     }
 
-    /** Repositorio de geolocalización de país con caché 24 h (ipapi.co). */
+    /**
+     * Repositorio de geolocalización de país con caché de 30 días.
+     *
+     * Proveedor principal: IPinfo Lite (sin límite de cuota, con token). Respaldo:
+     * ipwho.is (HTTPS sin token), que solo entra si el principal falla.
+     */
     val countryRepository: CountryRepository by lazy {
-        CountryRepository(configStore, IpApiClient())
+        CountryRepository(
+            configStore,
+            GeoLocator(
+                primary = IpinfoLiteClient(token = BuildConfig.IPINFO_TOKEN),
+                fallback = IpwhoIsClient(),
+            ),
+        )
     }
 
     /** Repositorio de ping nativo con fallback a isReachable. */

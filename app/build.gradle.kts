@@ -28,6 +28,11 @@ private val releaseSigning: ReleaseSigning? = run {
     }
 }
 
+// Token de IPinfo Lite (proveedor principal de geolocalización). Lo inyecta
+// GitHub Actions desde el secret IPINFO_TOKEN. Si no está, el build NO falla:
+// el proveedor principal se salta y el de respaldo da el país.
+private val ipinfoToken: String = (System.getenv("IPINFO_TOKEN") ?: "").replace("\\", "\\\\").replace("\"", "\\\"")
+
 android {
     namespace = "com.usipipo.vpn"
     compileSdk = 37
@@ -51,6 +56,9 @@ android {
         // sin etiqueta se mantienen los valores por defecto de la fase 0.
         versionCode = (project.findProperty("VERSION_CODE") as? String)?.toIntOrNull() ?: 1
         versionName = (project.findProperty("VERSION_NAME") as? String) ?: "0.1.0"
+        // Token del proveedor principal de geolocalización. Vacío si el secret no
+        // está disponible: la app sigue funcionando (sin país, o con el respaldo).
+        buildConfigField("String", "IPINFO_TOKEN", "\"$ipinfoToken\"")
     }
 
     buildTypes {

@@ -70,13 +70,21 @@ fun UsipipoRoot(container: AppContainer, initialTab: MainTab = MainTab.Home) {
     val countryPingVm = countryPingViewModel(container)
 
     // El ping solo corre con la app en primer plano: en segundo plano consume bateria
-    // y consulta un tunel que puede no estar activo.
+    // y consulta un tunel que puede no estar activo. La geolocalizacion del endpoint
+    // tambien: solo se consulta en primer plano (y si el tunel ya estaba conectado,
+    // la consulta espera a que la app vuelva a primer plano).
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_START -> countryPingVm.setDetailsVisible(showDetails)
-                Lifecycle.Event.ON_STOP -> countryPingVm.setDetailsVisible(false)
+                Lifecycle.Event.ON_START -> {
+                    countryPingVm.setAppForeground(true)
+                    countryPingVm.setDetailsVisible(showDetails)
+                }
+                Lifecycle.Event.ON_STOP -> {
+                    countryPingVm.setAppForeground(false)
+                    countryPingVm.setDetailsVisible(false)
+                }
                 else -> Unit
             }
         }

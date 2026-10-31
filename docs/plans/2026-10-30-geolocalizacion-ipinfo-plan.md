@@ -62,3 +62,13 @@ El respaldo comparte cuota por IP de salida del túnel: si IPinfo se cae y
 todos los usuarios caen al respaldo, el techo de 1.000/día se agota y la app
 degrada a «sin país» (sin error visible). Es aceptable: el primario es
 ilimitado y el respaldo solo existe para la caída.
+
+Deuda conocida: `CountryRepository` y `CountryPingViewModel` saltan a
+`Dispatchers.IO` (resolución DNS y petición HTTP), así que un test que observe
+un efecto lateral de esa llamada **sin esperarlo** es intermitente: el reloj
+virtual de `runTest` no gobierna ese hilo. El test de cancelación por eso
+publica una señal (`CompletableDeferred`) y la espera con un timeout real. La
+solución de fondo sería inyectar el dispatcher por constructor, como ya se
+inyecta el reloj, para que los tests de geolocalización corran enteros en el
+scheduler virtual. Queda fuera de esta fase: no aporta al comportamiento de la
+app y ensucia dos constructores públicos.

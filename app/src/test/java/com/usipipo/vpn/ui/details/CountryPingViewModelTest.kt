@@ -10,6 +10,7 @@ import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.ui.home.FakeConfigStore
 import com.usipipo.vpn.ui.home.FakeTunnelManager
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
@@ -18,6 +19,8 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -150,12 +153,14 @@ class CountryPingViewModelTest {
             texts = mapOf("c1" to conf),
         )
         val tunnelManager = FakeTunnelManager()
-        var cancelada = false
+        // Señal explícita de cancelación. La petición vive en Dispatchers.IO, fuera
+        // del scheduler virtual del test: el test la espera, no la sondea.
+        val cancelada = CompletableDeferred<Unit>()
         val countryRepo = CountryRepository(store, http = FakeHttp {
             try {
                 awaitCancellation()
             } finally {
-                cancelada = true
+                cancelada.complete(Unit)
             }
         })
 
@@ -166,9 +171,13 @@ class CountryPingViewModelTest {
         vm.ui.first { it.isLoadingCountry }
 
         tunnelManager.emit(TunnelState.Disconnected)
-        yield()
 
-        assertTrue(cancelada)
+        // Espera con tiempo real: con el reloj virtual de runTest el timeout vencería
+        // al instante mientras el hilo de IO todavía no ha publicado la señal.
+        val llego = withContext(Dispatchers.Default) {
+            withTimeoutOrNull(1_000) { cancelada.await() }
+        }
+        assertNotNull(llego, "la petición de país no se canceló al desconectar")
         assertNull(vm.ui.value.countryInfo)
         assertFalse(vm.ui.value.isLoadingCountry)
     }

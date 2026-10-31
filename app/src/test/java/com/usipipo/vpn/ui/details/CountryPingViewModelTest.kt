@@ -222,7 +222,7 @@ class CountryPingViewModelTest {
         assertNull(vm.ui.value.pingResult)
     }
 
-    private class FakeHttp(private val call: (String) -> CountryInfo?) : CountryHttpClient {
+    private class FakeHttp(private val call: suspend (String) -> CountryInfo?) : CountryHttpClient {
         override suspend fun fetch(ip: String): CountryInfo =
             call(ip) ?: CountryInfo(ip = ip, countryCode = null, countryName = null, fetchedAt = 0, error = true)
     }

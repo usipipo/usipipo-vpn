@@ -161,9 +161,9 @@ class CountryRepositoryTest {
         var fail = true
         val http = FakeHttp { ip ->
             if (fail) throw java.net.SocketTimeoutException("timeout")
-            CountryInfo(ip = ip, countryCode = "DE", countryName = "Germany", fetchedAt = clock.now(), error = false)
+            CountryInfo(ip = ip, countryCode = "DE", countryName = "Germany", fetchedAt = clock.now, error = false)
         }
-        val repo = CountryRepository(store, http, now = { clock.now() })
+        val repo = CountryRepository(store, http, now = { clock.now })
 
         repo.countryFor("c1", "1.2.3.4")
         repo.countryFor("c1", "1.2.3.4")

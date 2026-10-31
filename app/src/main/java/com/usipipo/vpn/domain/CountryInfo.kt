@@ -1,7 +1,7 @@
 package com.usipipo.vpn.domain
 
 /**
- * Resultado de geolocalización de una IP (ipapi.co).
+ * Resultado de geolocalización de una IP (IPinfo Lite o ipwho.is).
  *
  * @param ip la IP consultada.
  * @param countryCode código ISO 2 letras (ej. "DE"), null si no se conoció o falló.

@@ -119,7 +119,7 @@ class AppSettingsTest {
 
         override fun contains(key: String?): Boolean = values.containsKey(key)
 
-        override fun edit(): SharedPreferences.Editor = FakeEditor(this)
+        override fun edit(): SharedPreferences.Editor = FakeEditor()
 
         override fun registerOnSharedPreferenceChangeListener(
             listener: SharedPreferences.OnSharedPreferenceChangeListener?,

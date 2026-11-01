@@ -124,13 +124,19 @@ class AppSettingsTest {
         override fun registerOnSharedPreferenceChangeListener(
             listener: SharedPreferences.OnSharedPreferenceChangeListener?,
         ) {
-            listener?.let { listeners += it }
+            // Se usa add() y no +=: con el tipo platform de Android, += resuelve a
+            // plus() y no a plusAssign(), y el elemento acaba tipado como nullable.
+            if (listener != null) {
+                listeners.add(listener)
+            }
         }
 
         override fun unregisterOnSharedPreferenceChangeListener(
             listener: SharedPreferences.OnSharedPreferenceChangeListener?,
         ) {
-            listeners -= listener
+            if (listener != null) {
+                listeners.remove(listener)
+            }
         }
 
         /** Notifica a los listeners como hace la implementación real de Android. */

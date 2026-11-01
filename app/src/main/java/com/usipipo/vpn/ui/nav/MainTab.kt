@@ -7,9 +7,9 @@ import com.usipipo.vpn.R
 /** Las cuatro pestañas de la barra inferior. */
 enum class MainTab {
     Home,
-    Configs,
+    Profiles,
     Import,
-    Diagnostics,
+    Settings,
     ;
 
     companion object {
@@ -17,10 +17,17 @@ enum class MainTab {
          * Convierte una clave de pestaña en la pestaña correspondiente.
          *
          * No distingue mayúsculas: la clave viaja en un intent y el productor y el consumidor
-         * no deben poder discrepar por la caja. Una clave desconocida abre Inicio.
+         * no deben poder discrepar por la caja. Las claves de versiones anteriores
+         * ("Configs", "Diagnostics") se redirigen a Perfiles y Ajustes para no romper
+         * intents o estados guardados. Una clave desconocida abre Inicio.
          */
         fun fromKey(key: String?): MainTab =
-            entries.firstOrNull { it.name.equals(key, ignoreCase = true) } ?: MainTab.Home
+            entries.firstOrNull { it.name.equals(key, ignoreCase = true) }
+                ?: when (key?.lowercase()) {
+                    "configs" -> MainTab.Profiles
+                    "diagnostics" -> MainTab.Settings
+                    else -> MainTab.Home
+                }
     }
 }
 
@@ -31,16 +38,16 @@ fun backTarget(tab: MainTab): MainTab? = if (tab == MainTab.Home) null else Main
 internal val MainTab.iconRes: Int
     @DrawableRes get() = when (this) {
         MainTab.Home -> R.drawable.ic_nav_home
-        MainTab.Configs -> R.drawable.ic_nav_configs
+        MainTab.Profiles -> R.drawable.ic_nav_profiles
         MainTab.Import -> R.drawable.ic_nav_import
-        MainTab.Diagnostics -> R.drawable.ic_nav_diagnostics
+        MainTab.Settings -> R.drawable.ic_nav_settings
     }
 
-/** Etiqueta de la barra inferior para cada pestaña. */
+/** Etiqueta de accesibilidad y título de pantalla de cada pestaña. */
 internal val MainTab.labelRes: Int
     @StringRes get() = when (this) {
         MainTab.Home -> R.string.nav_home
-        MainTab.Configs -> R.string.nav_configs
+        MainTab.Profiles -> R.string.nav_profiles
         MainTab.Import -> R.string.nav_import
-        MainTab.Diagnostics -> R.string.nav_diagnostics
+        MainTab.Settings -> R.string.nav_settings
     }

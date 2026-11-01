@@ -17,6 +17,7 @@ import com.usipipo.vpn.quickconnect.AndroidTunnelConnector
 import com.usipipo.vpn.quickconnect.AndroidVpnPermissionChecker
 import com.usipipo.vpn.quickconnect.QuickConnectController
 import com.usipipo.vpn.quickconnect.TunnelConnector
+import com.usipipo.vpn.settings.AppSettings
 import com.usipipo.vpn.tunnel.TunnelForegroundService
 import com.usipipo.vpn.tunnel.TunnelManager
 import com.usipipo.vpn.tunnel.WireGuardTunnelManager
@@ -107,6 +108,9 @@ class AppContainer(context: Context) {
     val pingRepository: PingRepository by lazy { PingRepository() }
 
     val updateStateStore: UpdateStateStore by lazy { PrefsUpdateStateStore.create(appContext) }
+
+    /** Ajustes globales de la app (tema, animaciones, paleta, …). */
+    val appSettings: AppSettings by lazy { AppSettings.create(appContext) }
 
     val updateChecker: UpdateChecker by lazy {
         UpdateChecker(source = GitHubReleaseSource(), store = updateStateStore)

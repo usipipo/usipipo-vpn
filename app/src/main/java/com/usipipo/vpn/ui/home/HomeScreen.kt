@@ -73,7 +73,7 @@ fun HomeScreen(
     vm: HomeViewModel,
     stats: StatsUiState,
     onImport: () -> Unit,
-    onOpenConfigs: () -> Unit,
+    onOpenProfiles: () -> Unit,
     onOpenDetails: () -> Unit,
 ) {
     val state by vm.uiState.collectAsStateWithLifecycle()
@@ -130,7 +130,7 @@ fun HomeScreen(
                 if (selected == null) {
                     EmptyState(onImport = onImport)
                 } else {
-                    ProfileCard(config = selected, onClick = onOpenConfigs)
+                    ProfileCard(config = selected, onClick = onOpenProfiles)
                     (state.tunnel as? TunnelState.Connected)?.let { connected ->
                         ConnectionStats(
                             sinceMs = connected.sinceMs,

@@ -29,8 +29,8 @@ fun IconGallery(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         listOf(
-            R.drawable.ic_nav_home, R.drawable.ic_nav_configs,
-            R.drawable.ic_nav_import, R.drawable.ic_nav_diagnostics,
+            R.drawable.ic_nav_home, R.drawable.ic_nav_profiles,
+            R.drawable.ic_nav_import, R.drawable.ic_nav_settings,
             R.drawable.ic_arrow_right, R.drawable.ic_arrow_back,
             R.drawable.ic_add, R.drawable.ic_star, R.drawable.ic_star_filled,
             R.drawable.ic_edit, R.drawable.ic_delete, R.drawable.ic_qr,

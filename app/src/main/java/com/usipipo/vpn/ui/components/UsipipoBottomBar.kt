@@ -8,7 +8,6 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -40,8 +39,13 @@ fun UsipipoBottomBar(
                 tab = entry,
                 current = tab,
                 colors = colors,
-                icon = { Icon(painterResource(entry.iconRes), contentDescription = null) },
-                label = stringResource(entry.labelRes),
+                icon = {
+                    Icon(
+                        painterResource(entry.iconRes),
+                        contentDescription = stringResource(entry.labelRes),
+                    )
+                },
+                label = {},
                 onClick = { onTabClick(entry) },
             )
         }
@@ -58,17 +62,14 @@ private fun RowScope.BottomBarItem(
     current: MainTab,
     colors: BottomBarColors,
     icon: @Composable () -> Unit,
-    label: String,
     onClick: () -> Unit,
 ) {
     val selected = tab == current
     val iconColor = if (selected) colors.active else colors.inactive
-    val labelColor = if (selected) colors.activeLabel else colors.inactive
     NavigationBarItem(
         icon = {
             CompositionLocalProvider(LocalContentColor provides iconColor) { icon() }
         },
-        label = { Text(text = label, color = labelColor) },
         selected = selected,
         onClick = onClick,
         colors = NavigationBarItemDefaults.colors(

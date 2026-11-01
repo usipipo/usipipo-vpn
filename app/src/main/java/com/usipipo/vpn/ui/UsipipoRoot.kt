@@ -43,11 +43,11 @@ import com.usipipo.vpn.diagnostics.AppLog
 import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.ui.components.UsipipoBottomBar
 import com.usipipo.vpn.ui.configs.ConfigsScreen
+import com.usipipo.vpn.ui.settings.SettingsScreen
+import com.usipipo.vpn.ui.settings.SettingsViewModel
 import com.usipipo.vpn.ui.details.CountryPingViewModel
 import com.usipipo.vpn.ui.details.DetailsScreen
 import com.usipipo.vpn.ui.details.StatsViewModel
-import com.usipipo.vpn.ui.diagnostics.DiagnosticsScreen
-import com.usipipo.vpn.ui.diagnostics.DiagnosticsViewModel
 import com.usipipo.vpn.ui.home.HomeScreen
 import com.usipipo.vpn.ui.home.HomeViewModel
 import com.usipipo.vpn.ui.importer.ImportScreen
@@ -94,6 +94,8 @@ fun UsipipoRoot(container: AppContainer, initialTab: MainTab = MainTab.Home) {
 
     // Versión cuya ventana ya se cerró (descarte o descarga): no reaparece.
     var handledUpdate by rememberSaveable { mutableStateOf<String?>(null) }
+
+    val settingsVm = remember { SettingsViewModel(container.appSettings) }
 
     BackHandler(enabled = backTarget(tab) != null) {
         backTarget(tab)?.let { tab = it }
@@ -153,13 +155,17 @@ fun UsipipoRoot(container: AppContainer, initialTab: MainTab = MainTab.Home) {
                                 vm = homeVm,
                                 stats = stats,
                                 onImport = { tab = MainTab.Import },
-                                onOpenConfigs = { tab = MainTab.Configs },
+                                onOpenProfiles = { tab = MainTab.Profiles },
                                 onOpenDetails = { showDetails = true },
                             )
                         }
                     }
 
-                    MainTab.Configs -> ConfigsScreen(
+                    MainTab.Settings -> SettingsScreen(
+                        viewModel = settingsVm,
+                    )
+
+                    MainTab.Profiles -> ConfigsScreen(
                         vm = homeViewModel(container),
                         onImport = { tab = MainTab.Import },
                     )
@@ -167,15 +173,6 @@ fun UsipipoRoot(container: AppContainer, initialTab: MainTab = MainTab.Home) {
                     MainTab.Import -> ImportScreen(
                         vm = importViewModel(container),
                         onDone = { tab = MainTab.Home },
-                    )
-
-                    MainTab.Diagnostics -> DiagnosticsScreen(
-                        vm = diagnosticsViewModel(container),
-                        onCheckUpdates = {
-                            // La comprobación manual siempre vuelve a mostrar la ventana si hay release.
-                            handledUpdate = null
-                            container.checkForUpdates(force = true)
-                        },
                     )
                 }
             }

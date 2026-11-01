@@ -1,7 +1,8 @@
 # Spec de diseño — Ajustes: Actualizaciones
 
 **Fecha:** 2026-11-01
-**Estado:** pendiente de revisión del usuario
+**Estado:** aprobado por el usuario (2026-11-01)
+**Implementación:** fase 9 · no iniciada · rama `feat/ajustes-actualizaciones` · -
 **Proyecto:** uSipipo VPN
 **Alcance:** Pantalla de Actualizaciones dentro del hub de Ajustes: versión actual, comprobación forzada con spinner y snackbar, interruptor de comprobación automática al arranque, estado de posponer y enlace al historial de versiones.
 

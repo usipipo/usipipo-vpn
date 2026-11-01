@@ -1,7 +1,8 @@
 # Spec de diseño — Ajustes: Almacenamiento
 
 **Fecha:** 2026-11-01
-**Estado:** pendiente de revisión del usuario
+**Estado:** aprobado por el usuario (2026-11-01)
+**Implementación:** fase 7 · no iniciada · rama `feat/ajustes-almacenamiento` · -
 **Proyecto:** uSipipo VPN
 **Alcance:** Pantalla de Almacenamiento dentro del hub de Ajustes: resumen del espacio usado, borrado de registro, limpieza de caché y borrado completo de todos los datos de la app.
 

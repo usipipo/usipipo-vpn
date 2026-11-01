@@ -1,7 +1,8 @@
 # Spec de diseño — Ajustes: copia de seguridad
 
 **Fecha:** 2026-11-01
-**Estado:** pendiente de revisión del usuario
+**Estado:** aprobado por el usuario (2026-11-01)
+**Implementación:** fase 6 · no iniciada · rama `feat/ajustes-copia-seguridad` · -
 **Proyecto:** uSipipo VPN
 **Alcance:** Sección «Copia de seguridad» del hub de Ajustes (`ui/settings/backup/`): exportar todo (todos los perfiles cifrados con contraseña + ajustes) en un .zip, exportar un solo perfil como .conf en claro con aviso de claves privadas, importar con detección de duplicados, y el nuevo paquete criptográfico `backup/` de nivel top. Exportación e importación vía Storage Access Framework (`ACTION_CREATE_DOCUMENT` / `ACTION_OPEN_DOCUMENT`), sin permisos de escritura externa.
 

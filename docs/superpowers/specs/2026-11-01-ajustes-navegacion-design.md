@@ -1,7 +1,8 @@
 # Spec de diseño — Base: navegación por iconos y pantalla de Ajustes
 
 **Fecha:** 2026-11-01
-**Estado:** pendiente de revisión del usuario
+**Estado:** aprobado por el usuario (2026-11-01)
+**Implementación:** fase 1 (base) · rama `feat/ajustes-base` · PR #13
 **Proyecto:** uSipipo VPN
 **Alcance:** Rediseño de la barra inferior (sin etiquetas de texto), renombrado y re-iconografía de las pestañas, y creación del subsistema de **Ajustes** como hub con subpantallas. Este documento es el **contrato común** de los nueve diseños de sección que lo accompanyan.
 
@@ -270,6 +271,32 @@ Cada sección tiene su propio documento, con su propio alcance, datos, permisos,
 8. **Pantalla inicial y panel**.
 9. **Actualizaciones**.
 10. **Más**.
+
+### 8.3 Estado de implementación
+
+Una fase se marca como completada cuando su PR está en verde y fusionado en `main`.
+
+| Fase | Sección | Rama | PR | Estado |
+|------|---------|------|----|--------|
+| 1 | Base: navegación + hub | `feat/ajustes-base` | [#13](https://github.com/usipipo/usipipo-vpn/pull/13) | En curso (CI del commit de corrección) |
+| 2 | Apariencia | `feat/ajustes-apariencia` | - | No iniciada |
+| 3 | Seguridad | `feat/ajustes-seguridad` | - | No iniciada |
+| 4 | Notificaciones | `feat/ajustes-notificaciones` | - | No iniciada |
+| 5 | Burbuja de tráfico | `feat/ajustes-burbuja-trafico` | - | No iniciada |
+| 6 | Copia de seguridad | `feat/ajustes-copia-seguridad` | - | No iniciada |
+| 7 | Almacenamiento | `feat/ajustes-almacenamiento` | - | No iniciada |
+| 8 | Pantalla inicial y panel | `feat/ajustes-pantalla-inicial-panel` | - | No iniciada |
+| 9 | Actualizaciones | `feat/ajustes-actualizaciones` | - | No iniciada |
+| 10 | Más | `feat/ajustes-mas` | - | No iniciada |
+
+Notas de la fase 1:
+
+- El hub ya muestra las nueve secciones con su icono y su resumen; los resúmenes
+  se completan en cada fase posterior.
+- El enrutado de cada sección se activa en la fase que la implementa: hasta
+  entonces, tocar la fila no navega (el hub es navegable pero sus destinos aún
+  no existen).
+- Diagnóstico deja de ser una pestaña y pasa a vivir dentro de «Más».
 
 ---
 

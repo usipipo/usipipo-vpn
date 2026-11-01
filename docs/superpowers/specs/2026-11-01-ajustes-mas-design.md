@@ -1,7 +1,8 @@
 # Spec de diseño — Ajustes: Más
 
 **Fecha:** 2026-11-01
-**Estado:** pendiente de revisión del usuario
+**Estado:** aprobado por el usuario (2026-11-01)
+**Implementación:** fase 10 · no iniciada · rama `feat/ajustes-mas` · -
 **Proyecto:** uSipipo VPN
 **Alcance:** Pantalla "Más" dentro del hub de Ajustes con 4 filas: Reportar un problema, Invitar amigos, Donar al proyecto, Acerca de.
 

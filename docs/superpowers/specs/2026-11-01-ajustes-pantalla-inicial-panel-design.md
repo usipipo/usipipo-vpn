@@ -1,7 +1,8 @@
 # Spec de diseño — Ajustes: Pantalla inicial y panel (widget, mosaico, accesos directos)
 
 **Fecha:** 2026-11-01
-**Estado:** pendiente de revisión del usuario
+**Estado:** aprobado por el usuario (2026-11-01)
+**Implementación:** fase 8 · no iniciada · rama `feat/ajustes-pantalla-inicial-panel` · -
 **Proyecto:** uSipipo VPN
 **Alcance:** Subpantalla **Pantalla inicial y panel** del hub de Ajustes: estado del widget de pantalla de inicio, estado y añadido del mosaico de Ajustes rápidos, personalización de contenido del widget y accesos directos al sistema (lista de widgets del launcher y panel de Ajustes rápidos).
 

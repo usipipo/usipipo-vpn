@@ -1,7 +1,8 @@
 # Spec de diseño — Ajustes: Apariencia (tema, animaciones, paleta)
 
 **Fecha:** 2026-11-01
-**Estado:** pendiente de revisión del usuario
+**Estado:** aprobado por el usuario (2026-11-01)
+**Implementación:** fase 2 · no iniciada · rama `feat/ajustes-apariencia` · -
 **Proyecto:** uSipipo VPN
 **Alcance:** Subpantalla **Apariencia** del hub de Ajustes: selección de tema (Sistema / Claro / Oscuro), interruptor de animaciones y selector de paleta de color (3 variantes). Introduce `AppSettings` (fachada tipada sobre `SharedPreferences`) y los modelos `ThemeMode` y `PaletteVariant`. Es la primera sección de Ajustes; abre el camino a las demás.
 

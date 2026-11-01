@@ -1,7 +1,9 @@
 package com.usipipo.vpn.settings
 
 import android.content.SharedPreferences
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -60,7 +62,10 @@ class AppSettingsTest {
     @Test
     fun `changedKeys emite la clave modificada`() = runTest {
         val emitadas = mutableListOf<String>()
-        launch { settings.changedKeys.collect { emitadas.add(it) } }
+        backgroundScope.launch { settings.changedKeys.collect { emitadas.add(it) } }
+        // El listener se registra al empezar la recolección: hay que dejarlo correr
+        // antes de tocar una preferencia, si no no se notifica nada.
+        runCurrent()
 
         settings.themeMode = "light"
 
@@ -69,10 +74,24 @@ class AppSettingsTest {
         assertEquals(listOf("theme_mode"), emitadas)
     }
 
+    @Test
+    fun `al cancelar la recolección se desregistra el listener`() = runTest {
+        val job = backgroundScope.launch { settings.changedKeys.collect { } }
+        runCurrent()
+
+        assertTrue(prefs.listenerCount() > 0)
+
+        job.cancel()
+        advanceUntilIdle()
+
+        assertEquals(0, prefs.listenerCount())
+    }
+
     /** SharedPreferences en memoria: mismo contrato, sin Android. */
     private class FakeSharedPreferences : SharedPreferences {
 
         private val values = mutableMapOf<String, Any?>()
+        private val listeners = mutableListOf<SharedPreferences.OnSharedPreferenceChangeListener>()
 
         override fun getAll(): MutableMap<String, *> = values.toMutableMap()
 
@@ -100,81 +119,101 @@ class AppSettingsTest {
 
         override fun contains(key: String?): Boolean = values.containsKey(key)
 
-        override fun edit(): SharedPreferences.Editor = FakeEditor(values)
+        override fun edit(): SharedPreferences.Editor = FakeEditor(this)
 
         override fun registerOnSharedPreferenceChangeListener(
             listener: SharedPreferences.OnSharedPreferenceChangeListener?,
-        ) = Unit
+        ) {
+            listener?.let { listeners += it }
+        }
 
         override fun unregisterOnSharedPreferenceChangeListener(
             listener: SharedPreferences.OnSharedPreferenceChangeListener?,
-        ) = Unit
-    }
-
-    private class FakeEditor(private val values: MutableMap<String, Any?>) :
-        SharedPreferences.Editor {
-
-        private val pending = mutableMapOf<String, Any?>()
-        private val removals = mutableSetOf<String>()
-        private var clearAll = false
-
-        override fun putString(key: String, value: String?) = apply {
-            pending[key] = value
-            removals -= key
+        ) {
+            listeners -= listener
         }
 
-        override fun putStringSet(key: String, values: MutableSet<String>?) = apply {
-            pending[key] = values
-            removals -= key
+        /** Notifica a los listeners como hace la implementación real de Android. */
+        fun notifyChanged(key: String) {
+            listeners.toList().forEach { it.onSharedPreferenceChanged(this, key) }
         }
 
-        override fun putInt(key: String, value: Int) = apply {
-            pending[key] = value
-            removals -= key
-        }
+        /** Número de listeners registrados: permite observar el ciclo de vida. */
+        fun listenerCount(): Int = listeners.size
 
-        override fun putLong(key: String, value: Long) = apply {
-            pending[key] = value
-            removals -= key
-        }
+        inner class FakeEditor : SharedPreferences.Editor {
 
-        override fun putFloat(key: String, value: Float) = apply {
-            pending[key] = value
-            removals -= key
-        }
+            private val pending = mutableMapOf<String, Any?>()
+            private val removals = mutableSetOf<String>()
+            private var clearAll = false
 
-        override fun putBoolean(key: String, value: Boolean) = apply {
-            pending[key] = value
-            removals -= key
-        }
+            override fun putString(key: String, value: String?) = apply {
+                pending[key] = value
+                removals -= key
+            }
 
-        override fun remove(key: String) = apply {
-            removals += key
-            pending -= key
-        }
+            override fun putStringSet(key: String, value: MutableSet<String>?) = apply {
+                pending[key] = value
+                removals -= key
+            }
 
-        override fun clear() = apply {
-            clearAll = true
-            pending.clear()
-            removals.clear()
-        }
+            override fun putInt(key: String, value: Int) = apply {
+                pending[key] = value
+                removals -= key
+            }
 
-        override fun commit(): Boolean {
-            flush()
-            return true
-        }
+            override fun putLong(key: String, value: Long) = apply {
+                pending[key] = value
+                removals -= key
+            }
 
-        override fun apply() {
-            flush()
-        }
+            override fun putFloat(key: String, value: Float) = apply {
+                pending[key] = value
+                removals -= key
+            }
 
-        private fun flush() {
-            if (clearAll) values.clear()
-            removals.forEach { values.remove(it) }
-            values.putAll(pending)
-            pending.clear()
-            removals.clear()
-            clearAll = false
+            override fun putBoolean(key: String, value: Boolean) = apply {
+                pending[key] = value
+                removals -= key
+            }
+
+            override fun remove(key: String) = apply {
+                removals += key
+                pending -= key
+            }
+
+            override fun clear() = apply {
+                clearAll = true
+                pending.clear()
+                removals.clear()
+            }
+
+            override fun commit(): Boolean {
+                flush()
+                return true
+            }
+
+            override fun apply() {
+                flush()
+            }
+
+            private fun flush() {
+                if (clearAll) {
+                    val borradas = values.keys.toList()
+                    values.clear()
+                    borradas.forEach { notifyChanged(it) }
+                }
+                removals.forEach { key ->
+                    values.remove(key)
+                    notifyChanged(key)
+                }
+                val modificadas = pending.keys.toList()
+                values.putAll(pending)
+                pending.clear()
+                removals.clear()
+                clearAll = false
+                modificadas.forEach { notifyChanged(it) }
+            }
         }
     }
 }

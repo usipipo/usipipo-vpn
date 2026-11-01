@@ -26,11 +26,14 @@ import kotlinx.coroutines.withContext
 /**
  * ViewModel que orquesta país (al conectar) y ping (cada 5 s) para la app.
  *
- * - País: se consulta al detectar [TunnelState.Connected], extrayendo la IP del endpoint
- *   del .conf activo. Re-consulta solo si cambia el configId o la IP.
+ * - País: se consulta al detectar [TunnelState.Connected] (túnel arriba y con
+ *   handshake recibido), extrayendo la IP del endpoint del .conf activo.
+ *   Re-consulta solo si cambia el configId o la IP.
  * - Ping: solo corre mientras la pantalla Detalles está visible (lo avisa con
  *   [setDetailsVisible]) y el túnel está conectado. Se cancela al desconectar,
  *   al cambiar de perfil o al ocultar Detalles.
+ * - El país solo se consulta con la app en primer plano ([setAppForeground]) y la
+ *   petición se cancela al desconectar.
  * - Nunca bloquea: fallos de país/ping se degradan a valores nulos o error.
  */
 class CountryPingViewModel(
@@ -47,10 +50,14 @@ class CountryPingViewModel(
     private var lastIp: String? = null
     /** Job del loop de ping; se cancela al desconectar, cambiar de perfil u ocultar Detalles. */
     private var pingJob: Job? = null
+    /** Job de la consulta de país; se cancela al desconectar o al ir a segundo plano. */
+    private var countryJob: Job? = null
     /** ConfigId del túnel conectado, para (re)iniciar el ping cuando Detalles vuelve a verse. */
     private var connectedConfigId: String? = null
     /** La pantalla Detalles avisa de su visibilidad con [setDetailsVisible]. */
     private var detailsVisible = false
+    /** La app solo consulta el país en primer plano. */
+    private var appInForeground = false
     /** Serializa la comprobacion y actualizacion de la cache de pais (no la llamada de red). */
     private val connectMutex = Mutex()
 
@@ -62,14 +69,13 @@ class CountryPingViewModel(
                         connectedConfigId = state.configId
                         // La consulta de pais va en su propia corrutina: el colector no
                         // debe esperar a la red para procesar un desconexion.
-                        handleConnected(state.configId)
+                        if (appInForeground) startCountryQuery(state.configId)
                         if (detailsVisible) startPingLoop(state.configId)
                     }
                     else -> {
                         connectedConfigId = null
                         cancelPingLoop()
-                        lastConfigId = null
-                        lastIp = null
+                        cancelCountryQuery()
                         _ui.update { it.copy(pingResult = null, countryInfo = null) }
                     }
                 }
@@ -91,22 +97,49 @@ class CountryPingViewModel(
         }
     }
 
-    private fun handleConnected(configId: String) = viewModelScope.launch {
-        val ip = extractEndpointIp(configId) ?: return@launch
-        val shouldQuery = connectMutex.withLock {
-            if (configId == lastConfigId && ip == lastIp) {
-                false
-            } else {
-                lastConfigId = configId
-                lastIp = ip
-                true
-            }
+    /**
+     * La app avisa de si está en primer plano. El país solo se consulta en primer
+     * plano: si el túnel ya estaba conectado (por ejemplo, conectó desde el
+     * widget), la consulta espera a que la app vuelva a primer plano.
+     */
+    fun setAppForeground(foreground: Boolean) {
+        appInForeground = foreground
+        if (foreground) {
+            connectedConfigId?.let { startCountryQuery(it) }
+        } else {
+            cancelCountryQuery()
         }
-        if (!shouldQuery) return@launch
+    }
 
-        _ui.update { it.copy(isLoadingCountry = true) }
-        val info = countryRepository.countryFor(configId, ip)
-        _ui.update { it.copy(countryInfo = info, isLoadingCountry = false) }
+    /** Lanza (o relanza) la consulta de país del perfil conectado. */
+    private fun startCountryQuery(configId: String) {
+        cancelCountryQuery()
+        countryJob = viewModelScope.launch {
+            val ip = extractEndpointIp(configId) ?: return@launch
+            val shouldQuery = connectMutex.withLock {
+                if (configId == lastConfigId && ip == lastIp) {
+                    false
+                } else {
+                    lastConfigId = configId
+                    lastIp = ip
+                    true
+                }
+            }
+            if (!shouldQuery) return@launch
+
+            _ui.update { it.copy(isLoadingCountry = true) }
+            val info = countryRepository.countryFor(configId, ip)
+            _ui.update { it.copy(countryInfo = info, isLoadingCountry = false) }
+        }
+    }
+
+    /** Cancela la consulta de país en vuelo y permite consultarla de nuevo. */
+    private fun cancelCountryQuery() {
+        countryJob?.cancel()
+        countryJob = null
+        lastConfigId = null
+        lastIp = null
+        _ui.update { it.copy(isLoadingCountry = false) }
     }
 
     private fun startPingLoop(configId: String) {
@@ -130,8 +163,8 @@ class CountryPingViewModel(
     /**
      * IP pública del servidor a partir del `Endpoint` del .conf.
      *
-     * Resuelve el nombre de host a IP (best effort): `ipapi.co` no acepta dominios en
-     * `/json/{ip}/`. Si no resuelve, no se consulta el país (se muestra el globo).
+     * Resuelve el nombre de host a IP (best effort): los proveedores de país solo
+     * aceptan IPs literales. Si no resuelve, no se consulta el país (se muestra el globo).
      */
     private suspend fun extractEndpointIp(configId: String): String? {
         val confText = store.readText(configId) ?: return null

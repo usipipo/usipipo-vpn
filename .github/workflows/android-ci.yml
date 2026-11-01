@@ -20,6 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
+    env:
+      # Token del proveedor principal de geolocalización (IPinfo Lite). Si el
+      # secret no existe, la build NO falla: el proveedor de respaldo da el país.
+      IPINFO_TOKEN: ${{ secrets.IPINFO_TOKEN }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

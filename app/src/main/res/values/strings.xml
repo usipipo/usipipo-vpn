@@ -59,6 +59,7 @@
     <string name="version_label">Versión %1$s</string>
     <string name="support_email">usipipo@gmail.com</string>
     <string name="send_email">Escribir a soporte</string>
+    <string name="about_geo_attribution">Geolocalización por IPinfo (respaldo: ipwho.is)</string>
 
     <!-- Accesibilidad -->
     <string name="cd_back">Atrás</string>

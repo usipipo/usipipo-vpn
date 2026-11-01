@@ -74,6 +74,12 @@ fun AboutSection(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            // Atribución obligatoria del proveedor de geolocalización.
+            Text(
+                text = stringResource(R.string.about_geo_attribution),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
 
         UsipipoCard(modifier = Modifier.fillMaxWidth()) {

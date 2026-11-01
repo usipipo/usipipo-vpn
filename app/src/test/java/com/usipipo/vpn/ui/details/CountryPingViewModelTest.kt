@@ -177,7 +177,7 @@ class CountryPingViewModelTest {
         val llego = withContext(Dispatchers.Default) {
             withTimeoutOrNull(1_000) { cancelada.await() }
         }
-        assertTrue(llego != null, "la petición de país no se canceló al desconectar")
+        assertTrue("la petición de país no se canceló al desconectar", llego != null)
         assertNull(vm.ui.value.countryInfo)
         assertFalse(vm.ui.value.isLoadingCountry)
     }

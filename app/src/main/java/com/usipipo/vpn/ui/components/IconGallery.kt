@@ -31,6 +31,10 @@ fun IconGallery(modifier: Modifier = Modifier) {
         listOf(
             R.drawable.ic_nav_home, R.drawable.ic_nav_profiles,
             R.drawable.ic_nav_import, R.drawable.ic_nav_settings,
+            R.drawable.ic_settings_appearance, R.drawable.ic_shield_check,
+            R.drawable.ic_settings_widget, R.drawable.ic_settings_bubble,
+            R.drawable.ic_settings_notifications, R.drawable.ic_settings_backup,
+            R.drawable.ic_settings_storage, R.drawable.ic_settings_more,
             R.drawable.ic_arrow_right, R.drawable.ic_arrow_back,
             R.drawable.ic_add, R.drawable.ic_star, R.drawable.ic_star_filled,
             R.drawable.ic_edit, R.drawable.ic_delete, R.drawable.ic_qr,

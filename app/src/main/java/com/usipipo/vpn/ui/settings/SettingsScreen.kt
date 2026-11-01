@@ -62,7 +62,7 @@ fun SettingsScreen(
                     iconRes = section.iconRes,
                     title = section.titleRes,
                     summaryText = viewModel.summary(section.route),
-                    onClick = onSectionClick?.invoke(section.route),
+                    onClick = onSectionClick?.let { callback -> { callback(section.route) } },
                 )
             }
         }

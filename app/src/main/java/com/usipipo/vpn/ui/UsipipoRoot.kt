@@ -26,6 +26,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -246,19 +247,5 @@ private fun countryPingViewModel(container: AppContainer): CountryPingViewModel 
 private fun importViewModel(container: AppContainer): ImportViewModel = viewModel(
     factory = viewModelFactory {
         initializer { ImportViewModel(container.configImporter, container.configStore) }
-    },
-)
-
-@Composable
-private fun diagnosticsViewModel(container: AppContainer): DiagnosticsViewModel = viewModel(
-    factory = viewModelFactory {
-        initializer {
-            DiagnosticsViewModel(
-                app = container.appContext,
-                settings = container.diagnosticsSettings,
-                tunnelManager = container.tunnelManager,
-                store = container.configStore,
-            )
-        }
     },
 )

@@ -2,6 +2,7 @@ package com.usipipo.vpn.settings
 
 import android.content.Context
 import android.content.SharedPreferences
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
@@ -13,7 +14,7 @@ import kotlinx.coroutines.flow.callbackFlow
  * [PrefsUpdateStateStore] para las actualizaciones. Las preferencias viven en
  * el archivo `usipipo_settings` (MODE_PRIVATE, área privada de la app).
  */
-class AppSettings private constructor(private val prefs: SharedPreferences) {
+class AppSettings(private val prefs: SharedPreferences) {
 
     /** Sistema / Claro / Oscuro. Por defecto sigue el sistema. */
     var themeMode: String
@@ -36,7 +37,7 @@ class AppSettings private constructor(private val prefs: SharedPreferences) {
      */
     val changedKeys: Flow<String> = callbackFlow {
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-            key?.let { offerTry(it) }
+            key?.let { trySend(it) }
         }
         prefs.registerOnSharedPreferenceChangeListener(listener)
         awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
@@ -48,7 +49,7 @@ class AppSettings private constructor(private val prefs: SharedPreferences) {
         private const val KEY_ANIMATIONS_ENABLED = "animations_enabled"
         private const val KEY_PALETTE = "palette"
         private const val DEFAULT_THEME_MODE = "system"
-        private const val DEFAULT_ANIMATIONS_ENABLED = "true"
+        private const val DEFAULT_ANIMATIONS_ENABLED = true
         private const val DEFAULT_PALETTE = "azul_noche"
 
         fun create(context: Context): AppSettings =

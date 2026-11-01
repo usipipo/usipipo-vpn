@@ -62,7 +62,7 @@ class IconSetStyleTest {
     fun `el set cubre los cuatro iconos de la barra y los de acciones`() {
         val nombres = iconosDelSet().map { it.removePrefix("ic_").removeSuffix(".xml") }
         listOf(
-            "nav_home", "nav_configs", "nav_import", "nav_diagnostics",
+            "nav_home", "nav_profiles", "nav_import", "nav_settings",
             "arrow_right", "arrow_back", "add", "star", "star_filled",
             "edit", "delete", "qr", "clock", "download", "upload", "server",
         ).forEach {

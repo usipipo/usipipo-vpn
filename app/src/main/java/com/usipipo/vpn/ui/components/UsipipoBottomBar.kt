@@ -45,7 +45,6 @@ fun UsipipoBottomBar(
                         contentDescription = stringResource(entry.labelRes),
                     )
                 },
-                label = {},
                 onClick = { onTabClick(entry) },
             )
         }

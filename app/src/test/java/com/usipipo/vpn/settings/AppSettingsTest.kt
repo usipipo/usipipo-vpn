@@ -1,6 +1,7 @@
 package com.usipipo.vpn.settings
 
 import android.content.SharedPreferences
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

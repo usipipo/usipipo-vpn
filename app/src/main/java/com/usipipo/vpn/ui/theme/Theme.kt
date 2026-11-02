@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import com.usipipo.vpn.R
 import com.usipipo.vpn.settings.PaletteTokens
 import com.usipipo.vpn.settings.PaletteVariant
+import com.usipipo.vpn.settings.tokens
 
 // Paleta de azules pastel (ver docs/plans/2026-10-09-usipipo-vpn-android-design.md, sección 5).
 private val Navy = Color(0xFF0B2545)

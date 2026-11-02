@@ -79,7 +79,7 @@ fun ConfigsScreen(vm: HomeViewModel, onImport: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = stringResource(R.string.nav_configs),
+                    text = stringResource(R.string.nav_profiles),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onBackground,

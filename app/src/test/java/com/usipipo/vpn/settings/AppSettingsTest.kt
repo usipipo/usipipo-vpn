@@ -98,3 +98,4 @@ class AppSettingsTest {
             settings.changedKeys.collect { recibidas.add(it) }
         }
     }
+}

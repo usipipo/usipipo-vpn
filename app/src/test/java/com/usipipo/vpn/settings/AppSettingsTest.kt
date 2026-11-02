@@ -1,9 +1,10 @@
 package com.usipipo.vpn.settings
 
 import android.content.SharedPreferences
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -15,6 +16,7 @@ import org.junit.Test
  * Android, así que se sustituye el contrato ([SharedPreferences]) por una versión en
  * memoria, sin Robolectric.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class AppSettingsTest {
 
     private val prefs = FakeSharedPreferences()
@@ -62,14 +64,9 @@ class AppSettingsTest {
     @Test
     fun `changedKeys emite la clave modificada`() = runTest {
         val emitadas = mutableListOf<String>()
-        backgroundScope.launch { settings.changedKeys.collect { emitadas.add(it) } }
-        // El colector tiene que estar suscrito antes de tocar una preferencia:
-        // sin suscriptores las emisiones no se guardan.
-        runCurrent()
+        suscribir(emitadas)
 
         settings.themeMode = "light"
-
-        advanceUntilIdle()
 
         assertEquals(listOf("theme_mode"), emitadas)
     }
@@ -77,14 +74,11 @@ class AppSettingsTest {
     @Test
     fun `cada ajuste modificado emite su clave`() = runTest {
         val emitadas = mutableListOf<String>()
-        backgroundScope.launch { settings.changedKeys.collect { emitadas.add(it) } }
-        runCurrent()
+        suscribir(emitadas)
 
         settings.themeMode = "dark"
         settings.animationsEnabled = false
         settings.palette = "verde_bosque"
-
-        advanceUntilIdle()
 
         assertEquals(listOf("theme_mode", "animations_enabled", "palette"), emitadas)
     }
@@ -92,6 +86,17 @@ class AppSettingsTest {
     @Test
     fun `el almacen registra el listener de cambios al construirse`() {
         assertEquals(1, prefs.listenerCount())
+    }
+
+    /**
+     * Suscribe un colector al flujo de cambios. Con un dispatcher eager el colector
+     * arranca y se reanuda de inmediato, así que el test comprueba el efecto sin
+     * depender de que el planificador ejecute el trabajo en segundo plano.
+     */
+    private fun TestScope.suscribir(recibidas: MutableList<String>) {
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            settings.changedKeys.collect { recibidas.add(it) }
+        }
     }
 
     /** SharedPreferences en memoria: mismo contrato, sin Android. */

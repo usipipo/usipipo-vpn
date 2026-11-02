@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-11-01
 **Estado:** aprobado por el usuario (2026-11-01)
-**Implementación:** fase 1 (base) · rama `feat/ajustes-base` · PR #13
+**Implementación:** fase 1 (base) · rama `feat/ajustes-base` · PR #13 · fusionada
 **Proyecto:** uSipipo VPN
 **Alcance:** Rediseño de la barra inferior (sin etiquetas de texto), renombrado y re-iconografía de las pestañas, y creación del subsistema de **Ajustes** como hub con subpantallas. Este documento es el **contrato común** de los nueve diseños de sección que lo accompanyan.
 
@@ -278,8 +278,8 @@ Una fase se marca como completada cuando su PR está en verde y fusionado en `ma
 
 | Fase | Sección | Rama | PR | Estado |
 |------|---------|------|----|--------|
-| 1 | Base: navegación + hub | `feat/ajustes-base` | [#13](https://github.com/usipipo/usipipo-vpn/pull/13) | En curso (CI del commit de corrección) |
-| 2 | Apariencia | `feat/ajustes-apariencia` | - | No iniciada |
+| 1 | Base: navegación + hub | `feat/ajustes-base` | [#13](https://github.com/usipipo/usipipo-vpn/pull/13) | Completada · merge `7207dbf` |
+| 2 | Apariencia | `feat/ajustes-apariencia` | [#14](https://github.com/usipipo/usipipo-vpn/pull/14) | En curso (CI del commit de corrección) |
 | 3 | Seguridad | `feat/ajustes-seguridad` | - | No iniciada |
 | 4 | Notificaciones | `feat/ajustes-notificaciones` | - | No iniciada |
 | 5 | Burbuja de tráfico | `feat/ajustes-burbuja-trafico` | - | No iniciada |

@@ -104,8 +104,9 @@ private val VerdeBosqueLight = PaletteTokens(
     background = 0xFFF1F8F4.toInt(), surface = 0xFFFFFFFF.toInt(), surfaceVariant = 0xFFE3F0E9.toInt(),
     outline = 0xFFD8F3E4.toInt(), secondary = 0xFF4A6283.toInt(), error = 0xFFF4A3A3.toInt(),
     statusIdle = 0xFF5BD98A.toInt(), statusConnected = 0xFF2E7D5B.toInt(), statusError = 0xFFF4A3A3.toInt(),
-    pingGood = 0xFF5BD98A.toInt(), pingWarn = 0xFFF5C451.toInt(), pingBad = 0xFFF87171.toInt(),
-    pingUnknown = 0xFFB7C9E2.toInt(),
+    // El ping es igual en todas las paletas claras (tabla del diseño).
+    pingGood = 0xFF1B7F4B.toInt(), pingWarn = 0xFF8A5A00.toInt(), pingBad = 0xFFB3261E.toInt(),
+    pingUnknown = 0xFF4A6283.toInt(),
     bottomBarContainer = 0xFFE3F0E9.toInt(), bottomBarActive = 0xFF2E7D5B.toInt(),
     bottomBarInactive = 0xFF5B6E8C.toInt(), bottomBarActiveLabel = 0xFF2E7D5B.toInt(),
     bottomBarInactiveLabel = 0xFF5B6E8C.toInt(),
@@ -115,22 +116,55 @@ private val VerdeBosqueLight = PaletteTokens(
     alertTop = 0xFFFDF6F7.toInt(), alertBottom = 0xFFF7DCE2.toInt(),
 )
 
-private val VerdeBosqueDark = AzulNocheDark
+private val VerdeBosqueDark = PaletteTokens(
+    primary = 0xFF5BD98A.toInt(), onPrimary = 0xFF04122B.toInt(), primaryContainer = 0xFF1B4332.toInt(),
+    background = 0xFF061631.toInt(), surface = 0xFF0E2447.toInt(), surfaceVariant = 0xFF12305A.toInt(),
+    outline = 0xFF244A7C.toInt(), secondary = 0xFF2DD4BF.toInt(), error = 0xFFF4A3A3.toInt(),
+    statusIdle = 0xFF4FB3A6.toInt(), statusConnected = 0xFF5BD98A.toInt(), statusError = 0xFFF4A3A3.toInt(),
+    // El ping es igual en todas las paletas oscuras (tabla del diseño).
+    pingGood = 0xFF5BD98A.toInt(), pingWarn = 0xFFF5C451.toInt(), pingBad = 0xFFF87171.toInt(),
+    pingUnknown = 0xFFB7C9E2.toInt(),
+    bottomBarContainer = 0xFF001A1A.toInt(), bottomBarActive = 0xFF5BD98A.toInt(),
+    bottomBarInactive = 0xFF6B87A0.toInt(), bottomBarActiveLabel = 0xFFE6F0FF.toInt(),
+    bottomBarInactiveLabel = 0xFF6B87A0.toInt(),
+    // La atmósfera oscura es la misma en las tres paletas (tabla del diseño).
+    calmTop = 0xFF04132D.toInt(), calmBottom = 0xFF0B2147.toInt(),
+    driftingTop = 0xFF06182E.toInt(), driftingBottom = 0xFF15403C.toInt(),
+    flowingTop = 0xFF071D33.toInt(), flowingBottom = 0xFF114C40.toInt(),
+    alertTop = 0xFF231620.toInt(), alertBottom = 0xFF32202B.toInt(),
+)
 
 private val AmbarLight = PaletteTokens(
     primary = 0xFFC8861E.toInt(), onPrimary = 0xFFFFFFFF.toInt(), primaryContainer = 0xFFFDEACB.toInt(),
-    background = 0xFFFFFBF0.toInt(), surface = 0xFFFFFFFF.toInt(), surfaceVariant = 0xFFFDF0D9.toInt(),
+    background = 0xFFFFFBF0.toInt(), surface = 0xFFFFFFFF.toInt(), surfaceVariant = 0xFFFFF0D9.toInt(),
     outline = 0xFFFDEACB.toInt(), secondary = 0xFF4A6283.toInt(), error = 0xFFF4A3A3.toInt(),
     statusIdle = 0xFFF5C451.toInt(), statusConnected = 0xFFC8861E.toInt(), statusError = 0xFFF4A3A3.toInt(),
-    pingGood = 0xFFF5C451.toInt(), pingWarn = 0xFFE8A53C.toInt(), pingBad = 0xFFF87171.toInt(),
-    pingUnknown = 0xFFB7C9E2.toInt(),
-    bottomBarContainer = 0xFFFDF0D9.toInt(), bottomBarActive = 0xFFC8861E.toInt(),
+    // El ping es igual en todas las paletas claras (tabla del diseño).
+    pingGood = 0xFF1B7F4B.toInt(), pingWarn = 0xFF8A5A00.toInt(), pingBad = 0xFFB3261E.toInt(),
+    pingUnknown = 0xFF4A6283.toInt(),
+    bottomBarContainer = 0xFFFFF0D9.toInt(), bottomBarActive = 0xFFC8861E.toInt(),
     bottomBarInactive = 0xFF5B6E8C.toInt(), bottomBarActiveLabel = 0xFFC8861E.toInt(),
     bottomBarInactiveLabel = 0xFF5B6E8C.toInt(),
     calmTop = 0xFFFFFBF0.toInt(), calmBottom = 0xFFFDEACB.toInt(),
     driftingTop = 0xFFF7E8D0.toInt(), driftingBottom = 0xFFECD8A8.toInt(),
-    flowingTop = 0xFFFDF0D9.toInt(), flowingBottom = 0xFFEBD8A8.toInt(),
+    flowingTop = 0xFFFFF0D9.toInt(), flowingBottom = 0xFFEBD8A8.toInt(),
     alertTop = 0xFFFDF6F7.toInt(), alertBottom = 0xFFF7DCE2.toInt(),
 )
 
-private val AmbarDark = AzulNocheDark
+private val AmbarDark = PaletteTokens(
+    primary = 0xFFF5C451.toInt(), onPrimary = 0xFF04122B.toInt(), primaryContainer = 0xFF7A5000.toInt(),
+    background = 0xFF061631.toInt(), surface = 0xFF0E2447.toInt(), surfaceVariant = 0xFF12305A.toInt(),
+    outline = 0xFF244A7C.toInt(), secondary = 0xFF2DD4BF.toInt(), error = 0xFFF4A3A3.toInt(),
+    statusIdle = 0xFFE8A53C.toInt(), statusConnected = 0xFFF5C451.toInt(), statusError = 0xFFF4A3A3.toInt(),
+    // El ping es igual en todas las paletas oscuras (tabla del diseño).
+    pingGood = 0xFF5BD98A.toInt(), pingWarn = 0xFFF5C451.toInt(), pingBad = 0xFFF87171.toInt(),
+    pingUnknown = 0xFFB7C9E2.toInt(),
+    bottomBarContainer = 0xFF1A1000.toInt(), bottomBarActive = 0xFFF5C451.toInt(),
+    bottomBarInactive = 0xFF6B87A0.toInt(), bottomBarActiveLabel = 0xFFE6F0FF.toInt(),
+    bottomBarInactiveLabel = 0xFF6B87A0.toInt(),
+    // La atmósfera oscura es la misma en las tres paletas (tabla del diseño).
+    calmTop = 0xFF04132D.toInt(), calmBottom = 0xFF0B2147.toInt(),
+    driftingTop = 0xFF06182E.toInt(), driftingBottom = 0xFF15403C.toInt(),
+    flowingTop = 0xFF071D33.toInt(), flowingBottom = 0xFF114C40.toInt(),
+    alertTop = 0xFF231620.toInt(), alertBottom = 0xFF32202B.toInt(),
+)

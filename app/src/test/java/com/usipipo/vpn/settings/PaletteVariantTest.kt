@@ -61,6 +61,53 @@ class PaletteVariantTest {
     }
 
     @Test
+    fun `los tokens oscuros de cada paleta son los del diseno`() {
+        val verde = PaletteVariant.VerdeBosque.tokens(isDark = true)
+        assertEquals(0xFF5BD98A.toInt(), verde.primary)
+        assertEquals(0xFF1B4332.toInt(), verde.primaryContainer)
+        assertEquals(0xFF4FB3A6.toInt(), verde.statusIdle)
+        assertEquals(0xFF5BD98A.toInt(), verde.statusConnected)
+        assertEquals(0xFF001A1A.toInt(), verde.bottomBarContainer)
+        assertEquals(0xFF5BD98A.toInt(), verde.bottomBarActive)
+
+        val ambar = PaletteVariant.Ambar.tokens(isDark = true)
+        assertEquals(0xFFF5C451.toInt(), ambar.primary)
+        assertEquals(0xFF7A5000.toInt(), ambar.primaryContainer)
+        assertEquals(0xFFE8A53C.toInt(), ambar.statusIdle)
+        assertEquals(0xFFF5C451.toInt(), ambar.statusConnected)
+        assertEquals(0xFF1A1000.toInt(), ambar.bottomBarContainer)
+        assertEquals(0xFFF5C451.toInt(), ambar.bottomBarActive)
+    }
+
+    @Test
+    fun `cada paleta oscura se distingue de las otras`() {
+        val oscuras = PaletteVariant.entries.map { it.tokens(isDark = true) }
+
+        oscuras.indices.forEach { i ->
+            (i + 1 until oscuras.size).forEach { j ->
+                assertNotEquals(
+                    "las paletas oscuras ${i} y ${j} comparten todos sus tokens",
+                    oscuras[i],
+                    oscuras[j],
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `el ping es el mismo en todas las paletas de cada modo`() {
+        val claro = PaletteVariant.entries.map { it.tokens(isDark = false) }
+        val oscuro = PaletteVariant.entries.map { it.tokens(isDark = true) }
+
+        listOf(claro, oscuro).forEach { paletas ->
+            val pings = paletas.map {
+                listOf(it.pingGood, it.pingWarn, it.pingBad, it.pingUnknown)
+            }
+            pings.forEach { assertEquals(pings.first(), it) }
+        }
+    }
+
+    @Test
     fun `el modo oscuro no usa los tokens del modo claro`() {
         listOf(PaletteVariant.AzulNoche, PaletteVariant.VerdeBosque, PaletteVariant.Ambar).forEach { paleta ->
             assertNotEquals(paleta.tokens(isDark = false), paleta.tokens(isDark = true))

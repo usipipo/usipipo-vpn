@@ -2,9 +2,9 @@ package com.usipipo.vpn.settings
 
 import android.content.Context
 import android.content.SharedPreferences
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 /**
  * Fachada tipada sobre SharedPreferences para los ajustes globales de la app
@@ -13,8 +13,30 @@ import kotlinx.coroutines.flow.callbackFlow
  * Cada getter tiene su valor por defecto explícito, igual que
  * [PrefsUpdateStateStore] para las actualizaciones. Las preferencias viven en
  * el archivo `usipipo_settings` (MODE_PRIVATE, área privada de la app).
+ *
+ * Los cambios se exponen como [changedKeys]: un flujo con la clave de la
+ * preferencia que cambió, para que la UI reaccione en vivo (por ejemplo, al
+ * cambiar el tema) sin recargar la app.
  */
 class AppSettings(private val prefs: SharedPreferences) {
+
+    /**
+     * Emite la clave de cada preferencia que se modifica. El buffer extra
+     * permite notificar sin suspenderse: los cambios llegan desde el listener
+     * de Android, que no es un contexto de corrutina.
+     */
+    private val changes = MutableSharedFlow<String>(extraBufferCapacity = 16)
+
+    /** Flujo con la clave de cada preferencia modificada. */
+    val changedKeys: Flow<String> = changes.asSharedFlow()
+
+    init {
+        prefs.registerOnSharedPreferenceChangeListener { _, key ->
+            if (key != null) {
+                changes.tryEmit(key)
+            }
+        }
+    }
 
     /** Sistema / Claro / Oscuro. Por defecto sigue el sistema. */
     var themeMode: String
@@ -30,18 +52,6 @@ class AppSettings(private val prefs: SharedPreferences) {
     var palette: String
         get() = prefs.getString(KEY_PALETTE, DEFAULT_PALETTE) ?: DEFAULT_PALETTE
         set(value) = prefs.edit().putString(KEY_PALETTE, value).apply()
-
-    /**
-     * Emite la clave de cada preferencia que se modifica. Permite que la UI
-     * reaccione en vivo (por ejemplo, aplicar un nuevo tema) sin reiniciar la app.
-     */
-    val changedKeys: Flow<String> = callbackFlow {
-        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-            key?.let { trySend(it) }
-        }
-        prefs.registerOnSharedPreferenceChangeListener(listener)
-        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
-    }
 
     companion object {
         private const val PREFS_NAME = "usipipo_settings"

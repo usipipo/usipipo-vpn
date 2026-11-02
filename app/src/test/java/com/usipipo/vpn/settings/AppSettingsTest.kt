@@ -63,8 +63,8 @@ class AppSettingsTest {
     fun `changedKeys emite la clave modificada`() = runTest {
         val emitadas = mutableListOf<String>()
         backgroundScope.launch { settings.changedKeys.collect { emitadas.add(it) } }
-        // El listener se registra al empezar la recolección: hay que dejarlo correr
-        // antes de tocar una preferencia, si no no se notifica nada.
+        // El colector tiene que estar suscrito antes de tocar una preferencia:
+        // sin suscriptores las emisiones no se guardan.
         runCurrent()
 
         settings.themeMode = "light"
@@ -75,16 +75,23 @@ class AppSettingsTest {
     }
 
     @Test
-    fun `al cancelar la recolección se desregistra el listener`() = runTest {
-        val job = backgroundScope.launch { settings.changedKeys.collect { } }
+    fun `cada ajuste modificado emite su clave`() = runTest {
+        val emitadas = mutableListOf<String>()
+        backgroundScope.launch { settings.changedKeys.collect { emitadas.add(it) } }
         runCurrent()
 
-        assertTrue(prefs.listenerCount() > 0)
+        settings.themeMode = "dark"
+        settings.animationsEnabled = false
+        settings.palette = "verde_bosque"
 
-        job.cancel()
         advanceUntilIdle()
 
-        assertEquals(0, prefs.listenerCount())
+        assertEquals(listOf("theme_mode", "animations_enabled", "palette"), emitadas)
+    }
+
+    @Test
+    fun `el almacen registra el listener de cambios al construirse`() {
+        assertEquals(1, prefs.listenerCount())
     }
 
     /** SharedPreferences en memoria: mismo contrato, sin Android. */

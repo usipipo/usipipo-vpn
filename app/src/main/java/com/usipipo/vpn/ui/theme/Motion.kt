@@ -24,3 +24,16 @@ fun rememberReduceMotion(): Boolean {
         ) == 0f
     }
 }
+
+/**
+ * Combina el ajuste de animaciones del usuario con la reducción de movimiento del
+ * sistema: si el usuario apaga las animaciones, se apagan aunque el sistema no las
+ * reduzca.
+ */
+fun effectiveReduceMotion(animationsEnabled: Boolean, systemReducesMotion: Boolean): Boolean =
+    !animationsEnabled || systemReducesMotion
+
+/** Versión componible de [effectiveReduceMotion]. */
+@Composable
+fun rememberEffectiveReduceMotion(animationsEnabled: Boolean): Boolean =
+    effectiveReduceMotion(animationsEnabled, rememberReduceMotion())

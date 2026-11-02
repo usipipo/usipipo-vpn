@@ -42,6 +42,20 @@
     <string name="settings_storage">Almacenamiento</string>
     <string name="settings_more">Más</string>
 
+    <!-- Apariencia -->
+    <string name="appearance_title">Apariencia</string>
+    <string name="appearance_theme">Tema</string>
+    <string name="appearance_theme_system">Sistema</string>
+    <string name="appearance_theme_light">Claro</string>
+    <string name="appearance_theme_dark">Oscuro</string>
+    <string name="appearance_animations">Animaciones</string>
+    <string name="appearance_animations_summary">Desactiva transiciones y efectos de movimiento</string>
+    <string name="appearance_palette">Paleta de color</string>
+    <string name="appearance_palette_azul_noche">Azul noche</string>
+    <string name="appearance_palette_verde_bosque">Verde bosque</string>
+    <string name="appearance_palette_ambar">Ámbar</string>
+    <string name="appearance_selected">Seleccionado</string>
+
     <string name="tab_my_profiles">Mis perfiles</string>
     <string name="tab_favorites">Favoritos</string>
     <string name="add_config">Añadir configuración</string>

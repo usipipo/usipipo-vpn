@@ -5,7 +5,20 @@ package com.usipipo.vpn.settings
  * (esquema Material, estado del botón, ping, barra inferior, atmósfera) para
  * modo claro y oscuro, así nunca quedan huecos al cambiar de paleta.
  */
-enum class PaletteVariant { AzulNoche, VerdeBosque, Ambar }
+enum class PaletteVariant(val key: String) {
+    AzulNoche("azul_noche"),
+    VerdeBosque("verde_bosque"),
+    Ambar("ambar"),
+    ;
+
+    companion object {
+        /**
+         * Recupera la variante a partir de su clave. Una clave desconocida (o
+         * ausente) vuelve a la paleta por defecto: Azul noche.
+         */
+        fun fromKey(key: String?): PaletteVariant = entries.firstOrNull { it.key == key } ?: AzulNoche
+    }
+}
 
 /** Todos los tokens de color de una paleta, en modo claro u oscuro. */
 data class PaletteTokens(

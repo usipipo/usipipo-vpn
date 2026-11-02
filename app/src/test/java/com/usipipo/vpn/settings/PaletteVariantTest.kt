@@ -51,7 +51,11 @@ class PaletteVariantTest {
                 val tokens = paleta.tokens(isDark = oscuro)
                 val sinDefinir = TOKENS.all { tokens.token(it) == 0 }
 
-                assertEquals(false, sinDefinir, "$paleta en oscuro=$oscuro tiene tokens sin definir")
+                assertEquals(
+                    "$paleta en oscuro=$oscuro tiene tokens sin definir",
+                    false,
+                    sinDefinir,
+                )
             }
         }
     }

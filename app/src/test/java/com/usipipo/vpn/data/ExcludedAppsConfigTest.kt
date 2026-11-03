@@ -28,7 +28,10 @@ class ExcludedAppsConfigTest {
         val salida = ExcludedAppsConfig.inject(conf, listOf("com.app.excluida", "com.otra.app"))
 
         assertTrue(salida.contains("ExcludedApplications = com.app.excluida, com.otra.app"))
-        assertTrue("el interface debe conservar las demás claves", salida.contains("PrivateKey = clave"))
+        assertTrue(
+            "el interface debe conservar las demás claves",
+            salida.contains("PrivateKey = c1X3i1SeWVfHBDEYVA7IwJ4KiIb5OY5jgobosZdvtys="),
+        )
         assertTrue("el peer debe quedar intacto", salida.contains("[Peer]"))
     }
 
@@ -45,8 +48,8 @@ class ExcludedAppsConfigTest {
     @Test
     fun `reemplaza una lista que ya existe en el conf`() {
         val conf = conf().replace(
-            "PrivateKey = clave",
-            "PrivateKey = clave\nExcludedApplications = com.vieja.app",
+            "PrivateKey = c1X3i1SeWVfHBDEYVA7IwJ4KiIb5OY5jgobosZdvtys=",
+            "PrivateKey = c1X3i1SeWVfHBDEYVA7IwJ4KiIb5OY5jgobosZdvtys=\nExcludedApplications = com.vieja.app",
         )
 
         val salida = ExcludedAppsConfig.inject(conf, listOf("com.app.excluida"))
@@ -66,8 +69,8 @@ class ExcludedAppsConfigTest {
     fun `un conf con includedapplications no se toca`() {
         // Upstream rechaza tener included y excluded a la vez: inyectar rompería el parse.
         val conf = conf().replace(
-            "PrivateKey = clave",
-            "PrivateKey = clave\nIncludedApplications = com.app.permitida",
+            "PrivateKey = c1X3i1SeWVfHBDEYVA7IwJ4KiIb5OY5jgobosZdvtys=",
+            "PrivateKey = c1X3i1SeWVfHBDEYVA7IwJ4KiIb5OY5jgobosZdvtys=\nIncludedApplications = com.app.permitida",
         )
 
         val salida = ExcludedAppsConfig.inject(conf, listOf("com.app.excluida"))
@@ -78,8 +81,8 @@ class ExcludedAppsConfigTest {
     @Test
     fun `la clave excludedapplications se acepta en minusculas`() {
         val conf = conf().replace(
-            "PrivateKey = clave",
-            "PrivateKey = clave\nexcludedapplications = com.vieja.app",
+            "PrivateKey = c1X3i1SeWVfHBDEYVA7IwJ4KiIb5OY5jgobosZdvtys=",
+            "PrivateKey = c1X3i1SeWVfHBDEYVA7IwJ4KiIb5OY5jgobosZdvtys=\nexcludedapplications = com.vieja.app",
         )
 
         val salida = ExcludedAppsConfig.inject(conf, listOf("com.app.excluida"))
@@ -152,12 +155,14 @@ class ExcludedAppsConfigTest {
 
     private fun conf(): String = buildString {
         append("[Interface]\n")
-        append("PrivateKey = clave\n")
+        // Claves base64 de 44 caracteres terminadas en '=': Config.parse las valida
+        // y rechazaria cualquier texto que no sea una clave WireGuard real.
+        append("PrivateKey = c1X3i1SeWVfHBDEYVA7IwJ4KiIb5OY5jgobosZdvtys=\n")
         append("Address = 10.0.0.2/32\n")
         append("DNS = 1.1.1.1\n")
         append("\n")
         append("[Peer]\n")
-        append("PublicKey = clavepeer\n")
+        append("PublicKey = LvgFZ6NZXTEL5/jc4CXF2zCMcXa3nrSIM8b/r/+8kt0=\n")
         append("AllowedIPs = 0.0.0.0/0\n")
         append("Endpoint = 1.2.3.4:51820\n")
     }

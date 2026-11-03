@@ -1,12 +1,13 @@
 package com.usipipo.vpn.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
@@ -15,10 +16,15 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import com.usipipo.vpn.R
+import com.usipipo.vpn.settings.PaletteTokens
+import com.usipipo.vpn.settings.PaletteVariant
+import com.usipipo.vpn.settings.tokens
 
 // Paleta de azules pastel (ver docs/plans/2026-10-09-usipipo-vpn-android-design.md, sección 5).
 private val Navy = Color(0xFF0B2545)
 
+// Los esquemas base fijan los colores "on" de la app. La paleta activa sobrescribe
+// los tokens que define; el resto se hereda de aquí, para que no queden huecos.
 private val LightColors = lightColorScheme(
     primary = Color(0xFFA8CCFF),
     onPrimary = Navy,
@@ -59,43 +65,58 @@ private val DarkColors = darkColorScheme(
     onError = Navy,
 )
 
+/** Tokens por defecto: Azul noche en modo claro. */
+private val DefaultTokens: PaletteTokens = PaletteVariant.AzulNoche.tokens(isDark = false)
+
 /** Colores del botón según el estado del túnel. Siempre van acompañados de texto. */
 @Immutable
 data class StatusColors(val idle: Color, val connected: Color, val error: Color)
-
-private val LightStatus = StatusColors(
-    idle = Color(AtmospherePalette.BUTTON_LIGHT_IDLE),
-    connected = Color(AtmospherePalette.BUTTON_LIGHT_CONNECTED),
-    error = Color(AtmospherePalette.BUTTON_LIGHT_ERROR),
-)
-
-private val DarkStatus = StatusColors(
-    idle = Color(AtmospherePalette.BUTTON_DARK_IDLE),
-    connected = Color(AtmospherePalette.BUTTON_DARK_CONNECTED),
-    error = Color(AtmospherePalette.BUTTON_DARK_ERROR),
-)
 
 /** Colores del badge de ping por latencia (RF-3: verde <100 ms, ambar 100-250 ms, rojo >250 ms). */
 @Immutable
 data class PingColors(val good: Color, val warn: Color, val bad: Color, val unknown: Color)
 
-private val LightPing = PingColors(
-    good = Color(0xFF1B7F4B),
-    warn = Color(0xFF8A5A00),
-    bad = Color(0xFFB3261E),
-    unknown = Color(0xFF4A6283),
+/** Degradado de fondo (arriba → abajo) de una fase del ambiente. */
+@Immutable
+data class Atmosphere(val top: Color, val bottom: Color)
+
+@Immutable
+data class AtmosphereColors(
+    val calm: Atmosphere,
+    val drifting: Atmosphere,
+    val flowing: Atmosphere,
+    val alert: Atmosphere,
+) {
+    fun forPhase(phase: AtmospherePhase): Atmosphere = when (phase) {
+        AtmospherePhase.Calm -> calm
+        AtmospherePhase.Drifting -> drifting
+        AtmospherePhase.Flowing -> flowing
+        AtmospherePhase.Alert -> alert
+    }
+}
+
+/**
+ * Colores de la barra inferior: fondo, color de la pestaña activa (icono y etiqueta) y de las
+ * inactivas. Vive aparte del esquema de Material porque la barra lleva su propio azul de marca.
+ */
+@Immutable
+data class BottomBarColors(
+    val container: Color,
+    val active: Color,
+    val activeLabel: Color,
+    val inactive: Color,
 )
 
-private val DarkPing = PingColors(
-    good = Color(0xFF5BD98A),
-    warn = Color(0xFFF5C451),
-    bad = Color(0xFFF87171),
-    unknown = Color(0xFFB7C9E2),
-)
+val LocalPingColors = staticCompositionLocalOf { pingColors(DefaultTokens) }
 
-val LocalPingColors = staticCompositionLocalOf { LightPing }
+val LocalStatusColors = staticCompositionLocalOf { statusColors(DefaultTokens) }
 
-val LocalStatusColors = staticCompositionLocalOf { LightStatus }
+val LocalAtmosphere = staticCompositionLocalOf { atmosphereColors(DefaultTokens) }
+
+val LocalBottomBarColors = staticCompositionLocalOf { bottomBarColors(DefaultTokens) }
+
+/** Si la app se pinta en modo oscuro: sigue al tema elegido, no al del sistema. */
+val LocalIsDarkTheme = staticCompositionLocalOf { false }
 
 // Manrope variable: los cinco pesos usan el mismo archivo con distinto eje `wght`.
 private val Manrope = FontFamily(
@@ -118,82 +139,76 @@ private val UsipipoTypography = Typography().run {
     )
 }
 
-/** Degradado de fondo (arriba → abajo) de una fase del ambiente. */
-@Immutable
-data class Atmosphere(val top: Color, val bottom: Color)
-
-@Immutable
-data class AtmosphereColors(
-    val calm: Atmosphere,
-    val drifting: Atmosphere,
-    val flowing: Atmosphere,
-    val alert: Atmosphere,
-) {
-    fun forPhase(phase: AtmospherePhase): Atmosphere = when (phase) {
-        AtmospherePhase.Calm -> calm
-        AtmospherePhase.Drifting -> drifting
-        AtmospherePhase.Flowing -> flowing
-        AtmospherePhase.Alert -> alert
-    }
-}
-
-private val LightAtmosphere = AtmosphereColors(
-    calm = Atmosphere(Color(AtmospherePalette.LIGHT_CALM_TOP), Color(AtmospherePalette.LIGHT_CALM_BOTTOM)),
-    drifting = Atmosphere(Color(AtmospherePalette.LIGHT_DRIFTING_TOP), Color(AtmospherePalette.LIGHT_DRIFTING_BOTTOM)),
-    flowing = Atmosphere(Color(AtmospherePalette.LIGHT_FLOWING_TOP), Color(AtmospherePalette.LIGHT_FLOWING_BOTTOM)),
-    alert = Atmosphere(Color(AtmospherePalette.LIGHT_ALERT_TOP), Color(AtmospherePalette.LIGHT_ALERT_BOTTOM)),
+/** Colores del botón según el estado del túnel, con los tokens de la paleta. */
+private fun statusColors(tokens: PaletteTokens): StatusColors = StatusColors(
+    idle = Color(tokens.statusIdle),
+    connected = Color(tokens.statusConnected),
+    error = Color(tokens.statusError),
 )
 
-private val DarkAtmosphere = AtmosphereColors(
-    calm = Atmosphere(Color(AtmospherePalette.DARK_CALM_TOP), Color(AtmospherePalette.DARK_CALM_BOTTOM)),
-    drifting = Atmosphere(Color(AtmospherePalette.DARK_DRIFTING_TOP), Color(AtmospherePalette.DARK_DRIFTING_BOTTOM)),
-    flowing = Atmosphere(Color(AtmospherePalette.DARK_FLOWING_TOP), Color(AtmospherePalette.DARK_FLOWING_BOTTOM)),
-    alert = Atmosphere(Color(AtmospherePalette.DARK_ALERT_TOP), Color(AtmospherePalette.DARK_ALERT_BOTTOM)),
+/** Colores del badge de ping, con los tokens de la paleta. */
+private fun pingColors(tokens: PaletteTokens): PingColors = PingColors(
+    good = Color(tokens.pingGood),
+    warn = Color(tokens.pingWarn),
+    bad = Color(tokens.pingBad),
+    unknown = Color(tokens.pingUnknown),
 )
 
-val LocalAtmosphere = staticCompositionLocalOf { LightAtmosphere }
+/** Colores de la barra inferior, con los tokens de la paleta. */
+private fun bottomBarColors(tokens: PaletteTokens): BottomBarColors = BottomBarColors(
+    container = Color(tokens.bottomBarContainer),
+    active = Color(tokens.bottomBarActive),
+    activeLabel = Color(tokens.bottomBarActiveLabel),
+    inactive = Color(tokens.bottomBarInactive),
+)
+
+/** Colores de la atmósfera, con los tokens de la paleta. */
+private fun atmosphereColors(tokens: PaletteTokens): AtmosphereColors = AtmosphereColors(
+    calm = Atmosphere(Color(tokens.calmTop), Color(tokens.calmBottom)),
+    drifting = Atmosphere(Color(tokens.driftingTop), Color(tokens.driftingBottom)),
+    flowing = Atmosphere(Color(tokens.flowingTop), Color(tokens.flowingBottom)),
+    alert = Atmosphere(Color(tokens.alertTop), Color(tokens.alertBottom)),
+)
 
 /**
- * Colores de la barra inferior: fondo, color de la pestaña activa (icono y etiqueta) y de las
- * inactivas. Vive aparte del esquema de Material porque la barra lleva su propio azul de marca.
+ * Esquema de color de la paleta activa: los tokens que la paleta define se sobrescriben
+ * y el resto se hereda del esquema del modo, para que nunca queden huecos de color.
  */
-@Immutable
-data class BottomBarColors(
-    val container: Color,
-    val active: Color,
-    val activeLabel: Color,
-    val inactive: Color,
-)
-
-private val LightBottomBar = BottomBarColors(
-    container = Color(AtmospherePalette.BOTTOM_BAR_LIGHT),
-    active = Color(AtmospherePalette.BOTTOM_BAR_ACTIVE_LIGHT),
-    activeLabel = Color(AtmospherePalette.BOTTOM_BAR_ACTIVE_LABEL_LIGHT),
-    inactive = Color(AtmospherePalette.BOTTOM_BAR_INACTIVE_LIGHT),
-)
-
-private val DarkBottomBar = BottomBarColors(
-    container = Color(AtmospherePalette.BOTTOM_BAR_DARK),
-    active = Color(AtmospherePalette.BOTTOM_BAR_ACTIVE_DARK),
-    activeLabel = Color(AtmospherePalette.BOTTOM_BAR_ACTIVE_LABEL_DARK),
-    inactive = Color(AtmospherePalette.BOTTOM_BAR_INACTIVE_DARK),
-)
-
-val LocalBottomBarColors = staticCompositionLocalOf { LightBottomBar }
+private fun colorScheme(tokens: PaletteTokens, darkTheme: Boolean): ColorScheme {
+    val base = if (darkTheme) DarkColors else LightColors
+    return base.copy(
+        primary = Color(tokens.primary),
+        onPrimary = Color(tokens.onPrimary),
+        primaryContainer = Color(tokens.primaryContainer),
+        background = Color(tokens.background),
+        surface = Color(tokens.surface),
+        surfaceVariant = Color(tokens.surfaceVariant),
+        outline = Color(tokens.outline),
+        secondary = Color(tokens.secondary),
+        error = Color(tokens.error),
+    )
+}
 
 @Composable
 fun UsipipoTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    palette: PaletteVariant = PaletteVariant.AzulNoche,
+    animationsEnabled: Boolean = true,
     content: @Composable () -> Unit,
 ) {
+    val tokens = palette.tokens(isDark = darkTheme)
     CompositionLocalProvider(
-        LocalStatusColors provides if (darkTheme) DarkStatus else LightStatus,
-        LocalAtmosphere provides if (darkTheme) DarkAtmosphere else LightAtmosphere,
-        LocalPingColors provides if (darkTheme) DarkPing else LightPing,
-        LocalBottomBarColors provides if (darkTheme) DarkBottomBar else LightBottomBar,
+        LocalStatusColors provides statusColors(tokens),
+        LocalAtmosphere provides atmosphereColors(tokens),
+        LocalPingColors provides pingColors(tokens),
+        LocalBottomBarColors provides bottomBarColors(tokens),
+        LocalIsDarkTheme provides darkTheme,
+        // Con las animaciones apagadas se reduce el movimiento en toda la app, aunque
+        // el sistema no esté en modo reducido.
+        LocalReduceMotion provides if (animationsEnabled) null else true,
     ) {
         MaterialTheme(
-            colorScheme = if (darkTheme) DarkColors else LightColors,
+            colorScheme = colorScheme(tokens, darkTheme),
             typography = UsipipoTypography,
             content = content,
         )

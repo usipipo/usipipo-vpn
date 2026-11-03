@@ -9,7 +9,6 @@ import androidx.annotation.StringRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -64,6 +63,7 @@ import com.usipipo.vpn.ui.components.flagEmoji
 import com.usipipo.vpn.ui.details.StatsUiState
 import com.usipipo.vpn.ui.theme.AtmospherePhase
 import com.usipipo.vpn.ui.theme.LocalAtmosphere
+import com.usipipo.vpn.ui.theme.LocalIsDarkTheme
 import com.usipipo.vpn.ui.theme.UsipipoTheme
 import com.usipipo.vpn.ui.theme.atmospherePhase
 import com.usipipo.vpn.ui.theme.rememberReduceMotion
@@ -179,7 +179,7 @@ private fun HomeBackground(
     content: @Composable () -> Unit,
 ) {
     val atmosphere = LocalAtmosphere.current.forPhase(phase)
-    val dark = isSystemInDarkTheme()
+    val dark = LocalIsDarkTheme.current
     Box(modifier = Modifier.fillMaxSize()) {
         GradientLayer(top = atmosphere.top, bottom = atmosphere.bottom, reduceMotion = reduceMotion)
         WorldMapLayer(dark = dark)

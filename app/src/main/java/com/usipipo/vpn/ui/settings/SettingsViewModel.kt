@@ -1,18 +1,11 @@
 package com.usipipo.vpn.ui.settings
 
 import com.usipipo.vpn.settings.AppSettings
+import com.usipipo.vpn.settings.PaletteVariant
+import com.usipipo.vpn.settings.ThemeMode
 
 /** ViewModel de la pantalla hub de Ajustes: resúmenes del valor actual de cada sección. */
 class SettingsViewModel(private val appSettings: AppSettings) {
-
-    /** Modo de tema actual ("system", "light" o "dark"). */
-    val themeMode: String get() = appSettings.themeMode
-
-    /** Si las animaciones están activas. */
-    val animationsEnabled: Boolean get() = appSettings.animationsEnabled
-
-    /** Paleta de color activa. */
-    val palette: String get() = appSettings.palette
 
     /**
      * Resumen del valor actual de cada sección, para mostrar a la derecha de su
@@ -20,7 +13,7 @@ class SettingsViewModel(private val appSettings: AppSettings) {
      * sección implemente su propia pantalla.
      */
     fun summary(route: SettingsRoute): String = when (route) {
-        SettingsRoute.Appearance -> "Tema: ${themeLabel()}"
+        SettingsRoute.Appearance -> "Tema: ${themeLabel()} · ${animationsLabel()} · ${paletteLabel()}"
         SettingsRoute.Security -> "Desactivado"
         SettingsRoute.HomeScreen -> "Activado"
         SettingsRoute.TrafficBubble -> "Desactivada"
@@ -31,10 +24,23 @@ class SettingsViewModel(private val appSettings: AppSettings) {
         SettingsRoute.More -> "—"
     }
 
-    private fun themeLabel(): String = when (appSettings.themeMode) {
-        "system" -> "Sistema"
-        "light" -> "Claro"
-        "dark" -> "Oscuro"
-        else -> "Sistema"
+    private fun themeLabel(): String = ThemeMode.fromKey(appSettings.themeMode).label()
+
+    private fun animationsLabel(): String = if (appSettings.animationsEnabled) "Activado" else "Desactivado"
+
+    private fun paletteLabel(): String = PaletteVariant.fromKey(appSettings.palette).label()
+
+    /** Etiqueta en español de cada modo; es material de presentación, vive fuera del dominio. */
+    private fun ThemeMode.label(): String = when (this) {
+        ThemeMode.System -> "Sistema"
+        ThemeMode.Light -> "Claro"
+        ThemeMode.Dark -> "Oscuro"
+    }
+
+    /** Etiqueta en español de cada paleta. */
+    private fun PaletteVariant.label(): String = when (this) {
+        PaletteVariant.AzulNoche -> "Azul noche"
+        PaletteVariant.VerdeBosque -> "Verde bosque"
+        PaletteVariant.Ambar -> "Ámbar"
     }
 }

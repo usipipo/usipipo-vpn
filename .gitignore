@@ -15,3 +15,9 @@
 keystore.properties
 .worktrees/
 /.superpowers/
+
+# Herramientas de agentes: skills instaladas localmente
+/.agents/
+/.claude/
+/agent/
+skills-lock.json

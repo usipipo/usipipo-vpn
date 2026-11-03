@@ -44,8 +44,11 @@ import com.usipipo.vpn.diagnostics.AppLog
 import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.ui.components.UsipipoBottomBar
 import com.usipipo.vpn.ui.configs.ConfigsScreen
+import com.usipipo.vpn.ui.settings.SettingsRoute
 import com.usipipo.vpn.ui.settings.SettingsScreen
 import com.usipipo.vpn.ui.settings.SettingsViewModel
+import com.usipipo.vpn.ui.settings.appearance.AppearanceRoute
+import com.usipipo.vpn.ui.settings.appearance.AppearanceViewModel
 import com.usipipo.vpn.ui.details.CountryPingViewModel
 import com.usipipo.vpn.ui.details.DetailsScreen
 import com.usipipo.vpn.ui.details.StatsViewModel
@@ -98,10 +101,14 @@ fun UsipipoRoot(container: AppContainer, initialTab: MainTab = MainTab.Home) {
 
     val settingsVm = remember { SettingsViewModel(container.appSettings) }
 
+    // Subpantalla de Ajustes abierta (null = se está en la lista de secciones).
+    var settingsRoute by rememberSaveable { mutableStateOf<SettingsRoute?>(null) }
+
     BackHandler(enabled = backTarget(tab) != null) {
         backTarget(tab)?.let { tab = it }
     }
     BackHandler(enabled = showDetails) { showDetails = false }
+    BackHandler(enabled = settingsRoute != null) { settingsRoute = null }
 
     val reduceMotion = rememberReduceMotion()
 
@@ -162,9 +169,24 @@ fun UsipipoRoot(container: AppContainer, initialTab: MainTab = MainTab.Home) {
                         }
                     }
 
-                    MainTab.Settings -> SettingsScreen(
-                        viewModel = settingsVm,
-                    )
+                    MainTab.Settings -> {
+                        val route = settingsRoute
+                        if (route == null) {
+                            SettingsScreen(
+                                viewModel = settingsVm,
+                                // Cada sección se activa en la fase que la implementa:
+                                // hasta entonces tocar su fila no lleva a ninguna parte.
+                                onSectionClick = { clicked ->
+                                    if (clicked == SettingsRoute.Appearance) settingsRoute = clicked
+                                },
+                            )
+                        } else if (route == SettingsRoute.Appearance) {
+                            AppearanceRoute(
+                                viewModel = appearanceViewModel(container),
+                                onBack = { settingsRoute = null },
+                            )
+                        }
+                    }
 
                     MainTab.Profiles -> ConfigsScreen(
                         vm = homeViewModel(container),
@@ -178,7 +200,9 @@ fun UsipipoRoot(container: AppContainer, initialTab: MainTab = MainTab.Home) {
                 }
             }
 
-            if (!WindowInsets.isImeVisible) {
+            // En una subpantalla de Ajustes se oculta la barra inferior: es el patrón
+            // de "más opciones" de los ajustes del sistema.
+            if (!WindowInsets.isImeVisible && settingsRoute == null) {
                 UsipipoBottomBar(
                     tab = tab,
                     onTabClick = {
@@ -219,6 +243,13 @@ private fun openRelease(context: Context, url: String) {
 private fun statsViewModel(container: AppContainer): StatsViewModel = viewModel(
     factory = viewModelFactory {
         initializer { StatsViewModel(container.configStore, container.tunnelManager) }
+    },
+)
+
+@Composable
+private fun appearanceViewModel(container: AppContainer): AppearanceViewModel = viewModel(
+    factory = viewModelFactory {
+        initializer { AppearanceViewModel(container.appSettings) }
     },
 )
 

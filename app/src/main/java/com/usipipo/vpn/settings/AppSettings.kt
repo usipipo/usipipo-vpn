@@ -54,10 +54,11 @@ class AppSettings(private val prefs: SharedPreferences) {
         set(value) = prefs.edit().putString(KEY_PALETTE, value).apply()
 
     companion object {
+        const val KEY_THEME_MODE: String = "theme_mode"
+        const val KEY_ANIMATIONS_ENABLED: String = "animations_enabled"
+        const val KEY_PALETTE: String = "palette"
+
         private const val PREFS_NAME = "usipipo_settings"
-        private const val KEY_THEME_MODE = "theme_mode"
-        private const val KEY_ANIMATIONS_ENABLED = "animations_enabled"
-        private const val KEY_PALETTE = "palette"
         private const val DEFAULT_THEME_MODE = "system"
         private const val DEFAULT_ANIMATIONS_ENABLED = true
         private const val DEFAULT_PALETTE = "azul_noche"

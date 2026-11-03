@@ -53,15 +53,29 @@ class AppSettings(private val prefs: SharedPreferences) {
         get() = prefs.getString(KEY_PALETTE, DEFAULT_PALETTE) ?: DEFAULT_PALETTE
         set(value) = prefs.edit().putString(KEY_PALETTE, value).apply()
 
+    /** Si el acceso a la app se protege con biometría. */
+    var biometricEnabled: Boolean
+        get() = prefs.getBoolean(KEY_BIOMETRIC_ENABLED, DEFAULT_BIOMETRIC_ENABLED)
+        set(value) = prefs.edit().putBoolean(KEY_BIOMETRIC_ENABLED, value).apply()
+
+    /** Paquetes excluidos del túnel, en texto (`com.app`, `com.otra`). Lista global. */
+    var excludedApps: String
+        get() = prefs.getString(KEY_EXCLUDED_APPS, DEFAULT_EXCLUDED_APPS).orEmpty()
+        set(value) = prefs.edit().putString(KEY_EXCLUDED_APPS, value).apply()
+
     companion object {
         const val KEY_THEME_MODE: String = "theme_mode"
         const val KEY_ANIMATIONS_ENABLED: String = "animations_enabled"
         const val KEY_PALETTE: String = "palette"
+        const val KEY_BIOMETRIC_ENABLED: String = "biometric_enabled"
+        const val KEY_EXCLUDED_APPS: String = "excluded_apps"
 
         private const val PREFS_NAME = "usipipo_settings"
         private const val DEFAULT_THEME_MODE = "system"
         private const val DEFAULT_ANIMATIONS_ENABLED = true
         private const val DEFAULT_PALETTE = "azul_noche"
+        private const val DEFAULT_BIOMETRIC_ENABLED = false
+        private const val DEFAULT_EXCLUDED_APPS = ""
 
         fun create(context: Context): AppSettings =
             AppSettings(context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))

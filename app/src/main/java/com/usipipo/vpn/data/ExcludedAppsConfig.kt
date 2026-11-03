@@ -34,9 +34,11 @@ object ExcludedAppsConfig {
         }
 
         // Sin línea previa: se cuela justo debajo de la cabecera [Interface].
+        // replaceFirst solo acepta texto de reemplazo; la variante con lambda es de
+        // replace, que aquí es equivalente porque [Interface] aparece una sola vez.
         val interface_ = Regex("(?im)^[ \\t]*\\[Interface\\][ \\t]*$")
         if (!interface_.containsMatchIn(configText)) return configText
-        return interface_.replaceFirst(configText) { "${it.value}\n$linea" }
+        return interface_.replace(configText) { "${it.value}\n$linea" }
     }
 
     /** Quita de [packages] los que ya no están en [installed]. */

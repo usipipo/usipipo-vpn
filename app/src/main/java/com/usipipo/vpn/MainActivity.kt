@@ -3,8 +3,8 @@ package com.usipipo.vpn
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.fragment.app.FragmentActivity
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.fragment.app.FragmentActivity
 import com.usipipo.vpn.settings.darkTheme
 import com.usipipo.vpn.ui.UsipipoRoot
 import com.usipipo.vpn.ui.nav.MainTab

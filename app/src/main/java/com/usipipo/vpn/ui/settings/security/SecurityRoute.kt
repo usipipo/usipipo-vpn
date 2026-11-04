@@ -16,8 +16,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.usipipo.vpn.R
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * Subpantalla de Seguridad con su ViewModel.
@@ -34,15 +34,15 @@ fun SecurityRoute(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val activity = remember(context) { context as? FragmentActivity }
-    val aviso = context.getString(R.string.security_biometric_failed)
+    val fallo = context.getString(R.string.security_biometric_failed)
 
     // El prompt solo se lanza cuando el usuario toca el interruptor.
-    var pedir by remember { mutableStateOf(false) }
+    var pedirAutenticacion by remember { mutableStateOf(false) }
     var mensaje by remember { mutableStateOf<String?>(null) }
 
-    val info = remember(aviso) {
+    val info = remember(fallo) {
         BiometricPrompt.PromptInfo.Builder()
-            .setTitle(aviso)
+            .setTitle(context.getString(R.string.security_biometric_prompt_title))
             .setSubtitle(context.getString(R.string.security_biometric_prompt))
             .apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -59,12 +59,12 @@ fun SecurityRoute(
             .build()
     }
 
-    LaunchedEffect(pedir) {
-        if (!pedir) return@LaunchedEffect
-        pedir = false
+    LaunchedEffect(pedirAutenticacion) {
+        if (!pedirAutenticacion) return@LaunchedEffect
+        pedirAutenticacion = false
         val concedido = autenticar(activity, info)
         viewModel.setBiometricEnabled(concedido)
-        if (!concedido) mensaje = aviso
+        if (!concedido) mensaje = fallo
     }
 
     SecurityScreen(
@@ -77,7 +77,11 @@ fun SecurityRoute(
         mensaje = mensaje,
         onMensajeConsumido = { mensaje = null },
         onBiometricChange = { activar ->
-            if (activar) pedir = true else viewModel.setBiometricEnabled(false)
+            if (activar) {
+                pedirAutenticacion = true
+            } else {
+                viewModel.setBiometricEnabled(false)
+            }
         },
         onRemoveApp = { paquete ->
             viewModel.setExcludedApps(state.excludedApps - paquete)

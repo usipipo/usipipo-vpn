@@ -109,6 +109,11 @@ dependencies {
     // Desbloqueo biométrico (BiometricPrompt, con respaldo de credencial de dispositivo)
     implementation(libs.biometric)
 
+    // BiometricPrompt cuelga de un FragmentManager: hace falta FragmentActivity. La
+    // versión se fija a mano porque biometric 1.1.0 arrastra fragment 1.2.5, demasiado
+    // antigua para registerForActivityResult (lint lo exige >= 1.3.0).
+    implementation(libs.androidx.fragment)
+
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     // Escáner QR offline (no depende de Google Play Services)

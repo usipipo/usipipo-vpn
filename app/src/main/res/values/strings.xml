@@ -46,7 +46,8 @@
     <string name="security_title">Seguridad</string>
     <string name="security_biometric">Desbloqueo biométrico</string>
     <string name="security_biometric_body">Pide la huella o la credencial del dispositivo para activarlo.</string>
-    <string name="security_biometric_prompt">Confirma tu identidad</string>
+    <string name="security_biometric_prompt">Confirma tu identidad para activar el desbloqueo</string>
+    <string name="security_biometric_prompt_title">Desbloqueo de uSipipo</string>
     <string name="security_biometric_failed">No se pudo autenticar</string>
     <string name="security_kill_switch">Siempre-on VPN / kill switch</string>
     <string name="security_always_on">Siempre-on</string>

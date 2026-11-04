@@ -3,15 +3,15 @@ package com.usipipo.vpn
 import android.content.Context
 import com.usipipo.vpn.data.ConfigImporter
 import com.usipipo.vpn.data.ConfigStore
-import com.usipipo.vpn.data.EncryptedFileConfigStore
 import com.usipipo.vpn.data.ConfigTextReader
-import com.usipipo.vpn.data.installedPackages
+import com.usipipo.vpn.data.EncryptedFileConfigStore
 import com.usipipo.vpn.data.KeystoreCrypto
 import com.usipipo.vpn.data.geo.CountryRepository
 import com.usipipo.vpn.data.geo.GeoLocator
 import com.usipipo.vpn.data.geo.IpinfoLiteClient
 import com.usipipo.vpn.data.geo.IpwhoIsClient
 import com.usipipo.vpn.data.geo.PingRepository
+import com.usipipo.vpn.data.installedPackages
 import com.usipipo.vpn.diagnostics.AppLog
 import com.usipipo.vpn.diagnostics.DeviceInfo
 import com.usipipo.vpn.diagnostics.DiagnosticsSettings

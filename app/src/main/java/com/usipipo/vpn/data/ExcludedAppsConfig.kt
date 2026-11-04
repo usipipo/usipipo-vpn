@@ -18,11 +18,7 @@ object ExcludedAppsConfig {
      *   ambas y el túnel no arrancaría. Se prefiere conectar sin exclusiones.
      */
     fun inject(configText: String, packages: List<String>): String {
-        val limpios = packages
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
-            .distinct()
-            .sorted()
+        val limpios = normalize(packages)
         if (limpios.isEmpty()) return configText
         if (tieneIncludedApplications(configText)) return configText
 
@@ -46,12 +42,15 @@ object ExcludedAppsConfig {
         packages.filter { it in installed }
 
     /** Texto que se guarda en `excluded_apps`. */
-    fun encode(packages: List<String>): String =
-        packages.map { it.trim() }.filter { it.isNotEmpty() }.distinct().joinToString(",")
+    fun encode(packages: List<String>): String = normalize(packages).joinToString(",")
 
     /** Lista que representa el texto guardado en `excluded_apps`. */
     fun decode(text: String): List<String> =
-        text.split(",").map { it.trim() }.filter { it.isNotEmpty() }.distinct()
+        if (text.isBlank()) emptyList() else normalize(text.split(","))
+
+    /** Sin huecos, sin repetidos y en orden: la misma lista da siempre el mismo texto. */
+    private fun normalize(packages: List<String>): List<String> =
+        packages.map { it.trim() }.filter { it.isNotEmpty() }.distinct().sorted()
 
     private fun tieneIncludedApplications(configText: String): Boolean =
         Regex("(?im)^[ \\t]*IncludedApplications[ \\t]*=").containsMatchIn(configText)

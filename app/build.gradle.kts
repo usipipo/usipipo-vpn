@@ -105,6 +105,10 @@ dependencies {
 
     // Motor del túnel (librería oficial de WireGuard para Android)
     implementation(libs.wireguard.tunnel)
+
+    // Desbloqueo biométrico (BiometricPrompt, con respaldo de credencial de dispositivo)
+    implementation(libs.biometric)
+
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     // Escáner QR offline (no depende de Google Play Services)

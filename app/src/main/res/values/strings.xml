@@ -42,6 +42,24 @@
     <string name="settings_storage">Almacenamiento</string>
     <string name="settings_more">Más</string>
 
+    <!-- Seguridad -->
+    <string name="security_title">Seguridad</string>
+    <string name="security_biometric">Desbloqueo biométrico</string>
+    <string name="security_biometric_body">Pide la huella o la credencial del dispositivo para activarlo.</string>
+    <string name="security_biometric_prompt">Confirma tu identidad</string>
+    <string name="security_biometric_failed">No se pudo autenticar</string>
+    <string name="security_kill_switch">Siempre-on VPN / kill switch</string>
+    <string name="security_always_on">Siempre-on</string>
+    <string name="security_lockdown">Bloqueo sin VPN</string>
+    <string name="security_state_on">Activado</string>
+    <string name="security_state_off">Desactivado</string>
+    <string name="security_state_unknown">No disponible</string>
+    <string name="security_kill_switch_body">El sistema gestiona siempre-on y el bloqueo sin VPN. Desde los ajustes de VPN del sistema puedes elegir esta app.</string>
+    <string name="security_open_vpn_settings">Abrir ajustes de VPN</string>
+    <string name="security_excluded_apps">Apps excluidas del túnel</string>
+    <string name="security_excluded_empty">Ninguna aplicación excluida</string>
+    <string name="security_excluded_remove">Quitar de las excluidas</string>
+
     <!-- Apariencia -->
     <string name="appearance_title">Apariencia</string>
     <string name="appearance_theme">Tema</string>

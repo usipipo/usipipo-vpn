@@ -18,6 +18,15 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
+    <!-- Desbloqueo biometrico de la app (BiometricPrompt, con respaldo de credencial). -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+
+    <!--
+      Enumera las apps instaladas para las excluidas del tunel. Es un permiso normal:
+      sin el, el sistema filtra la lista y las apps excluidas no se podrian podar.
+    -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+
     <application
         android:name=".UsipipoApp"
         android:allowBackup="false"

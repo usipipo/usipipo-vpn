@@ -116,7 +116,50 @@ class AppSettingsTest {
         settings.biometricEnabled = true
         settings.excludedApps = "com.app.excluida"
 
-        assertEquals(listOf("biometric_enabled", "excluded_apps"), emitidas)
+        assertEquals(listOf("biometric_enabled", "excluded_apps"), emitadas)
+    }
+
+    @Test
+    fun `los avisos de notificaciones estan activos por defecto`() {
+        assertTrue(settings.notificationsEnabled)
+        assertTrue(settings.notificationTraffic)
+        assertTrue(settings.notificationDisconnect)
+        assertTrue(settings.notificationUpdates)
+    }
+
+    @Test
+    fun `cada aviso de notificacion persiste su clave`() {
+        settings.notificationsEnabled = false
+        settings.notificationTraffic = false
+        settings.notificationDisconnect = false
+        settings.notificationUpdates = false
+
+        assertFalse(settings.notificationsEnabled)
+        assertFalse(prefs.getBoolean("notifications_enabled", true))
+        assertFalse(prefs.getBoolean("notification_traffic", true))
+        assertFalse(prefs.getBoolean("notification_disconnect", true))
+        assertFalse(prefs.getBoolean("notification_updates", true))
+    }
+
+    @Test
+    fun `cambiar las claves de notificaciones emite su clave`() = runTest {
+        val emitidas = mutableListOf<String>()
+        suscribir(emitadas)
+
+        settings.notificationsEnabled = false
+        settings.notificationTraffic = false
+        settings.notificationDisconnect = false
+        settings.notificationUpdates = false
+
+        assertEquals(
+            listOf(
+                "notifications_enabled",
+                "notification_traffic",
+                "notification_disconnect",
+                "notification_updates",
+            ),
+            emitadas,
+        )
     }
 
     /**

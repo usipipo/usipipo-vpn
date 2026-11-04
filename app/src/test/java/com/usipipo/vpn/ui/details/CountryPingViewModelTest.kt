@@ -153,10 +153,15 @@ class CountryPingViewModelTest {
             texts = mapOf("c1" to conf),
         )
         val tunnelManager = FakeTunnelManager()
-        // Señal explícita de cancelación. La petición vive en Dispatchers.IO, fuera
-        // del scheduler virtual del test: el test la espera, no la sondea.
+        // Señales explícitas. La petición vive en Dispatchers.IO, fuera del
+        // scheduler virtual del test: el test la espera, no la sondea.
+        // `iniciada` avisa de que la petición ya entró en vuelo; sin ella, el
+        // desconectar puede llegar antes de que el bloque de IO arranque y la
+        // señal de cancelación no llegaría a publicarse.
+        val iniciada = CompletableDeferred<Unit>()
         val cancelada = CompletableDeferred<Unit>()
         val countryRepo = CountryRepository(store, http = FakeHttp {
+            iniciada.complete(Unit)
             try {
                 awaitCancellation()
             } finally {
@@ -170,12 +175,20 @@ class CountryPingViewModelTest {
         tunnelManager.emit(TunnelState.Connected("c1", sinceMs = 100L))
         vm.ui.first { it.isLoadingCountry }
 
+        // Espera con tiempo real a que la petición entre en vuelo: con el reloj
+        // virtual de runTest el timeout vencería al instante mientras el hilo de IO
+        // todavía no ha publicado la señal.
+        val arranco = withContext(Dispatchers.Default) {
+            withTimeoutOrNull(2_000) { iniciada.await() }
+        }
+        assertTrue("la petición de país no llegó a iniciarse", arranco != null)
+
         tunnelManager.emit(TunnelState.Disconnected)
 
         // Espera con tiempo real: con el reloj virtual de runTest el timeout vencería
         // al instante mientras el hilo de IO todavía no ha publicado la señal.
         val llego = withContext(Dispatchers.Default) {
-            withTimeoutOrNull(1_000) { cancelada.await() }
+            withTimeoutOrNull(2_000) { cancelada.await() }
         }
         assertTrue("la petición de país no se canceló al desconectar", llego != null)
         assertNull(vm.ui.value.countryInfo)

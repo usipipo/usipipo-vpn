@@ -49,6 +49,8 @@ import com.usipipo.vpn.ui.settings.SettingsScreen
 import com.usipipo.vpn.ui.settings.SettingsViewModel
 import com.usipipo.vpn.ui.settings.appearance.AppearanceRoute
 import com.usipipo.vpn.ui.settings.appearance.AppearanceViewModel
+import com.usipipo.vpn.ui.settings.security.SecurityRoute
+import com.usipipo.vpn.ui.settings.security.SecurityViewModel
 import com.usipipo.vpn.ui.details.CountryPingViewModel
 import com.usipipo.vpn.ui.details.DetailsScreen
 import com.usipipo.vpn.ui.details.StatsViewModel
@@ -177,12 +179,21 @@ fun UsipipoRoot(container: AppContainer, initialTab: MainTab = MainTab.Home) {
                                 // Cada sección se activa en la fase que la implementa:
                                 // hasta entonces tocar su fila no lleva a ninguna parte.
                                 onSectionClick = { clicked ->
-                                    if (clicked == SettingsRoute.Appearance) settingsRoute = clicked
+                                    if (clicked == SettingsRoute.Appearance ||
+                                        clicked == SettingsRoute.Security
+                                    ) {
+                                        settingsRoute = clicked
+                                    }
                                 },
                             )
                         } else if (route == SettingsRoute.Appearance) {
                             AppearanceRoute(
                                 viewModel = appearanceViewModel(container),
+                                onBack = { settingsRoute = null },
+                            )
+                        } else if (route == SettingsRoute.Security) {
+                            SecurityRoute(
+                                viewModel = securityViewModel(container),
                                 onBack = { settingsRoute = null },
                             )
                         }
@@ -254,9 +265,23 @@ private fun appearanceViewModel(container: AppContainer): AppearanceViewModel = 
 )
 
 @Composable
+private fun securityViewModel(container: AppContainer): SecurityViewModel = viewModel(
+    factory = viewModelFactory {
+        initializer { SecurityViewModel(container.appSettings) }
+    },
+)
+
+@Composable
 private fun homeViewModel(container: AppContainer): HomeViewModel = viewModel(
     factory = viewModelFactory {
-        initializer { HomeViewModel(container.configStore, container.tunnelManager, container.tunnelConnector) }
+        initializer {
+            HomeViewModel(
+                container.configStore,
+                container.tunnelManager,
+                container.tunnelConnector,
+                container.configTextReader,
+            )
+        }
     },
 )
 

@@ -3,6 +3,7 @@ package com.usipipo.vpn.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.usipipo.vpn.data.ConfigStore
+import com.usipipo.vpn.data.ConfigTextReader
 import com.usipipo.vpn.diagnostics.AppLog
 import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.domain.TunnelState
@@ -30,6 +31,12 @@ class HomeViewModel(
     private val store: ConfigStore,
     private val tunnelManager: TunnelManager,
     private val connector: TunnelConnector,
+    /**
+     * Lector que deja el `.conf` listo para el túnel (inyecta las apps excluidas).
+     * Solo hace falta en la conexión directa, cuando el servicio no puede arrancar:
+     * el servicio aplica la misma preparación. Sin él no se inyecta nada.
+     */
+    private val configTextReader: ConfigTextReader? = null,
 ) : ViewModel() {
 
     private val message = MutableStateFlow<HomeMessage?>(null)
@@ -73,7 +80,10 @@ class HomeViewModel(
                 val started = connector.connect(id)
                 if (!started) {
                     AppLog.w("Inicio", "El sistema denegó el servicio en primer plano; se conecta directamente (cfg ${id.take(8)})")
-                    tunnelManager.connect(id, text)
+                    // El servicio no arrancó, así que aquí sí manda este texto: se
+                    // prepara igual que lo haría el servicio.
+                    val preparado = configTextReader?.readForTunnel(id) ?: text
+                    tunnelManager.connect(id, preparado)
                 }
             }
         }

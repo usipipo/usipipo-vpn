@@ -88,6 +88,37 @@ class AppSettingsTest {
         assertEquals(1, prefs.listenerCount())
     }
 
+    @Test
+    fun `el desbloqueo biometrico se apaga por defecto y persiste`() {
+        assertFalse(settings.biometricEnabled)
+
+        settings.biometricEnabled = true
+
+        assertTrue(settings.biometricEnabled)
+        assertTrue(prefs.getBoolean("biometric_enabled", false))
+    }
+
+    @Test
+    fun `la lista de apps excluidas esta vacia por defecto y persiste`() {
+        assertEquals("", settings.excludedApps)
+
+        settings.excludedApps = "com.app.excluida,com.otra.app"
+
+        assertEquals("com.app.excluida,com.otra.app", settings.excludedApps)
+        assertEquals("com.app.excluida,com.otra.app", prefs.getString("excluded_apps", null))
+    }
+
+    @Test
+    fun `cambiar las claves de seguridad emite su clave`() = runTest {
+        val emitidas = mutableListOf<String>()
+        suscribir(emitidas)
+
+        settings.biometricEnabled = true
+        settings.excludedApps = "com.app.excluida"
+
+        assertEquals(listOf("biometric_enabled", "excluded_apps"), emitidas)
+    }
+
     /**
      * Suscribe un colector al flujo de cambios. Con un dispatcher eager el colector
      * arranca y se reanuda de inmediato, así que el test comprueba el efecto sin

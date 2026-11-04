@@ -90,7 +90,7 @@ class TunnelForegroundService : Service() {
         startForegroundCompat(buildNotification(TunnelState.Connecting(configId), profileName))
 
         serviceScope.launch {
-            val text = container.configStore.readText(configId)
+            val text = container.configTextReader.readForTunnel(configId)
             if (text == null) {
                 AppLog.w(TAG, "Configuración no legible en el servicio (cfg ${configId.take(8)})")
             }

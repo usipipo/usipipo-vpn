@@ -256,7 +256,14 @@ private fun appearanceViewModel(container: AppContainer): AppearanceViewModel = 
 @Composable
 private fun homeViewModel(container: AppContainer): HomeViewModel = viewModel(
     factory = viewModelFactory {
-        initializer { HomeViewModel(container.configStore, container.tunnelManager, container.tunnelConnector) }
+        initializer {
+            HomeViewModel(
+                container.configStore,
+                container.tunnelManager,
+                container.tunnelConnector,
+                container.configTextReader,
+            )
+        }
     },
 )
 

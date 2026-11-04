@@ -4,6 +4,8 @@ import android.content.Context
 import com.usipipo.vpn.data.ConfigImporter
 import com.usipipo.vpn.data.ConfigStore
 import com.usipipo.vpn.data.EncryptedFileConfigStore
+import com.usipipo.vpn.data.ConfigTextReader
+import com.usipipo.vpn.data.installedPackages
 import com.usipipo.vpn.data.KeystoreCrypto
 import com.usipipo.vpn.data.geo.CountryRepository
 import com.usipipo.vpn.data.geo.GeoLocator
@@ -114,6 +116,14 @@ class AppContainer(context: Context) {
 
     val updateChecker: UpdateChecker by lazy {
         UpdateChecker(source = GitHubReleaseSource(), store = updateStateStore)
+    }
+
+    /**
+     * Lee los `.conf` listos para el túnel, con las apps excluidas ya inyectadas.
+     * Es el único punto donde se prepara el texto antes de conectarlo.
+     */
+    val configTextReader: ConfigTextReader by lazy {
+        ConfigTextReader(configStore, appSettings) { installedPackages(appContext) }
     }
 
     private val _updateStatus = MutableStateFlow<UpdateStatus>(UpdateStatus.UpToDate)

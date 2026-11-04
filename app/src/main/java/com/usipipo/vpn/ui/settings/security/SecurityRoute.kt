@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.usipipo.vpn.R
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
@@ -114,6 +115,6 @@ private suspend fun autenticar(
             },
         )
         prompt.authenticate(info)
-        cont.invokeOnCancellation { prompt.cancel() }
+        cont.invokeOnCancellation { prompt.cancelAuthentication() }
     }
 }

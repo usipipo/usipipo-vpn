@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-11-01
 **Estado:** aprobado por el usuario (2026-11-01)
-**Implementación:** fase 3 · no iniciada · rama `feat/ajustes-seguridad` · -
+**Implementación:** fase 3 · completada · rama `feat/ajustes-seguridad` · PR #15 · merge `906bd37`
 **Proyecto:** uSipipo VPN
 **Alcance:** Subpantalla **Seguridad** del hub de Ajustes: desbloqueo biométrico de la app, kill switch (solo lectura de siempre-on/lockdown + apertura de Ajustes de VPN) y lista global de apps excluidas del túnel (split tunneling inverso).
 

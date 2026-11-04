@@ -69,6 +69,19 @@ class ConfigTextReaderTest {
     }
 
     @Test
+    fun `un conjunto vacio de instalados poda todo y no inyecta`() = runTest {
+        val settings = AppSettings(FakeSharedPreferences())
+        settings.excludedApps = "com.app.excluida"
+        val lector = reader(settings = settings, instalados = setOf())
+
+        lector.readForTunnel("cfg")
+
+        // Un conjunto vacío significa "no hay nada instalado", que es distinto de "no
+        // sé qué hay instalado": en el primer caso la lista se vacía.
+        assertEquals("", settings.excludedApps)
+    }
+
+    @Test
     fun `un conf inexistente devuelve null`() = runTest {
         val lector = reader(store = FakeConfigStore(texts = emptyMap()))
 
@@ -90,7 +103,9 @@ class ConfigTextReaderTest {
     private fun reader(
         store: ConfigStore = FakeConfigStore(texts = mapOf("cfg" to conf)),
         settings: AppSettings = AppSettings(FakeSharedPreferences()),
-        instalados: Set<String>? = setOf(),
+        // Por defecto no se pueden consultar los paquetes: es el caso seguro, el que
+        // se da sin QUERY_ALL_PACKAGES, y no debe podar nada.
+        instalados: Set<String>? = null,
     ) = ConfigTextReader(
         store = store,
         appSettings = settings,

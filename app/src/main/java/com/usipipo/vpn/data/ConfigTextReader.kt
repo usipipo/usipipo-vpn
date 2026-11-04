@@ -42,12 +42,20 @@ class ConfigTextReader(
 }
 
 /**
- * Paquetes instalados en el dispositivo.
+ * Paquetes instalados en el dispositivo, o `null` si la app no puede enumerarlos de
+ * forma fiable.
  *
- * Necesita `QUERY_ALL_PACKAGES` para verlos todos; sin ese permiso el sistema
- * filtra la lista, así que algunas apps podrían parecer desinstaladas.
+ * Sin `QUERY_ALL_PACKAGES` el sistema filtra la lista, así que apps que sí existen
+ * podrían parecer desinstaladas y borrarse del ajuste del usuario: en ese caso se
+ * devuelve `null` y no se poda nada.
  */
-fun installedPackages(context: Context): Set<String> {
+fun installedPackages(context: Context): Set<String>? {
+    val sinPermiso = context.packageManager.checkPermission(
+        android.Manifest.permission.QUERY_ALL_PACKAGES,
+        context.packageName,
+    ) != PackageManager.PERMISSION_GRANTED
+    if (sinPermiso) return null
+
     val manager = context.packageManager
     val aplicaciones = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         manager.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(0L))

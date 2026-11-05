@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-11-01
 **Estado:** aprobado por el usuario (2026-11-01)
-**Implementación:** fase 4 · no iniciada · rama `feat/ajustes-notificaciones` · -
+**Implementación:** fase 4 · completada · rama `feat/ajustes-notificaciones` · PR #17 · merge `7c363db`
 **Proyecto:** uSipipo VPN
 **Alcance:** Sección «Notificaciones» del hub de Ajustes (`ui/settings/notifications/`): interruptor general de avisos, notificación de estado con tráfico, aviso de desconexión/fallo y aviso de actualización disponible. Canales de notificación propios (`estado`, `avisos`) además del canal `tunel` existente del servicio en primer plano. Permiso `POST_NOTIFICATIONS` en tiempo de ejecución (API 33+).
 

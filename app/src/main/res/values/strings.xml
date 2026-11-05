@@ -99,6 +99,17 @@
     <string name="notifications_notice_update_title">Actualización disponible</string>
     <string name="notifications_notice_update_text">Versión %1$s disponible</string>
 
+    <!-- Burbuja de tráfico -->
+    <string name="bubble_title">Burbuja de tráfico</string>
+    <string name="bubble_switch">Mostrar burbuja de tráfico</string>
+    <string name="bubble_state_on">Activada</string>
+    <string name="bubble_state_off">Desactivada</string>
+    <string name="bubble_state_permission_denied">Permiso denegado</string>
+    <string name="bubble_explanation">La burbuja se dibuja sobre otras apps solo mientras el túnel está activo. Arrástrala para moverla y tócala para ver los detalles del perfil.</string>
+    <string name="bubble_permission_notice">La burbuja necesita el permiso de superposición para dibujarse sobre otras apps.</string>
+    <string name="bubble_permission_action">Conceder permiso de superposición</string>
+    <string name="bubble_content_description">Túnel: %1$s de bajada, %2$s de conexión, %3$s</string>
+
     <string name="tab_my_profiles">Mis perfiles</string>
     <string name="tab_favorites">Favoritos</string>
     <string name="add_config">Añadir configuración</string>

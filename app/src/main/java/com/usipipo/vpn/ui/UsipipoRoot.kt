@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.core.content.ContextCompat
 import androidx.compose.animation.AnimatedContent
@@ -52,6 +53,8 @@ import com.usipipo.vpn.ui.settings.SettingsScreen
 import com.usipipo.vpn.ui.settings.SettingsViewModel
 import com.usipipo.vpn.ui.settings.appearance.AppearanceRoute
 import com.usipipo.vpn.ui.settings.appearance.AppearanceViewModel
+import com.usipipo.vpn.ui.settings.bubble.TrafficBubbleRoute
+import com.usipipo.vpn.ui.settings.bubble.TrafficBubbleViewModel
 import com.usipipo.vpn.ui.settings.notifications.NotificationsRoute
 import com.usipipo.vpn.ui.settings.notifications.NotificationsViewModel
 import com.usipipo.vpn.ui.settings.security.SecurityRoute
@@ -72,9 +75,13 @@ import com.usipipo.vpn.update.UpdateStatus
 /** Navegación por pestañas con barra inferior. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun UsipipoRoot(container: AppContainer, initialTab: MainTab = MainTab.Home) {
+fun UsipipoRoot(
+    container: AppContainer,
+    initialTab: MainTab = MainTab.Home,
+    initialShowDetails: Boolean = false,
+) {
     var tab by rememberSaveable(initialTab) { mutableStateOf(initialTab) }
-    var showDetails by rememberSaveable { mutableStateOf(false) }
+    var showDetails by rememberSaveable(initialShowDetails) { mutableStateOf(initialShowDetails) }
     val updateStatus by container.updateStatus.collectAsStateWithLifecycle()
     val context = LocalContext.current
     // Vive a nivel raiz: la consulta de pais ocurre al conectar, no solo al abrir Detalles.
@@ -186,7 +193,8 @@ fun UsipipoRoot(container: AppContainer, initialTab: MainTab = MainTab.Home) {
                                 onSectionClick = { clicked ->
                                     if (clicked == SettingsRoute.Appearance ||
                                         clicked == SettingsRoute.Security ||
-                                        clicked == SettingsRoute.Notifications
+                                        clicked == SettingsRoute.Notifications ||
+                                        clicked == SettingsRoute.TrafficBubble
                                     ) {
                                         settingsRoute = clicked
                                     }
@@ -205,6 +213,11 @@ fun UsipipoRoot(container: AppContainer, initialTab: MainTab = MainTab.Home) {
                         } else if (route == SettingsRoute.Notifications) {
                             NotificationsRoute(
                                 viewModel = notificationsViewModel(container),
+                                onBack = { settingsRoute = null },
+                            )
+                        } else if (route == SettingsRoute.TrafficBubble) {
+                            TrafficBubbleRoute(
+                                viewModel = trafficBubbleViewModel(container),
                                 onBack = { settingsRoute = null },
                             )
                         }
@@ -303,6 +316,21 @@ private fun notificationsViewModel(container: AppContainer): NotificationsViewMo
                     container.appContext,
                     Manifest.permission.POST_NOTIFICATIONS,
                 ) == PackageManager.PERMISSION_GRANTED
+            }
+        }
+    },
+)
+
+/**
+ * El permiso de superposición lo concede el sistema (API 23+): se lee al construir
+ * el estado y al volver a la app, no se guarda en ajustes.
+ */
+@Composable
+private fun trafficBubbleViewModel(container: AppContainer): TrafficBubbleViewModel = viewModel(
+    factory = viewModelFactory {
+        initializer {
+            TrafficBubbleViewModel(container.appSettings) {
+                Settings.canDrawOverlays(container.appContext)
             }
         }
     },

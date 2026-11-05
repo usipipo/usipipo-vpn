@@ -29,6 +29,8 @@ import com.usipipo.vpn.R
 import com.usipipo.vpn.UsipipoApp
 import com.usipipo.vpn.diagnostics.AppLog
 import com.usipipo.vpn.domain.TunnelState
+import com.usipipo.vpn.domain.activeConfigId
+import com.usipipo.vpn.domain.isActive
 import com.usipipo.vpn.settings.PaletteVariant
 import com.usipipo.vpn.settings.ThemeMode
 import com.usipipo.vpn.settings.darkTheme

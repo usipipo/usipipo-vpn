@@ -14,7 +14,7 @@ class TrafficBubbleTextTest {
     @Test
     fun `con velocidad se formatea en bits`() {
         assertEquals("8.00 Mbps", TrafficBubbleText.speed(1_000_000L))
-        assertEquals("8000 Kbps", TrafficBubbleText.speed(1_000L))
+        assertEquals("8 Kbps", TrafficBubbleText.speed(1_000L))
     }
 
     @Test

@@ -8,16 +8,34 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.content.res.Configuration
+import android.graphics.PixelFormat
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.IBinder
+import android.provider.Settings
+import android.view.Gravity
+import android.view.MotionEvent
+import android.view.View
+import android.view.WindowManager
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import com.usipipo.vpn.AppContainer
 import com.usipipo.vpn.MainActivity
 import com.usipipo.vpn.R
 import com.usipipo.vpn.UsipipoApp
 import com.usipipo.vpn.diagnostics.AppLog
 import com.usipipo.vpn.domain.TunnelState
+import com.usipipo.vpn.domain.activeConfigId
+import com.usipipo.vpn.domain.isActive
+import com.usipipo.vpn.settings.PaletteVariant
+import com.usipipo.vpn.settings.ThemeMode
+import com.usipipo.vpn.settings.darkTheme
+import com.usipipo.vpn.settings.tokens
+import com.usipipo.vpn.ui.settings.bubble.TrafficBubbleText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -25,6 +43,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 /**
  * Servicio en primer plano que hospeda el túnel WireGuard.
@@ -44,6 +63,17 @@ class TunnelForegroundService : Service() {
 
     /** Job de la notificación de tráfico; se cancela en cuanto el túnel deja de ir bien. */
     private var trafficJob: Job? = null
+
+    /** Ventana overlay de la burbuja; null cuando no está dibujada. */
+    private var bubbleView: View? = null
+
+    /** Textos de la burbuja: se guardan para no buscarlos por id en cada muestra. */
+    private var bubbleSpeed: TextView? = null
+    private var bubbleTime: TextView? = null
+    private var bubbleCountry: TextView? = null
+
+    /** Parámetros de la ventana: se guardan para poder arrastrar la burbuja. */
+    private var bubbleParams: WindowManager.LayoutParams? = null
 
     private val container: AppContainer
         get() = (applicationContext as UsipipoApp).container
@@ -71,8 +101,9 @@ class TunnelForegroundService : Service() {
 
     override fun onDestroy() {
         // El aviso de tráfico caduca solo, pero si el servicio cae por otra causa se
-        // retira aquí para no dejarlo huérfano.
+        // retira aquí para no dejarlo huérfano. La burbuja se va con el servicio.
         container.notificationsManager.cancelTraffic()
+        hideBubble()
         serviceScope.cancel()
         super.onDestroy()
     }
@@ -119,19 +150,23 @@ class TunnelForegroundService : Service() {
                 when (state) {
                     TunnelState.Disconnected -> {
                         stopTrafficNotice()
+                        hideBubble()
                         stopHostingTunnel()
                     }
                     is TunnelState.Failed -> {
                         stopTrafficNotice()
+                        hideBubble()
                         container.notificationsManager.publishDisconnect(state)
                         stopHostingTunnel()
                     }
                     is TunnelState.Connecting -> {
                         stopTrafficNotice()
+                        refreshBubble(state)
                         updateNotification(state, profileName)
                     }
                     is TunnelState.Connected -> {
-                        startTrafficNotice(profileName, state.sinceMs)
+                        startTrafficNotice(profileName, state)
+                        refreshBubble(state)
                         updateNotification(state, profileName)
                     }
                     is TunnelState.NoResponse -> {
@@ -139,6 +174,7 @@ class TunnelForegroundService : Service() {
                         // y se retira la notificación de tráfico, que ya no dice nada.
                         stopTrafficNotice()
                         container.notificationsManager.publishDisconnect(state)
+                        refreshBubble(state)
                         updateNotification(state, profileName)
                     }
                 }
@@ -148,19 +184,22 @@ class TunnelForegroundService : Service() {
     /**
      * Notificación de estado con tráfico: velocidad de subida y bajada, y tiempo de
      * conexión, con las muestras del contador del túnel. Solo corre mientras el túnel
-     * está conectado; fuera de ahí no hay nada que contar.
+     * está conectado; fuera de ahí no hay nada que contar. La misma muestra alimenta
+     * la burbuja, que no tiene su propio contador.
      */
-    private fun startTrafficNotice(profileName: String, sinceMs: Long) {
+    private fun startTrafficNotice(profileName: String, state: TunnelState.Connected) {
         trafficJob?.cancel()
         trafficJob = serviceScope.launch {
             val calculator = SpeedCalculator()
             container.tunnelManager.counters().collect { counters ->
+                val speed = calculator.add(counters)
                 container.notificationsManager.publishTraffic(
                     profileName = profileName,
-                    throughput = calculator.add(counters),
-                    sinceMs = sinceMs,
+                    throughput = speed,
+                    sinceMs = state.sinceMs,
                     nowMs = System.currentTimeMillis(),
                 )
+                updateBubbleContent(state, speed)
             }
         }
     }
@@ -170,6 +209,216 @@ class TunnelForegroundService : Service() {
         trafficJob = null
         container.notificationsManager.cancelTraffic()
     }
+
+    // --- Burbuja de tráfico (overlay sobre otras apps) ---
+
+    /**
+     * Muestra, actualiza o retira la burbuja según el estado del túnel.
+     *
+     * Se dibuja solo con el interruptor encendido, permiso de superposición
+     * concedido y túnel activo; fuera de eso se retira sin molestar al usuario.
+     */
+    private fun refreshBubble(state: TunnelState) {
+        val settings = container.appSettings
+        val activo = state.isActive
+        if (!activo || !settings.bubbleEnabled || !Settings.canDrawOverlays(this)) {
+            hideBubble()
+            return
+        }
+        if (bubbleView == null) showBubble()
+        updateBubbleContent(state, null)
+    }
+
+    /** Añade la ventana overlay: no roba el foco ni los toques de las demás apps. */
+    private fun showBubble() {
+        if (bubbleView != null) return
+        val manager = getSystemService(WindowManager::class.java) ?: return
+        val view = buildBubbleView()
+        val params = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+            PixelFormat.TRANSLUCENT,
+        ).apply {
+            gravity = Gravity.START or Gravity.TOP
+            x = savedPositionX()
+            y = savedPositionY()
+        }
+        view.setOnTouchListener(bubbleTouchListener(params, manager))
+        try {
+            manager.addView(view, params)
+        } catch (e: Exception) {
+            // El sistema puede denegar la ventana (permiso retirado, pantalla de
+            // sistema al frente): se registra y la app sigue funcionando.
+            AppLog.w(TAG, "No se pudo dibujar la burbuja de tráfico", e)
+            return
+        }
+        bubbleView = view
+        bubbleParams = params
+    }
+
+    /** Retira la ventana overlay y suelta las referencias a sus vistas. */
+    private fun hideBubble() {
+        val view = bubbleView ?: return
+        val manager = getSystemService(WindowManager::class.java)
+        try {
+            manager?.removeView(view)
+        } catch (e: Exception) {
+            AppLog.w(TAG, "No se pudo retirar la burbuja de tráfico", e)
+        }
+        bubbleView = null
+        bubbleParams = null
+    }
+
+    /**
+     * Rellena velocidad, tiempo de conexión y país. Sin datos muestra «—», así que
+     * la burbuja nunca se ve vacía ni se cierra.
+     */
+    private fun updateBubbleContent(state: TunnelState, throughput: Throughput?) {
+        if (bubbleView == null) return
+        val configId = state.activeConfigId
+        val config = configId?.let { id ->
+            container.configStore.configs.value.firstOrNull { it.id == id }
+        }
+        val speed = TrafficBubbleText.speed(throughput?.downBps)
+        val time = TrafficBubbleText.time(
+            sinceMs = (state as? TunnelState.Connected)?.sinceMs,
+            nowMs = System.currentTimeMillis(),
+        )
+        val country = TrafficBubbleText.country(config?.countryName, config?.countryCode)
+        bubbleSpeed?.text = speed
+        bubbleTime?.text = time
+        bubbleCountry?.text = country
+        // Un icono sin nombre es inaccesible para TalkBack: la burbuja se describe.
+        bubbleView?.contentDescription = getString(
+            R.string.bubble_content_description,
+            speed,
+            time,
+            country,
+        )
+    }
+
+    /**
+     * Construye la tarjeta flotante con los colores de la paleta activa. Es una vista
+     * de Android corriente: el servicio no puede alojar Compose.
+     */
+    private fun buildBubbleView(): View {
+        val palette = PaletteVariant.fromKey(container.appSettings.palette)
+            .tokens(isDark = isDarkTheme())
+        // Sobre la superficie de la paleta, el texto legible se decide por luminancia:
+        // los tokens no traen color de texto para la burbuja.
+        val textColor = if (ColorUtils.calculateLuminance(palette.surface) > 0.5) {
+            android.graphics.Color.BLACK
+        } else {
+            android.graphics.Color.WHITE
+        }
+        val density = resources.displayMetrics.density
+        fun texto(pequeno: Boolean) = TextView(this).apply {
+            setTextColor(textColor)
+            textSize = if (pequeno) 10f else 12f
+        }
+        bubbleSpeed = texto(pequeno = false)
+        bubbleTime = texto(pequeno = true)
+        bubbleCountry = texto(pequeno = true)
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            val pad = (12 * density).roundToInt()
+            setPadding(pad, pad, pad, pad)
+            background = GradientDrawable().apply {
+                cornerRadius = 16 * density
+                setColor(palette.surface)
+                setStroke((density * 1f).roundToInt(), palette.outline)
+            }
+            addView(bubbleSpeed)
+            addView(bubbleTime)
+            addView(bubbleCountry)
+        }
+    }
+
+    /**
+     * Arrastre y toque de la burbuja. Al soltar se guarda la posición; si el dedo
+     * apenas se movió, se abre la app en Detalles del perfil activo.
+     */
+    private fun bubbleTouchListener(
+        params: WindowManager.LayoutParams,
+        manager: WindowManager,
+    ): View.OnTouchListener {
+        var originX = 0
+        var originY = 0
+        var touchX = 0f
+        var touchY = 0f
+        var arrastrada = false
+        return View.OnTouchListener { view, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    originX = params.x
+                    originY = params.y
+                    touchX = event.rawX
+                    touchY = event.rawY
+                    arrastrada = false
+                    true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    params.x = originX + (event.rawX - touchX).toInt()
+                    params.y = originY + (event.rawY - touchY).toInt()
+                    manager.updateViewLayout(view, params)
+                    arrastrada = true
+                    true
+                }
+                MotionEvent.ACTION_UP -> {
+                    if (arrastrada) {
+                        container.appSettings.bubbleX = params.x.toFloat()
+                        container.appSettings.bubbleY = params.y.toFloat()
+                    } else {
+                        openDetailsFromBubble()
+                    }
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    /**
+     * Tocar la burbuja abre la app con Detalles del perfil activo. Se lanza con un
+     * [PendingIntent]: un servicio en segundo plano no puede llamar a
+     * `startActivity` directamente.
+     */
+    private fun openDetailsFromBubble() {
+        val intent = Intent(this, MainActivity::class.java)
+            .putExtra(MainActivity.EXTRA_SHOW_DETAILS, true)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val pending = PendingIntent.getActivity(
+            this,
+            REQUEST_BUBBLE_OPEN,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        try {
+            pending.send()
+        } catch (e: PendingIntent.CanceledException) {
+            AppLog.w(TAG, "No se pudo abrir Detalles desde la burbuja", e)
+        }
+    }
+
+    /** Posición guardada; sin dato, la burbuja aparece arriba a la izquierda. */
+    private fun savedPositionX(): Int = container.appSettings.bubbleX
+        .takeIf { it >= 0f }?.toInt() ?: 0
+
+    private fun savedPositionY(): Int = container.appSettings.bubbleY
+        .takeIf { it >= 0f }?.toInt() ?: 0
+
+    /** El tema que ve el usuario: modo elegido en Ajustes o el del sistema. */
+    private fun isDarkTheme(): Boolean =
+        ThemeMode.fromKey(container.appSettings.themeMode)
+            .darkTheme(isSystemDark())
+            .also { AppLog.d(TAG, "Tema oscuro para la burbuja: $it") }
+
+    private fun isSystemDark(): Boolean =
+        (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+            Configuration.UI_MODE_NIGHT_YES
 
     /** El túnel se apagó o falló: fuera de primer plano y sin servicio. */
     private fun stopHostingTunnel() {
@@ -276,6 +525,7 @@ class TunnelForegroundService : Service() {
         private const val NOTIFICATION_ID = 42
         private const val REQUEST_CONTENT = 0
         private const val REQUEST_DISCONNECT = 1
+        private const val REQUEST_BUBBLE_OPEN = 3
         private const val TAG = "Servicio"
     }
 }

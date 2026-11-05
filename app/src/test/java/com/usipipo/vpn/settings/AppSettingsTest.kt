@@ -162,6 +162,41 @@ class AppSettingsTest {
         )
     }
 
+    @Test
+    fun `la burbuja esta apagada por defecto y sin posicion guardada`() {
+        assertFalse(settings.bubbleEnabled)
+        assertEquals(SIN_POSICION, settings.bubbleX, 0.001f)
+        assertEquals(SIN_POSICION, settings.bubbleY, 0.001f)
+    }
+
+    @Test
+    fun `la burbuja y su posicion persisten`() {
+        settings.bubbleEnabled = true
+        settings.bubbleX = 120f
+        settings.bubbleY = 480f
+
+        assertTrue(settings.bubbleEnabled)
+        assertTrue(prefs.getBoolean("bubble_enabled", false))
+        assertEquals(120f, prefs.getFloat("bubble_x", 0f), 0.001f)
+        assertEquals(480f, prefs.getFloat("bubble_y", 0f), 0.001f)
+    }
+
+    @Test
+    fun `cambiar las claves de la burbuja emite su clave`() = runTest {
+        val emitidas = mutableListOf<String>()
+        suscribir(emitidas)
+
+        settings.bubbleEnabled = true
+        settings.bubbleX = 10f
+
+        assertEquals(listOf("bubble_enabled", "bubble_x"), emitidas)
+    }
+
+    private companion object {
+        /** Sin posición guardada: el overlay decide dónde ponerla. */
+        const val SIN_POSICION = -1f
+    }
+
     /**
      * Suscribe un colector al flujo de cambios. Con un dispatcher eager el colector
      * arranca y se reanuda de inmediato, así que el test comprueba el efecto sin

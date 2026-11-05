@@ -16,7 +16,7 @@ class SettingsViewModel(private val appSettings: AppSettings) {
         SettingsRoute.Appearance -> "Tema: ${themeLabel()} · ${animationsLabel()} · ${paletteLabel()}"
         SettingsRoute.Security -> "Desactivado"
         SettingsRoute.HomeScreen -> "Activado"
-        SettingsRoute.TrafficBubble -> "Desactivada"
+        SettingsRoute.TrafficBubble -> if (appSettings.bubbleEnabled) "Activada" else "Desactivada"
         SettingsRoute.Notifications -> if (appSettings.notificationsEnabled) "Activadas" else "Desactivadas"
         SettingsRoute.Updates -> "Activada"
         SettingsRoute.Backup -> "Sin copias"

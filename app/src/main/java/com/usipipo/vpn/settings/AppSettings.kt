@@ -86,6 +86,25 @@ class AppSettings(private val prefs: SharedPreferences) {
         get() = prefs.getBoolean(KEY_NOTIFICATION_UPDATES, DEFAULT_NOTIFICATION_UPDATES)
         set(value) = prefs.edit().putBoolean(KEY_NOTIFICATION_UPDATES, value).apply()
 
+    /** Si la burbuja de tráfico se dibuja sobre otras apps con el túnel activo. */
+    var bubbleEnabled: Boolean
+        get() = prefs.getBoolean(KEY_BUBBLE_ENABLED, DEFAULT_BUBBLE_ENABLED)
+        set(value) = prefs.edit().putBoolean(KEY_BUBBLE_ENABLED, value).apply()
+
+    /**
+     * Posición guardada de la burbuja, en píxeles dentro de la ventana overlay.
+     * Un valor negativo significa «sin posición guardada»: el overlay la coloca
+     * centrada y cerca del borde superior.
+     */
+    var bubbleX: Float
+        get() = prefs.getFloat(KEY_BUBBLE_X, DEFAULT_BUBBLE_POSITION)
+        set(value) = prefs.edit().putFloat(KEY_BUBBLE_X, value).apply()
+
+    /** Posición vertical guardada de la burbuja; negativo = sin posición. */
+    var bubbleY: Float
+        get() = prefs.getFloat(KEY_BUBBLE_Y, DEFAULT_BUBBLE_POSITION)
+        set(value) = prefs.edit().putFloat(KEY_BUBBLE_Y, value).apply()
+
     companion object {
         const val KEY_THEME_MODE: String = "theme_mode"
         const val KEY_ANIMATIONS_ENABLED: String = "animations_enabled"
@@ -96,6 +115,9 @@ class AppSettings(private val prefs: SharedPreferences) {
         const val KEY_NOTIFICATION_TRAFFIC: String = "notification_traffic"
         const val KEY_NOTIFICATION_DISCONNECT: String = "notification_disconnect"
         const val KEY_NOTIFICATION_UPDATES: String = "notification_updates"
+        const val KEY_BUBBLE_ENABLED: String = "bubble_enabled"
+        const val KEY_BUBBLE_X: String = "bubble_x"
+        const val KEY_BUBBLE_Y: String = "bubble_y"
 
         private const val PREFS_NAME = "usipipo_settings"
         private const val DEFAULT_THEME_MODE = "system"
@@ -107,6 +129,10 @@ class AppSettings(private val prefs: SharedPreferences) {
         private const val DEFAULT_NOTIFICATION_TRAFFIC = true
         private const val DEFAULT_NOTIFICATION_DISCONNECT = true
         private const val DEFAULT_NOTIFICATION_UPDATES = true
+        private const val DEFAULT_BUBBLE_ENABLED = false
+
+        /** Sin posición guardada: el overlay decide dónde colocar la burbuja. */
+        private const val DEFAULT_BUBBLE_POSITION = -1f
 
         fun create(context: Context): AppSettings =
             AppSettings(context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))

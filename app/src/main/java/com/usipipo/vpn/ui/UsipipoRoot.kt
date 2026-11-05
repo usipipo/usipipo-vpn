@@ -1,10 +1,13 @@
 package com.usipipo.vpn.ui
 
+import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.core.content.ContextCompat
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -49,6 +52,8 @@ import com.usipipo.vpn.ui.settings.SettingsScreen
 import com.usipipo.vpn.ui.settings.SettingsViewModel
 import com.usipipo.vpn.ui.settings.appearance.AppearanceRoute
 import com.usipipo.vpn.ui.settings.appearance.AppearanceViewModel
+import com.usipipo.vpn.ui.settings.notifications.NotificationsRoute
+import com.usipipo.vpn.ui.settings.notifications.NotificationsViewModel
 import com.usipipo.vpn.ui.settings.security.SecurityRoute
 import com.usipipo.vpn.ui.settings.security.SecurityViewModel
 import com.usipipo.vpn.ui.details.CountryPingViewModel
@@ -180,7 +185,8 @@ fun UsipipoRoot(container: AppContainer, initialTab: MainTab = MainTab.Home) {
                                 // hasta entonces tocar su fila no lleva a ninguna parte.
                                 onSectionClick = { clicked ->
                                     if (clicked == SettingsRoute.Appearance ||
-                                        clicked == SettingsRoute.Security
+                                        clicked == SettingsRoute.Security ||
+                                        clicked == SettingsRoute.Notifications
                                     ) {
                                         settingsRoute = clicked
                                     }
@@ -194,6 +200,11 @@ fun UsipipoRoot(container: AppContainer, initialTab: MainTab = MainTab.Home) {
                         } else if (route == SettingsRoute.Security) {
                             SecurityRoute(
                                 viewModel = securityViewModel(container),
+                                onBack = { settingsRoute = null },
+                            )
+                        } else if (route == SettingsRoute.Notifications) {
+                            NotificationsRoute(
+                                viewModel = notificationsViewModel(container),
                                 onBack = { settingsRoute = null },
                             )
                         }
@@ -226,6 +237,14 @@ fun UsipipoRoot(container: AppContainer, initialTab: MainTab = MainTab.Home) {
     }
 
     val available = updateStatus as? UpdateStatus.UpdateAvailable
+
+    // Aviso de actualización disponible, además del diálogo. Al tocar el aviso se abre
+    // la app; el diálogo aparece solo porque el estado de actualización sigue vigente.
+    LaunchedEffect(available) {
+        val aviso = available ?: return@LaunchedEffect
+        container.notificationsManager.publishUpdateAvailable(aviso.info.version.toString())
+    }
+
     if (available != null && handledUpdate != available.info.version.toString()) {
         UpdateDialog(
             info = available.info,
@@ -268,6 +287,24 @@ private fun appearanceViewModel(container: AppContainer): AppearanceViewModel = 
 private fun securityViewModel(container: AppContainer): SecurityViewModel = viewModel(
     factory = viewModelFactory {
         initializer { SecurityViewModel(container.appSettings) }
+    },
+)
+
+/**
+ * El permiso de notificaciones lo decide el sistema: se lee al construir el estado
+ * y al volver a la app, no se guarda en ajustes.
+ */
+@Composable
+private fun notificationsViewModel(container: AppContainer): NotificationsViewModel = viewModel(
+    factory = viewModelFactory {
+        initializer {
+            NotificationsViewModel(container.appSettings) {
+                ContextCompat.checkSelfPermission(
+                    container.appContext,
+                    Manifest.permission.POST_NOTIFICATIONS,
+                ) == PackageManager.PERMISSION_GRANTED
+            }
+        }
     },
 )
 

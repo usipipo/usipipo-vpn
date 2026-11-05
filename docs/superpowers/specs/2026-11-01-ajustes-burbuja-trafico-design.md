@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-11-01
 **Estado:** aprobado por el usuario (2026-11-01)
-**Implementación:** fase 5 · no iniciada · rama `feat/ajustes-burbuja-trafico` · -
+**Implementación:** fase 5 · completada · rama `feat/ajustes-burbuja-trafico` · PR #19 · merge `4b820c8`
 **Proyecto:** uSipipo VPN
 **Alcance:** Sección «Burbuja de tráfico» del hub de Ajustes (`ui/settings/bubble/`): pantalla de configuración de la burbuja flotante y la ventana overlay en sí, dibujada sobre otras apps con el permiso especial `SYSTEM_ALERT_WINDOW`. La burbuja muestra velocidad de subida/bajada, tiempo de conexión y país del servidor únicamente mientras el túnel está activo, y se aloja en `TunnelForegroundService` para no crear un segundo servicio en primer plano ni una notificación adicional.
 

@@ -94,14 +94,16 @@ class NotificationsViewModelTest {
     }
 
     @Test
-    fun `un cambio de preferencia ajeno no altera el estado`() = runTest {
+    fun `un cambio de preferencia ajeno no revive un aviso apagado`() = runTest {
         val viewModel = viewModel()
         recolectar(viewModel)
-        prefs.edit().putString("palette", "ambar").apply()
+        viewModel.setTrafficEnabled(false)
 
-        viewModel.setTrafficEnabled(true)
+        prefs.edit().putString("palette", "ambar").apply()
+        viewModel.refreshPermission()
 
         assertFalse(viewModel.uiState.value.trafficEnabled)
+        assertTrue(viewModel.uiState.value.notificationsEnabled)
     }
 
     @Test

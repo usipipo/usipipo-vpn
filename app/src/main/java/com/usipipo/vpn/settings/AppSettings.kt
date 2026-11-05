@@ -63,12 +63,39 @@ class AppSettings(private val prefs: SharedPreferences) {
         get() = prefs.getString(KEY_EXCLUDED_APPS, DEFAULT_EXCLUDED_APPS).orEmpty()
         set(value) = prefs.edit().putString(KEY_EXCLUDED_APPS, value).apply()
 
+    /**
+     * Interruptor general de avisos propios. No afecta a la notificación del
+     * servicio en primer plano del túnel, que Android exige mientras esté activo.
+     */
+    var notificationsEnabled: Boolean
+        get() = prefs.getBoolean(KEY_NOTIFICATIONS_ENABLED, DEFAULT_NOTIFICATIONS_ENABLED)
+        set(value) = prefs.edit().putBoolean(KEY_NOTIFICATIONS_ENABLED, value).apply()
+
+    /** Aviso de estado del túnel con tráfico (canal «estado»). */
+    var notificationTraffic: Boolean
+        get() = prefs.getBoolean(KEY_NOTIFICATION_TRAFFIC, DEFAULT_NOTIFICATION_TRAFFIC)
+        set(value) = prefs.edit().putBoolean(KEY_NOTIFICATION_TRAFFIC, value).apply()
+
+    /** Aviso de desconexión o fallo del túnel (canal «avisos»). */
+    var notificationDisconnect: Boolean
+        get() = prefs.getBoolean(KEY_NOTIFICATION_DISCONNECT, DEFAULT_NOTIFICATION_DISCONNECT)
+        set(value) = prefs.edit().putBoolean(KEY_NOTIFICATION_DISCONNECT, value).apply()
+
+    /** Aviso de actualización disponible (canal «avisos»). */
+    var notificationUpdates: Boolean
+        get() = prefs.getBoolean(KEY_NOTIFICATION_UPDATES, DEFAULT_NOTIFICATION_UPDATES)
+        set(value) = prefs.edit().putBoolean(KEY_NOTIFICATION_UPDATES, value).apply()
+
     companion object {
         const val KEY_THEME_MODE: String = "theme_mode"
         const val KEY_ANIMATIONS_ENABLED: String = "animations_enabled"
         const val KEY_PALETTE: String = "palette"
         const val KEY_BIOMETRIC_ENABLED: String = "biometric_enabled"
         const val KEY_EXCLUDED_APPS: String = "excluded_apps"
+        const val KEY_NOTIFICATIONS_ENABLED: String = "notifications_enabled"
+        const val KEY_NOTIFICATION_TRAFFIC: String = "notification_traffic"
+        const val KEY_NOTIFICATION_DISCONNECT: String = "notification_disconnect"
+        const val KEY_NOTIFICATION_UPDATES: String = "notification_updates"
 
         private const val PREFS_NAME = "usipipo_settings"
         private const val DEFAULT_THEME_MODE = "system"
@@ -76,6 +103,10 @@ class AppSettings(private val prefs: SharedPreferences) {
         private const val DEFAULT_PALETTE = "azul_noche"
         private const val DEFAULT_BIOMETRIC_ENABLED = false
         private const val DEFAULT_EXCLUDED_APPS = ""
+        private const val DEFAULT_NOTIFICATIONS_ENABLED = true
+        private const val DEFAULT_NOTIFICATION_TRAFFIC = true
+        private const val DEFAULT_NOTIFICATION_DISCONNECT = true
+        private const val DEFAULT_NOTIFICATION_UPDATES = true
 
         fun create(context: Context): AppSettings =
             AppSettings(context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))

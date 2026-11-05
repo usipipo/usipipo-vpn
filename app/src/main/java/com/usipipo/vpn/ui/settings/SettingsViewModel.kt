@@ -17,7 +17,7 @@ class SettingsViewModel(private val appSettings: AppSettings) {
         SettingsRoute.Security -> "Desactivado"
         SettingsRoute.HomeScreen -> "Activado"
         SettingsRoute.TrafficBubble -> "Desactivada"
-        SettingsRoute.Notifications -> "Activadas"
+        SettingsRoute.Notifications -> if (appSettings.notificationsEnabled) "Activadas" else "Desactivadas"
         SettingsRoute.Updates -> "Activada"
         SettingsRoute.Backup -> "Sin copias"
         SettingsRoute.Storage -> "—"

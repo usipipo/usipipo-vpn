@@ -75,6 +75,30 @@
     <string name="appearance_palette_ambar">Ámbar</string>
     <string name="appearance_selected">Seleccionado</string>
 
+    <!-- Notificaciones -->
+    <string name="notifications_title">Notificaciones</string>
+    <string name="notifications_master">Notificaciones</string>
+    <string name="notifications_traffic">Estado con tráfico</string>
+    <string name="notifications_traffic_summary">Velocidad de subida y bajada, y tiempo de conexión</string>
+    <string name="notifications_disconnect">Desconexión o fallo</string>
+    <string name="notifications_disconnect_summary">Aviso cuando el túnel se cae o falla</string>
+    <string name="notifications_updates">Actualización disponible</string>
+    <string name="notifications_updates_summary">Aviso cuando hay una versión nueva</string>
+    <string name="notifications_fgs_banner">La notificación del servicio en primer plano del túnel no se puede desactivar: Android la exige mientras el túnel está activo.</string>
+    <string name="notifications_permission_notice">Las notificaciones están desactivadas para la app. Los avisos no se mostrarán.</string>
+    <string name="notifications_permission_action">Abrir ajustes de notificaciones</string>
+    <string name="notifications_channel_status_name">Estado del túnel</string>
+    <string name="notifications_channel_status_description">Velocidad de subida y bajada, y tiempo de conexión</string>
+    <string name="notifications_channel_alerts_name">Avisos</string>
+    <string name="notifications_channel_alerts_description">Desconexión o fallo del túnel y actualizaciones disponibles</string>
+    <string name="notifications_traffic_text">↓ %1$s · ↑ %2$s</string>
+    <string name="notifications_notice_no_response_title">Túnel sin respuesta</string>
+    <string name="notifications_notice_no_response_text">El servidor no responde. Revisa tu conexión a internet.</string>
+    <string name="notifications_notice_failed_title">Error de conexión</string>
+    <string name="notifications_notice_failed_text">El túnel no se pudo levantar.</string>
+    <string name="notifications_notice_update_title">Actualización disponible</string>
+    <string name="notifications_notice_update_text">Versión %1$s disponible</string>
+
     <string name="tab_my_profiles">Mis perfiles</string>
     <string name="tab_favorites">Favoritos</string>
     <string name="add_config">Añadir configuración</string>

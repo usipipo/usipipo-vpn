@@ -34,6 +34,9 @@ class UsipipoApp : Application() {
         // Widget y mosaico: se redibujan solos cuando cambia el estado del túnel.
         container.startWidgetUpdater()
 
+        // Canales propios de avisos (el del túnel lo crea su servicio): idempotente.
+        container.notificationsManager.ensureChannels()
+
         // Comprobación silenciosa de actualizaciones: como máximo una vez cada 24 h.
         container.checkForUpdatesOnStartup()
         AppLog.i("Actualizar", "Comprobación automática al arrancar (versión ${container.currentVersion})")

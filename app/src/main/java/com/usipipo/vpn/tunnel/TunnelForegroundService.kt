@@ -20,6 +20,7 @@ import com.usipipo.vpn.diagnostics.AppLog
 import com.usipipo.vpn.domain.TunnelState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.dropWhile
@@ -40,6 +41,9 @@ class TunnelForegroundService : Service() {
 
     private val serviceScope: CoroutineScope =
         CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+
+    /** Job de la notificación de tráfico; se cancela en cuanto el túnel deja de ir bien. */
+    private var trafficJob: Job? = null
 
     private val container: AppContainer
         get() = (applicationContext as UsipipoApp).container
@@ -66,6 +70,9 @@ class TunnelForegroundService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
+        // El aviso de tráfico caduca solo, pero si el servicio cae por otra causa se
+        // retira aquí para no dejarlo huérfano.
+        container.notificationsManager.cancelTraffic()
         serviceScope.cancel()
         super.onDestroy()
     }
@@ -110,11 +117,58 @@ class TunnelForegroundService : Service() {
             .dropWhile { it is TunnelState.Disconnected }
             .collect { state ->
                 when (state) {
-                    TunnelState.Disconnected, is TunnelState.Failed -> stopHostingTunnel()
-                    is TunnelState.Connecting, is TunnelState.Connected, is TunnelState.NoResponse ->
+                    TunnelState.Disconnected -> {
+                        stopTrafficNotice()
+                        stopHostingTunnel()
+                    }
+                    is TunnelState.Failed -> {
+                        stopTrafficNotice()
+                        container.notificationsManager.publishDisconnect(state)
+                        stopHostingTunnel()
+                    }
+                    is TunnelState.Connecting -> {
+                        stopTrafficNotice()
                         updateNotification(state, profileName)
+                    }
+                    is TunnelState.Connected -> {
+                        startTrafficNotice(profileName, state.sinceMs)
+                        updateNotification(state, profileName)
+                    }
+                    is TunnelState.NoResponse -> {
+                        // El túnel sigue en pie pero el servidor no responde: se avisa
+                        // y se retira la notificación de tráfico, que ya no dice nada.
+                        stopTrafficNotice()
+                        container.notificationsManager.publishDisconnect(state)
+                        updateNotification(state, profileName)
+                    }
                 }
             }
+    }
+
+    /**
+     * Notificación de estado con tráfico: velocidad de subida y bajada, y tiempo de
+     * conexión, con las muestras del contador del túnel. Solo corre mientras el túnel
+     * está conectado; fuera de ahí no hay nada que contar.
+     */
+    private fun startTrafficNotice(profileName: String, sinceMs: Long) {
+        trafficJob?.cancel()
+        trafficJob = serviceScope.launch {
+            val calculator = SpeedCalculator()
+            container.tunnelManager.counters().collect { counters ->
+                container.notificationsManager.publishTraffic(
+                    profileName = profileName,
+                    throughput = calculator.add(counters),
+                    sinceMs = sinceMs,
+                    nowMs = System.currentTimeMillis(),
+                )
+            }
+        }
+    }
+
+    private fun stopTrafficNotice() {
+        trafficJob?.cancel()
+        trafficJob = null
+        container.notificationsManager.cancelTraffic()
     }
 
     /** El túnel se apagó o falló: fuera de primer plano y sin servicio. */

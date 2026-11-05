@@ -27,6 +27,12 @@
     -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 
+    <!--
+      Avisos propios de la app (estado del túnel, desconexión o fallo y actualización
+      disponible). Se pide en tiempo de ejecución desde la API 33.
+    -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:name=".UsipipoApp"
         android:allowBackup="false"

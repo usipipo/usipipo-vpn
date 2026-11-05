@@ -13,6 +13,7 @@ import com.usipipo.vpn.data.geo.IpwhoIsClient
 import com.usipipo.vpn.data.geo.PingRepository
 import com.usipipo.vpn.data.installedPackages
 import com.usipipo.vpn.diagnostics.AppLog
+import com.usipipo.vpn.notifications.NotificationsManager
 import com.usipipo.vpn.diagnostics.DeviceInfo
 import com.usipipo.vpn.diagnostics.DiagnosticsSettings
 import com.usipipo.vpn.quickconnect.AndroidTunnelConnector
@@ -113,6 +114,15 @@ class AppContainer(context: Context) {
 
     /** Ajustes globales de la app (tema, animaciones, paleta, …). */
     val appSettings: AppSettings by lazy { AppSettings.create(appContext) }
+
+    /**
+     * Avisos propios de la app: estado del túnel con tráfico, desconexión o fallo y
+     * actualización disponible. No sustituye a la notificación del servicio en primer
+     * plano, que Android exige mientras el túnel esté activo.
+     */
+    val notificationsManager: NotificationsManager by lazy {
+        NotificationsManager(appContext, appSettings)
+    }
 
     val updateChecker: UpdateChecker by lazy {
         UpdateChecker(source = GitHubReleaseSource(), store = updateStateStore)

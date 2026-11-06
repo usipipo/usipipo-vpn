@@ -13,7 +13,6 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -212,8 +211,9 @@ class BackupViewModelTest {
         settings = settings,
         writer = writer,
         reader = reader,
-        // Mismo dispatcher que el test: el trabajo se completa antes de afirmar.
-        workDispatcher = UnconfinedTestDispatcher(testScheduler),
+        // Dispatcher eager: el trabajo se completa antes de afirmar, sin hilos reales
+        // que pudieran escapar a otra clase de tests.
+        workDispatcher = UnconfinedTestDispatcher(),
     )
 
     private fun perfil(id: String, nombre: String, clave: String, endpoint: String) = BackupProfile(

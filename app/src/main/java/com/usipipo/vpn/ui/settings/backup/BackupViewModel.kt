@@ -15,7 +15,8 @@ import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.settings.AppSettings
 import java.io.InputStream
 import java.io.OutputStream
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -49,6 +50,9 @@ sealed interface BackupMessage {
 
     /** Copia ilegible; [reason] es el motivo concreto, para poder diagnosticarlo. */
     data class CorruptBackup(val reason: String? = null) : BackupMessage
+
+    /** La escritura falló (disco lleno, permiso retirado): no se marca la copia. */
+    data object ExportFailed : BackupMessage
     data class Conflicts(val count: Int) : BackupMessage
 }
 
@@ -84,14 +88,16 @@ class BackupViewModel(
             return
         }
         launchCopy {
-            val profiles = store.configs.value.map { config ->
-                BackupProfile(
-                    id = config.id,
-                    name = config.name,
-                    configText = store.readText(config.id).orEmpty(),
-                )
+            output.use { stream ->
+                val profiles = store.configs.value.map { config ->
+                    BackupProfile(
+                        id = config.id,
+                        name = config.name,
+                        configText = store.readText(config.id).orEmpty(),
+                    )
+                }
+                writer.write(profiles, BackupSettings.snapshot(settings), password, stream)
             }
-            writer.write(profiles, BackupSettings.snapshot(settings), password, output)
             settings.backupLastAt = System.currentTimeMillis()
             publish(BackupMessage.Exported)
         }
@@ -109,7 +115,7 @@ class BackupViewModel(
                 publish(BackupMessage.ProfileUnreadable)
                 return@launchCopy
             }
-            output.write(text.toByteArray())
+            output.use { stream -> stream.write(text.toByteArray()) }
             settings.backupLastAt = System.currentTimeMillis()
             publish(BackupMessage.ProfileExported)
         }
@@ -128,19 +134,19 @@ class BackupViewModel(
                 return@launchCopy
             }
             val conflicts = detectConflicts(content)
+            // Los ajustes se restauran al leer la copia, antes de tocar los perfiles:
+            // si algo falla después, el usuario ya tiene la foto aplicada.
+            applySettings(content.settings)
             if (conflicts.isEmpty()) {
                 importAll(content.profiles)
                 publish(BackupMessage.Imported)
             } else {
-                // Los perfiles sin conflicto entran ya; los demás esperan la decisión.
                 pending.clear()
                 pending.addAll(conflicts.map { it.incoming })
                 val libres = content.profiles - conflicts.map { it.incoming }.toSet()
                 importAll(libres)
                 publish(BackupMessage.Conflicts(conflicts.size))
-                _uiState.value = _uiState.value.copy(
-                    conflicts = conflicts,
-                )
+                _uiState.value = _uiState.value.copy(conflicts = conflicts)
             }
         }
     }
@@ -173,7 +179,12 @@ class BackupViewModel(
                     store.remove(conflict.existing.id)
                     store.add(incoming.name, incoming.configText)
                 }
-                DuplicateDecision.KeepBoth -> store.add(incoming.name, incoming.configText)
+                DuplicateDecision.KeepBoth -> {
+                    // El almacén no admite dos perfiles con el mismo nombre: se busca
+                    // uno libre en lugar de fallar en silencio.
+                    val libres = store.configs.value.map { it.name }
+                    store.add(BackupNames.suggestUnique(incoming.name, libres), incoming.configText)
+                }
             }
             val rest = _uiState.value.conflicts.drop(1)
             _uiState.value = _uiState.value.copy(conflicts = rest)
@@ -215,6 +226,11 @@ class BackupViewModel(
         }
     }
 
+    /** Aplica los ajustes que trae la copia; las claves ajenas se ignoran. */
+    private fun applySettings(values: Map<String, Any>) {
+        BackupSettings.restore(settings, values)
+    }
+
     /**
      * Cifrar, derivar la clave y escribir el zip cuesta (PBKDF2 con 100 000
      * iteraciones): se sale del hilo principal, que es donde corre viewModelScope.
@@ -224,6 +240,12 @@ class BackupViewModel(
         viewModelScope.launch {
             try {
                 withContext(workDispatcher) { block() }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // Escritura cortada, disco lleno, permiso retirado: se avisa con un
+                // mensaje claro en vez de dejar que la excepción se pierda.
+                publish(BackupMessage.ExportFailed)
             } finally {
                 refresh()
             }

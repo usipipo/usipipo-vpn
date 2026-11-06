@@ -1,5 +1,7 @@
 package com.usipipo.vpn.backup
 
+import com.usipipo.vpn.settings.AppSettings
+import com.usipipo.vpn.settings.FakeSharedPreferences
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.zip.ZipEntry
@@ -103,6 +105,25 @@ class BackupWriterReaderTest {
         } catch (e: CorruptBackupException) {
             assertTrue(true)
         }
+    }
+
+    @Test
+    fun `una copia con la foto real de ajustes se lee entera`() {
+        val ajustesReales = BackupSettings.snapshot(AppSettings(FakeSharedPreferences()))
+        val salida = ByteArrayOutputStream()
+        writer.write(
+            profiles = listOf(BackupProfile(id = "p1", name = "Casa", configText = "[Interface]\n")),
+            settingsValues = ajustesReales,
+            password = "secreta",
+            output = salida,
+        )
+
+        val contenido = reader.read(ByteArrayInputStream(salida.toByteArray()), "secreta")
+
+        assertEquals(1, contenido.profiles.size)
+        // La foto viaja con sus tipos y vuelve a aplicarse.
+        assertEquals("azul_noche", contenido.settings["palette"])
+        assertEquals(true, contenido.settings["notifications_enabled"])
     }
 
     private fun escribirZip(contraseña: String): ByteArray {

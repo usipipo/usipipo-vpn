@@ -191,7 +191,30 @@ class EncryptedFileConfigStore(
                             countryIp = countryInfo.ip,
                             countryFetchedAt = countryInfo.fetchedAt,
                         )
-                    } else cfg
+                     } else cfg
+                }
+                persistIndex()
+            }
+        }
+    }
+
+    override suspend fun clearGeoCache() {
+        mutex.withLock {
+            withContext(Dispatchers.IO) {
+                if (_configs.value.none { cfg ->
+                        cfg.countryCode != null || cfg.countryName != null ||
+                            cfg.countryIp != null || cfg.countryFetchedAt != null
+                    }
+                ) {
+                    return@withContext
+                }
+                _configs.value = _configs.value.map { cfg ->
+                    cfg.copy(
+                        countryCode = null,
+                        countryName = null,
+                        countryIp = null,
+                        countryFetchedAt = null,
+                    )
                 }
                 persistIndex()
             }

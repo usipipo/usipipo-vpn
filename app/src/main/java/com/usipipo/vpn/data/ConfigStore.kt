@@ -31,4 +31,10 @@ interface ConfigStore {
 
     /** Actualiza los campos de caché de país de un perfil. Ignora ids que no existen. */
     suspend fun updateCountry(id: String, countryInfo: CountryInfo)
+
+    /**
+     * Borra la caché de país de todos los perfiles. Los campos se rellenan solos la
+     * próxima vez que se necesite el país del servidor.
+     */
+    suspend fun clearGeoCache()
 }

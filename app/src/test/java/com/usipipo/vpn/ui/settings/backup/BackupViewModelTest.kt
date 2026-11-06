@@ -181,6 +181,30 @@ class BackupViewModelTest {
         assertEquals(1, store.configs.value.size)
     }
 
+    @Test
+    fun `importar un conf suelto lo guarda con el nombre del fichero`() = runTest {
+        val viewModel = viewModel()
+        val confNuevo = "[Interface]\nPrivateKey = clave-nueva\n[Peer]\nPublicKey = CLAVE-N\nEndpoint = 3.3.3.3:51820\n"
+
+        viewModel.importProfile(confNuevo, "Oficina")
+
+        assertEquals(2, store.configs.value.size)
+        assertEquals("Oficina", store.configs.value.last().name)
+        assertEquals(confNuevo, store.texts[store.configs.value.last().id])
+        assertTrue(settings.backupLastAt > 0L)
+        assertEquals(BackupMessage.Imported, viewModel.uiState.value.message)
+    }
+
+    @Test
+    fun `importar un conf suelto con nombre repetido no pisa el que ya esta`() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.importProfile("[Interface]\nPrivateKey = otra\n", "Casa")
+
+        assertEquals(1, store.configs.value.size)
+        assertEquals(BackupMessage.ProfileUnreadable, viewModel.uiState.value.message)
+    }
+
     private fun viewModel() = BackupViewModel(store, settings, writer, reader)
 
     private fun perfil(id: String, nombre: String, clave: String, endpoint: String) = BackupProfile(

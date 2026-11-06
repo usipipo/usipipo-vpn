@@ -15,10 +15,12 @@ import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.settings.AppSettings
 import java.io.InputStream
 import java.io.OutputStream
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** Conflicto de un perfil entrante que ya está en el dispositivo. */
 data class DuplicateConflict(val existing: SavedConfig, val incoming: BackupProfile)
@@ -110,6 +112,7 @@ class BackupViewModel(
         launchCopy {
             val content = try {
                 reader.read(input, password)
+                reader.read(input, password)
             } catch (e: WrongPasswordException) {
                 publish(BackupMessage.WrongPassword)
                 return@launchCopy
@@ -132,6 +135,23 @@ class BackupViewModel(
                     conflicts = conflicts,
                 )
             }
+        }
+    }
+
+    /**
+     * Importa un `.conf` suelto elegido en el selector (RF-6). El nombre sale del
+     * fichero; si viene con un perfil repetido, se queda el que ya estaba y se avisa.
+     */
+    fun importProfile(configText: String, suggestedName: String) {
+        launchCopy {
+            val inUse = store.configs.value.any { it.name.equals(suggestedName, ignoreCase = true) }
+            if (inUse) {
+                publish(BackupMessage.ProfileUnreadable)
+                return@launchCopy
+            }
+            store.add(suggestedName, configText)
+            settings.backupLastAt = System.currentTimeMillis()
+            publish(BackupMessage.Imported)
         }
     }
 
@@ -188,11 +208,15 @@ class BackupViewModel(
         }
     }
 
+    /**
+     * Cifrar, derivar la clave y escribir el zip cuesta (PBKDF2 con 100 000
+     * iteraciones): se sale del hilo principal, que es donde corre viewModelScope.
+     */
     private fun launchCopy(block: suspend () -> Unit) {
         _uiState.value = _uiState.value.copy(busy = true, message = null)
         viewModelScope.launch {
             try {
-                block()
+                withContext(Dispatchers.IO) { block() }
             } finally {
                 refresh()
             }

@@ -11,6 +11,8 @@ import com.usipipo.vpn.settings.FakeSharedPreferences
 import com.usipipo.vpn.ui.home.FakeConfigStore
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.io.OutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -90,14 +92,19 @@ class BackupViewModelTest {
 
     @Test
     fun `importar una copia sin duplicados trae los perfiles y los ajustes`() = runTest {
-        settings.themeMode = "dark"
-        val zip = zipCon(listOf(perfil("p9", "Oficina", "CLAVE-B", "2.2.2.2:51820")))
         val viewModel = viewModel()
+
+        val zip = zipCon(listOf(perfil("p9", "Oficina", "CLAVE-B", "2.2.2.2:51820")))
+        // Los ajustes en memoria se apartan de lo que trae la copia: si no se
+        // restauran, estas dos aserciones fallan.
+        settings.themeMode = "dark"
+        settings.palette = "verde_bosque"
 
         viewModel.import("secreta", ByteArrayInputStream(zip))
 
         assertEquals(2, store.configs.value.size)
         assertEquals("light", settings.themeMode)
+        assertEquals("azul_noche", settings.palette)
         assertEquals(BackupMessage.Imported, viewModel.uiState.value.message)
         assertTrue(viewModel.uiState.value.conflicts.isEmpty())
     }
@@ -140,13 +147,41 @@ class BackupViewModelTest {
     }
 
     @Test
-    fun `mantener ambos deja los dos perfiles`() = runTest {
+    fun `mantener ambos deja los dos perfiles con nombres distintos`() = runTest {
         val viewModel = viewModel()
         viewModel.import("secreta", ByteArrayInputStream(zipCon(listOf(perfil("p9", "Casa", "CLAVE-B", "2.2.2.2:51820")))))
 
         viewModel.resolveConflict(DuplicateDecision.KeepBoth)
 
         assertEquals(2, store.configs.value.size)
+        assertEquals(listOf("Casa", "Casa (2)"), store.configs.value.map { it.name })
+    }
+
+    @Test
+    fun `si la escritura falla se avisa y no queda marca de copia`() = runTest {
+        val viewModel = viewModel()
+        val roto = object : OutputStream() {
+            override fun write(b: Int) = throw IOException("sin espacio")
+        }
+
+        viewModel.exportAll("secreta", roto)
+
+        assertEquals(0L, settings.backupLastAt)
+        assertTrue(viewModel.uiState.value.message is BackupMessage.ExportFailed)
+        assertFalse(viewModel.uiState.value.busy)
+    }
+
+    @Test
+    fun `si la escritura de un perfil falla se avisa`() = runTest {
+        val viewModel = viewModel()
+        val roto = object : OutputStream() {
+            override fun write(b: Int) = throw IOException("sin espacio")
+        }
+
+        viewModel.exportProfile("c1", roto)
+
+        assertEquals(0L, settings.backupLastAt)
+        assertTrue(viewModel.uiState.value.message is BackupMessage.ExportFailed)
     }
 
     @Test
@@ -168,7 +203,8 @@ class BackupViewModelTest {
         viewModel.import("secreta", ByteArrayInputStream("no es un zip".toByteArray()))
 
         assertEquals(1, store.configs.value.size)
-        assertEquals(BackupMessage.CorruptBackup(), viewModel.uiState.value.message)
+        val mensaje = viewModel.uiState.value.message
+        assertTrue(mensaje is BackupMessage.CorruptBackup && mensaje.reason != null)
     }
 
     @Test

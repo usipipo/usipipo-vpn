@@ -31,6 +31,10 @@ class FakeConfigStore(
         get() = texts + addedTexts
 
     override suspend fun add(name: String, configText: String): Result<SavedConfig> {
+        // Igual que el almacén real: no admite dos perfiles con el mismo nombre.
+        if (_configs.value.any { it.name.equals(name.trim(), ignoreCase = true) }) {
+            return Result.failure(com.usipipo.vpn.data.DuplicateNameException())
+        }
         val saved = SavedConfig(id = "id-${_configs.value.size + 1}", name = name)
         addedTexts[saved.id] = configText
         _configs.value = _configs.value + saved

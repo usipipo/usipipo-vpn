@@ -7,5 +7,5 @@ class WrongPasswordException(
 
 /** Copia ilegible: no es un zip válido, le falta settings.json o trae entradas peligrosas. */
 class CorruptBackupException(
-    message: String = "La copia de seguridad está corrupta",
+    message: String? = "Copia de seguridad corrupta",
 ) : Exception(message)

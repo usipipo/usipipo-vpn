@@ -22,10 +22,11 @@ class BackupReader(private val crypto: BackupCrypto = BackupCrypto()) {
             throw e
         } catch (e: Exception) {
             // Un zip ilegible es una copia corrupta, no un fallo del programa: la UI
-            // muestra el mensaje y no se importa nada.
-            throw CorruptBackupException()
+            // muestra el mensaje y no se importa nada. Se guarda el tipo real para
+            // poder diagnosticarlo.
+            throw CorruptBackupException("No se pudo leer el zip (${e.javaClass.simpleName})")
         }
-        if (encryptions.isEmpty()) throw CorruptBackupException()
+        if (encryptions.isEmpty()) throw CorruptBackupException("La copia está vacía")
 
         val settingsEntry = encryptions[BackupArchive.SETTINGS_ENTRY]
             ?: throw CorruptBackupException("A la copia le falta ${BackupArchive.SETTINGS_ENTRY}")

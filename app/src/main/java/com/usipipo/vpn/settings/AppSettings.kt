@@ -105,6 +105,11 @@ class AppSettings(private val prefs: SharedPreferences) {
         get() = prefs.getFloat(KEY_BUBBLE_Y, DEFAULT_BUBBLE_POSITION)
         set(value) = prefs.edit().putFloat(KEY_BUBBLE_Y, value).apply()
 
+    /** Fecha del último export o import con éxito (ms); 0 si nunca hubo copia. */
+    var backupLastAt: Long
+        get() = prefs.getLong(KEY_BACKUP_LAST_AT, DEFAULT_BACKUP_LAST_AT)
+        set(value) = prefs.edit().putLong(KEY_BACKUP_LAST_AT, value).apply()
+
     companion object {
         const val KEY_THEME_MODE: String = "theme_mode"
         const val KEY_ANIMATIONS_ENABLED: String = "animations_enabled"
@@ -118,6 +123,7 @@ class AppSettings(private val prefs: SharedPreferences) {
         const val KEY_BUBBLE_ENABLED: String = "bubble_enabled"
         const val KEY_BUBBLE_X: String = "bubble_x"
         const val KEY_BUBBLE_Y: String = "bubble_y"
+        const val KEY_BACKUP_LAST_AT: String = "backup_last_at"
 
         private const val PREFS_NAME = "usipipo_settings"
         private const val DEFAULT_THEME_MODE = "system"
@@ -133,6 +139,9 @@ class AppSettings(private val prefs: SharedPreferences) {
 
         /** Sin posición guardada: el overlay decide dónde colocar la burbuja. */
         private const val DEFAULT_BUBBLE_POSITION = -1f
+
+        /** Sin copias todavía: la pantalla lo muestra como «Sin copias». */
+        private const val DEFAULT_BACKUP_LAST_AT = 0L
 
         fun create(context: Context): AppSettings =
             AppSettings(context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))

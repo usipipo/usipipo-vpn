@@ -192,6 +192,26 @@ class AppSettingsTest {
         assertEquals(listOf("bubble_enabled", "bubble_x"), emitidas)
     }
 
+    @Test
+    fun `no hay fecha de ultima copia por defecto y persiste`() {
+        assertEquals(0L, settings.backupLastAt)
+
+        settings.backupLastAt = 1_700_000_000_000L
+
+        assertEquals(1_700_000_000_000L, settings.backupLastAt)
+        assertEquals(1_700_000_000_000L, prefs.getLong("backup_last_at", 0L))
+    }
+
+    @Test
+    fun `cambiar la fecha de la copia emite su clave`() = runTest {
+        val emitidas = mutableListOf<String>()
+        suscribir(emitidas)
+
+        settings.backupLastAt = 1_700_000_000_000L
+
+        assertEquals(listOf("backup_last_at"), emitidas)
+    }
+
     private companion object {
         /** Sin posición guardada: el overlay decide dónde ponerla. */
         const val SIN_POSICION = -1f

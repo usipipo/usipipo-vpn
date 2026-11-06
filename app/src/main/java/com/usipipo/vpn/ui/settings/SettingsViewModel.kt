@@ -19,7 +19,7 @@ class SettingsViewModel(private val appSettings: AppSettings) {
         SettingsRoute.TrafficBubble -> if (appSettings.bubbleEnabled) "Activada" else "Desactivada"
         SettingsRoute.Notifications -> if (appSettings.notificationsEnabled) "Activadas" else "Desactivadas"
         SettingsRoute.Updates -> "Activada"
-        SettingsRoute.Backup -> "Sin copias"
+        SettingsRoute.Backup -> if (appSettings.backupLastAt > 0L) "Con copias" else "Sin copias"
         SettingsRoute.Storage -> "—"
         SettingsRoute.More -> "—"
     }

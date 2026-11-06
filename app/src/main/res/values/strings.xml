@@ -110,6 +110,41 @@
     <string name="bubble_permission_action">Conceder permiso de superposición</string>
     <string name="bubble_content_description">Túnel: %1$s de bajada, %2$s de conexión, %3$s</string>
 
+    <!-- Copia de seguridad -->
+    <string name="backup_title">Copia de seguridad</string>
+    <string name="backup_last">Última copia: %1$s</string>
+    <string name="backup_none">Sin copias</string>
+    <string name="backup_export_title">Exportar todo</string>
+    <string name="backup_export_action">Exportar todo</string>
+    <string name="backup_export_password_title">Contraseña de la copia</string>
+    <string name="backup_export">Exportar</string>
+    <string name="backup_password">Contraseña</string>
+    <string name="backup_password_confirm">Repetir contraseña</string>
+    <string name="backup_password_warning">Si pierdes esta contraseña, la copia no se podrá abrir. No hay recuperación.</string>
+    <string name="backup_show">Ver</string>
+    <string name="backup_hide">Ocultar</string>
+    <string name="backup_profile_title">Exportar un perfil</string>
+    <string name="backup_profile_keys_title">El archivo contiene claves privadas</string>
+    <string name="backup_profile_keys_warning">Este archivo contiene claves privadas del túnel. No lo compartas con nadie que no sea de confianza.</string>
+    <string name="backup_continue">Continuar</string>
+    <string name="backup_import_action">Importar</string>
+    <string name="backup_import_password_title">Contraseña de la copia</string>
+    <string name="backup_import">Importar</string>
+    <string name="backup_exported">Copia exportada</string>
+    <string name="backup_imported">Copia importada</string>
+    <string name="backup_profile_exported">Perfil exportado</string>
+    <string name="backup_profile_unreadable">No se pudo leer el perfil</string>
+    <string name="backup_empty_password">Escribe una contraseña</string>
+    <string name="backup_wrong_password">Contraseña incorrecta</string>
+    <string name="backup_corrupt">El archivo no es una copia válida</string>
+    <string name="backup_conflicts">Hay %1$d perfil repetido: decide qué hacer</string>
+    <string name="backup_conflicts_title">Perfiles repetidos</string>
+    <string name="backup_conflicts_body">La copia trae %1$d perfil que ya está en este dispositivo.</string>
+    <string name="backup_conflict_item">Repetido: %1$s</string>
+    <string name="backup_overwrite">Sobrescribir</string>
+    <string name="backup_keep_both">Mantener ambos</string>
+    <string name="backup_skip">Omitir</string>
+
     <string name="tab_my_profiles">Mis perfiles</string>
     <string name="tab_favorites">Favoritos</string>
     <string name="add_config">Añadir configuración</string>

@@ -190,7 +190,7 @@ class BackupViewModelTest {
 
         assertEquals(2, store.configs.value.size)
         assertEquals("Oficina", store.configs.value.last().name)
-        assertEquals(confNuevo, store.texts[store.configs.value.last().id])
+        assertEquals(confNuevo, store.storedTexts[store.configs.value.last().id])
         assertTrue(settings.backupLastAt > 0L)
         assertEquals(BackupMessage.Imported, viewModel.uiState.value.message)
     }

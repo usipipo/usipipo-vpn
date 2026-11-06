@@ -23,8 +23,16 @@ class FakeConfigStore(
     override val configs: StateFlow<List<SavedConfig>> = _configs
     override val lastUsedId: StateFlow<String?> = _lastUsed
 
+    /** Textos guardados por [add]: el almacén real conserva el `.conf`. */
+    private val addedTexts = mutableMapOf<String, String>()
+
+    /** Todo el texto que el fake tiene guardado: lo dado al construirlo más lo añadido. */
+    val storedTexts: Map<String, String>
+        get() = texts + addedTexts
+
     override suspend fun add(name: String, configText: String): Result<SavedConfig> {
         val saved = SavedConfig(id = "id-${_configs.value.size + 1}", name = name)
+        addedTexts[saved.id] = configText
         _configs.value = _configs.value + saved
         _lastUsed.value = saved.id
         return Result.success(saved)

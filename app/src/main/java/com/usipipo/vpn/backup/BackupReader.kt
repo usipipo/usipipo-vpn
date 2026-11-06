@@ -16,15 +16,14 @@ data class BackupContent(val profiles: List<BackupProfile>, val settings: Map<St
 class BackupReader(private val crypto: BackupCrypto = BackupCrypto()) {
 
     fun read(input: InputStream, password: String): BackupContent {
-        val encryptions = mutableMapOf<String, ByteArray>()
-        ZipInputStream(input.buffered()).use { zip ->
-            while (true) {
-                val entry = zip.nextEntry ?: break
-                if (!BackupArchive.isSafeEntryName(entry.name)) {
-                    throw CorruptBackupException("Entrada con nombre no válido: ${entry.name}")
-                }
-                encryptions[entry.name] = zip.readBytes()
-            }
+        val encryptions = try {
+            readEntries(input)
+        } catch (e: CorruptBackupException) {
+            throw e
+        } catch (e: Exception) {
+            // Un zip ilegible es una copia corrupta, no un fallo del programa: la UI
+            // muestra el mensaje y no se importa nada.
+            throw CorruptBackupException()
         }
         if (encryptions.isEmpty()) throw CorruptBackupException()
 
@@ -43,5 +42,20 @@ class BackupReader(private val crypto: BackupCrypto = BackupCrypto()) {
             crypto.decrypt(password, settingsEntry).toString(Charsets.UTF_8),
         )
         return BackupContent(profiles = profiles, settings = settings)
+    }
+
+    /** Entradas del zip por nombre; rechaza cualquier nombre peligroso. */
+    private fun readEntries(input: InputStream): Map<String, ByteArray> {
+        val encryptions = mutableMapOf<String, ByteArray>()
+        ZipInputStream(input.buffered()).use { zip ->
+            while (true) {
+                val entry = zip.nextEntry ?: break
+                if (!BackupArchive.isSafeEntryName(entry.name)) {
+                    throw CorruptBackupException("Entrada con nombre no válido: ${entry.name}")
+                }
+                encryptions[entry.name] = zip.readBytes()
+            }
+        }
+        return encryptions
     }
 }

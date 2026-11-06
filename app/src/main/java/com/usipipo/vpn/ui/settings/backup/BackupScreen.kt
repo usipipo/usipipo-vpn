@@ -226,7 +226,6 @@ private fun FilaPerfil(profile: SavedConfig, enabled: Boolean, onExport: () -> U
         )
     }
 }
-}
 
 @Composable
 private fun Conflictos(

@@ -120,7 +120,6 @@ class BackupViewModel(
         launchCopy {
             val content = try {
                 reader.read(input, password)
-                reader.read(input, password)
             } catch (e: WrongPasswordException) {
                 publish(BackupMessage.WrongPassword)
                 return@launchCopy

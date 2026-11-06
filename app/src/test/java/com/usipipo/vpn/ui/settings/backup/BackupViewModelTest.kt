@@ -120,9 +120,6 @@ class BackupViewModelTest {
         val viewModel = viewModel()
         viewModel.import("secreta", ByteArrayInputStream(zipCon(listOf(perfil("p9", "Casa", "CLAVE-B", "2.2.2.2:51820")))))
 
-        // Diagnóstico temporal: si la lectura falla, este mensaje imprime el motivo.
-        assertEquals("motivo del fallo al importar", (viewModel.uiState.value.message as? BackupMessage.CorruptBackup)?.reason)
-
         viewModel.resolveConflict(DuplicateDecision.Overwrite)
 
         assertEquals(1, store.configs.value.size)

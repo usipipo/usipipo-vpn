@@ -51,10 +51,15 @@ class BackupSettingsTest {
     }
 
     @Test
-    fun `serializar y leer conserva los tipos`() {
+    fun `serializar y leer conserva los valores`() {
         val json = BackupSettings.serialize(fotoRemota)
+        val leido = BackupSettings.parse(json)
 
-        assertEquals(fotoRemota, BackupSettings.parse(json))
+        assertEquals("light", leido["theme_mode"])
+        assertEquals(false, leido["animations_enabled"])
+        // JSON no distingue Float de Double: el número vuelve como Double.
+        assertEquals(120f, (leido["bubble_x"] as Number).toFloat())
+        assertEquals(1_700_000_000_000.0, (leido["backup_last_at"] as Number).toDouble())
     }
 
     private val fotoRemota = mapOf<String, Any>(

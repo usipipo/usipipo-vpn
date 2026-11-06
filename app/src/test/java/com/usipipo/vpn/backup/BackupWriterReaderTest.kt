@@ -94,7 +94,7 @@ class BackupWriterReaderTest {
 
     @Test
     fun `el perfil incluido no puede suplantar settings con un nombre parecido`() {
-        val zip = escribirZipConEntrada(BackupArchive.SETTINGS_ENTRY, crypto.encrypt("secreta", "no es json"))
+        val zip = escribirZipConEntrada(BackupArchive.SETTINGS_ENTRY, crypto.encrypt("secreta", "no es json".toByteArray()))
 
         try {
             reader.read(ByteArrayInputStream(zip), "secreta")
@@ -133,8 +133,12 @@ class BackupWriterReaderTest {
 
     private fun nombresDeEntrada(zip: ByteArray): List<String> {
         val nombres = mutableListOf<String>()
-        java.util.zip.ZipInputStream(ByteArrayInputStream(zip)).use { entrada ->
-            while (entrada.nextEntry != null) nombres += entrada.name ?: ""
+        java.util.zip.ZipInputStream(ByteArrayInputStream(zip)).use { flujo ->
+            var entrada = flujo.nextEntry
+            while (entrada != null) {
+                nombres += entrada.name
+                entrada = flujo.nextEntry
+            }
         }
         return nombres
     }

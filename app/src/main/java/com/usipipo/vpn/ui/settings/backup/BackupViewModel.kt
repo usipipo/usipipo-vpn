@@ -15,7 +15,7 @@ import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.settings.AppSettings
 import java.io.InputStream
 import java.io.OutputStream
-import kotlinx.coroutines.CoroutineContext
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

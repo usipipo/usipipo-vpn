@@ -139,7 +139,7 @@ private const val DEFAULT_PROFILE_NAME = "Perfil importado"
     BackupMessage.ProfileUnreadable -> context.getString(R.string.backup_profile_unreadable)
     BackupMessage.EmptyPassword -> context.getString(R.string.backup_empty_password)
     BackupMessage.WrongPassword -> context.getString(R.string.backup_wrong_password)
-    BackupMessage.CorruptBackup -> context.getString(R.string.backup_corrupt)
+    is BackupMessage.CorruptBackup -> context.getString(R.string.backup_corrupt)
     is BackupMessage.Conflicts ->
         context.getString(R.string.backup_conflicts, message.count)
 }

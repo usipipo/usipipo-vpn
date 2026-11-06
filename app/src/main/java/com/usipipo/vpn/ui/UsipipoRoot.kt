@@ -53,6 +53,8 @@ import com.usipipo.vpn.ui.settings.SettingsScreen
 import com.usipipo.vpn.ui.settings.SettingsViewModel
 import com.usipipo.vpn.ui.settings.appearance.AppearanceRoute
 import com.usipipo.vpn.ui.settings.appearance.AppearanceViewModel
+import com.usipipo.vpn.ui.settings.backup.BackupRoute
+import com.usipipo.vpn.ui.settings.backup.BackupViewModel
 import com.usipipo.vpn.ui.settings.bubble.TrafficBubbleRoute
 import com.usipipo.vpn.ui.settings.bubble.TrafficBubbleViewModel
 import com.usipipo.vpn.ui.settings.notifications.NotificationsRoute
@@ -194,7 +196,8 @@ fun UsipipoRoot(
                                     if (clicked == SettingsRoute.Appearance ||
                                         clicked == SettingsRoute.Security ||
                                         clicked == SettingsRoute.Notifications ||
-                                        clicked == SettingsRoute.TrafficBubble
+                                        clicked == SettingsRoute.TrafficBubble ||
+                                        clicked == SettingsRoute.Backup
                                     ) {
                                         settingsRoute = clicked
                                     }
@@ -218,6 +221,11 @@ fun UsipipoRoot(
                         } else if (route == SettingsRoute.TrafficBubble) {
                             TrafficBubbleRoute(
                                 viewModel = trafficBubbleViewModel(container),
+                                onBack = { settingsRoute = null },
+                            )
+                        } else if (route == SettingsRoute.Backup) {
+                            BackupRoute(
+                                viewModel = backupViewModel(container),
                                 onBack = { settingsRoute = null },
                             )
                         }
@@ -333,6 +341,13 @@ private fun trafficBubbleViewModel(container: AppContainer): TrafficBubbleViewMo
                 Settings.canDrawOverlays(container.appContext)
             }
         }
+    },
+)
+
+@Composable
+private fun backupViewModel(container: AppContainer): BackupViewModel = viewModel(
+    factory = viewModelFactory {
+        initializer { BackupViewModel(container.configStore, container.appSettings) }
     },
 )
 

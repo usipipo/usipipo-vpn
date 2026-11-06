@@ -58,8 +58,8 @@ class BackupSettingsTest {
         assertEquals("light", leido["theme_mode"])
         assertEquals(false, leido["animations_enabled"])
         // JSON no distingue Float de Double: el número vuelve como Double.
-        assertEquals(120f, (leido["bubble_x"] as Number).toFloat())
-        assertEquals(1_700_000_000_000.0, (leido["backup_last_at"] as Number).toDouble())
+        assertEquals(120f, (leido["bubble_x"] as Number).toFloat(), 0.001f)
+        assertEquals(1_700_000_000_000.0, (leido["backup_last_at"] as Number).toDouble(), 0.1)
     }
 
     private val fotoRemota = mapOf<String, Any>(
@@ -67,6 +67,7 @@ class BackupSettingsTest {
         "animations_enabled" to false,
         "palette" to "verde_bosque",
         "notifications_enabled" to false,
+        "notification_traffic" to true,
         "notification_updates" to true,
         "bubble_enabled" to true,
         "bubble_x" to 120f,

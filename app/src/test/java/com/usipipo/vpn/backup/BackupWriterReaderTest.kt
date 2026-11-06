@@ -36,12 +36,13 @@ class BackupWriterReaderTest {
     }
 
     @Test
-    fun `el zip lleva una entrada cifrada por perfil y settings json`() {
+    fun `el zip lleva una entrada cifrada por perfil, manifiesto y settings`() {
         val zip = escribirZip(contraseña = "secreta")
 
         val nombres = nombresDeEntrada(zip)
 
         assertTrue(nombres.contains(BackupArchive.SETTINGS_ENTRY))
+        assertTrue(nombres.contains(BackupArchive.MANIFEST_ENTRY))
         assertTrue(nombres.contains("p1.conf.enc"))
         assertTrue(nombres.contains("p2.conf.enc"))
     }

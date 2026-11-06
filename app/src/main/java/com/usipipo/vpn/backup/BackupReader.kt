@@ -30,12 +30,19 @@ class BackupReader(private val crypto: BackupCrypto = BackupCrypto()) {
         val settingsEntry = encryptions[BackupArchive.SETTINGS_ENTRY]
             ?: throw CorruptBackupException("A la copia le falta ${BackupArchive.SETTINGS_ENTRY}")
 
+        val names = encryptions[BackupArchive.MANIFEST_ENTRY]
+            ?.let { BackupManifest.parse(crypto.decrypt(password, it).toString(Charsets.UTF_8)) }
+            .orEmpty()
+
         val profiles = encryptions
-            .filterKeys { name -> name != BackupArchive.SETTINGS_ENTRY }
+            .filterKeys { name ->
+                name != BackupArchive.SETTINGS_ENTRY && name != BackupArchive.MANIFEST_ENTRY
+            }
             .mapNotNull { (name, bytes) ->
                 val id = BackupArchive.configIdFromEntry(name) ?: return@mapNotNull null
                 val text = crypto.decrypt(password, bytes).toString(Charsets.UTF_8)
-                BackupProfile(id = id, name = id, configText = text)
+                // Sin manifiesto el nombre es el id: la copia sigue importando.
+                BackupProfile(id = id, name = names[id] ?: id, configText = text)
             }
 
         val settings = BackupSettings.parse(

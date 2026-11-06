@@ -12,6 +12,9 @@ object BackupArchive {
     /** Entrada con los ajustes de la app. */
     const val SETTINGS_ENTRY: String = "settings.json"
 
+    /** Entrada con el mapa `id -> nombre` de los perfiles. */
+    const val MANIFEST_ENTRY: String = "manifest.json"
+
     /** Sufijo de las entradas de perfil cifradas. */
     const val ENTRY_SUFFIX: String = ".conf.enc"
 

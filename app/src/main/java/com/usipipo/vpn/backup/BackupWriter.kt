@@ -24,6 +24,8 @@ class BackupWriter(private val crypto: BackupCrypto = BackupCrypto()) {
     ) {
         ZipOutputStream(output.buffered()).use { zip ->
             writeEntry(zip, BackupArchive.SETTINGS_ENTRY, crypto.encrypt(password, BackupSettings.serialize(settingsValues).toByteArray()))
+            // Los nombres viajan aparte: las entradas de perfil se llaman por id.
+            writeEntry(zip, BackupArchive.MANIFEST_ENTRY, crypto.encrypt(password, BackupManifest.serialize(profiles).toByteArray()))
             profiles.forEach { profile ->
                 val name = BackupArchive.entryName(profile.id)
                 writeEntry(zip, name, crypto.encrypt(password, profile.configText.toByteArray()))

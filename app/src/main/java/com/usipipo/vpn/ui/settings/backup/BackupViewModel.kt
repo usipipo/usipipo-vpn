@@ -46,7 +46,9 @@ sealed interface BackupMessage {
     data object ProfileUnreadable : BackupMessage
     data object EmptyPassword : BackupMessage
     data object WrongPassword : BackupMessage
-    data object CorruptBackup : BackupMessage
+
+    /** Copia ilegible; [reason] es el motivo concreto, para poder diagnosticarlo. */
+    data class CorruptBackup(val reason: String? = null) : BackupMessage
     data class Conflicts(val count: Int) : BackupMessage
 }
 
@@ -123,7 +125,7 @@ class BackupViewModel(
                 publish(BackupMessage.WrongPassword)
                 return@launchCopy
             } catch (e: CorruptBackupException) {
-                publish(BackupMessage.CorruptBackup)
+                publish(BackupMessage.CorruptBackup(e.message))
                 return@launchCopy
             }
             val conflicts = detectConflicts(content)

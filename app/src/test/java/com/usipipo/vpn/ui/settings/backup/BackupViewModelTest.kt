@@ -13,6 +13,8 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -42,7 +44,7 @@ class BackupViewModelTest {
 
     @Before
     fun setUp() {
-        Dispatchers.setMain(kotlinx.coroutines.test.UnconfinedTestDispatcher())
+        Dispatchers.setMain(UnconfinedTestDispatcher())
     }
 
     @After
@@ -205,7 +207,14 @@ class BackupViewModelTest {
         assertEquals(BackupMessage.ProfileUnreadable, viewModel.uiState.value.message)
     }
 
-    private fun viewModel() = BackupViewModel(store, settings, writer, reader)
+    private fun viewModel() = BackupViewModel(
+        store = store,
+        settings = settings,
+        writer = writer,
+        reader = reader,
+        // Mismo dispatcher que el test: el trabajo se completa antes de afirmar.
+        workDispatcher = UnconfinedTestDispatcher(testScheduler),
+    )
 
     private fun perfil(id: String, nombre: String, clave: String, endpoint: String) = BackupProfile(
         id = id,

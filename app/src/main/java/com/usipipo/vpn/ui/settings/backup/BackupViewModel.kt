@@ -15,6 +15,7 @@ import com.usipipo.vpn.domain.SavedConfig
 import com.usipipo.vpn.settings.AppSettings
 import java.io.InputStream
 import java.io.OutputStream
+import kotlinx.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -62,6 +63,11 @@ class BackupViewModel(
     private val settings: AppSettings,
     private val writer: BackupWriter = BackupWriter(),
     private val reader: BackupReader = BackupReader(),
+    /**
+     * Donde corre el cifrado y la escritura. En producción es IO: PBKDF2 con 100 000
+     * iteraciones no puede ir en la interfaz. Los tests pasan un dispatcher de prueba.
+     */
+    private val workDispatcher: CoroutineContext = Dispatchers.IO,
 ) : ViewModel() {
 
     private val pending = mutableListOf<BackupProfile>()
@@ -216,7 +222,7 @@ class BackupViewModel(
         _uiState.value = _uiState.value.copy(busy = true, message = null)
         viewModelScope.launch {
             try {
-                withContext(Dispatchers.IO) { block() }
+                withContext(workDispatcher) { block() }
             } finally {
                 refresh()
             }

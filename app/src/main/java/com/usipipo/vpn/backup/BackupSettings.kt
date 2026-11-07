@@ -28,19 +28,21 @@ object BackupSettings {
         AppSettings.KEY_BUBBLE_Y to settings.bubbleY,
     )
 
-    /** Escribe los valores en el almacén; las claves desconocidas se ignoran. */
+    /**
+     * Escribe los valores en el almacén; las claves desconocidas se ignoran.
+     *
+     * Las claves que apagan un control de seguridad no se restauran: la copia la abre
+     * quien conoce la contraseña, así que podría apagar en silencio el biométrico,
+     * repoblar las apps excluidas del túnel o silenciar los avisos. Esos ajustes los
+     * decide el usuario en su momento, no una copia.
+     */
     fun restore(settings: AppSettings, values: Map<String, Any>) {
         values.forEach { (key, value) ->
+            if (key in SECURITY_CONTROLS) return@forEach
             when (key) {
                 AppSettings.KEY_THEME_MODE -> asString(value)?.let { settings.themeMode = it }
                 AppSettings.KEY_PALETTE -> asString(value)?.let { settings.palette = it }
                 AppSettings.KEY_ANIMATIONS_ENABLED -> asBoolean(value)?.let { settings.animationsEnabled = it }
-                AppSettings.KEY_BIOMETRIC_ENABLED -> asBoolean(value)?.let { settings.biometricEnabled = it }
-                AppSettings.KEY_EXCLUDED_APPS -> asString(value)?.let { settings.excludedApps = it }
-                AppSettings.KEY_NOTIFICATIONS_ENABLED -> asBoolean(value)?.let { settings.notificationsEnabled = it }
-                AppSettings.KEY_NOTIFICATION_TRAFFIC -> asBoolean(value)?.let { settings.notificationTraffic = it }
-                AppSettings.KEY_NOTIFICATION_DISCONNECT -> asBoolean(value)?.let { settings.notificationDisconnect = it }
-                AppSettings.KEY_NOTIFICATION_UPDATES -> asBoolean(value)?.let { settings.notificationUpdates = it }
                 AppSettings.KEY_BUBBLE_ENABLED -> asBoolean(value)?.let { settings.bubbleEnabled = it }
                 AppSettings.KEY_BUBBLE_X -> asFloat(value)?.let { settings.bubbleX = it }
                 AppSettings.KEY_BUBBLE_Y -> asFloat(value)?.let { settings.bubbleY = it }
@@ -48,6 +50,16 @@ object BackupSettings {
             }
         }
     }
+
+    /** Claves que apagan un control de seguridad: no viajan en la restauración. */
+    private val SECURITY_CONTROLS = setOf(
+        AppSettings.KEY_BIOMETRIC_ENABLED,
+        AppSettings.KEY_EXCLUDED_APPS,
+        AppSettings.KEY_NOTIFICATIONS_ENABLED,
+        AppSettings.KEY_NOTIFICATION_TRAFFIC,
+        AppSettings.KEY_NOTIFICATION_DISCONNECT,
+        AppSettings.KEY_NOTIFICATION_UPDATES,
+    )
 
     /** Texto JSON de la foto; se cifra como una entrada más del zip. */
     fun serialize(values: Map<String, Any>): String = JSONObject(values).toString()

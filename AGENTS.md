@@ -53,6 +53,7 @@ Regla de co-locación: cada pantalla vive en su propio paquete bajo `ui/` con su
 4. **Verifica en la CI, no en local:** push a la rama + PR → `android-ci.yml` ejecuta `testDebugUnitTest`, `assembleDebug` y `assembleRelease`. Antes de pedir revisión, comprueba que el workflow está en verde.
 5. **Commitea en español con convencional commits:** `feat(ui): …`, `fix(ui): …`, `docs: …`
 6. **No toques la lógica de conexión del túnel** salvo que la fase lo autorice explícitamente.
+7. **No inventes APIs ni librerías.** Antes de escribir un símbolo que no exista en este repo, compruébalo en una fuente real: documentación oficial o Context7 para librerías, y el propio código del repo para lo que ya tenemos. Igual con los datos: si un caché, un campo o un permiso no existe, no lo des por hecho. Los tres fallos que más CI han quemado en este proyecto salieron de aquí: `CoroutineContext` importado de `kotlinx.coroutines` en vez de `kotlin.coroutines`, una anotación `@StringResXP` que no existe (la real es `@StringRes`), y una caché de ping que nunca existió. La regla es simple: **si no lo has visto en una fuente, no lo escribas.**
 
 ## Context pointers (abre solo cuando la tarea lo requiera)
 
@@ -62,6 +63,7 @@ Regla de co-locación: cada pantalla vive en su propio paquete bajo `ui/` con su
 | `CONTRIBUTING.md` | Flujo de ramas, commits, CI, revisión de pull requests | Antes de abrir una PR o crear una rama |
 | `docs/plans/` | Planes de implementación por fase (mockup design, fase 1, fase 2…) | Al iniciar una nueva fase o tarea |
 | `docs/design/` | Mockups, assets, paletas de color, logo | Cuando necesites referencias visuales exactas |
+| Context7 | Documentación de librerías y plataforma | Antes de usar una API que no esté ya en el repo (paso 7) |
 
 ## Leading words (usar en prompts y commits)
 

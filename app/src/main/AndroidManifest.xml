@@ -66,6 +66,16 @@
             android:theme="@style/zxing_CaptureTheme"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
+        <!--
+          Acción privada del botón del widget. Sin intent-filter y no exportado: solo
+          la app puede lanzarla, porque su PendingIntent nombra este componente. Si
+          viviera en UsipipoWidgetProvider, que está exportado para las
+          actualizaciones del sistema, cualquier app podría conectar el túnel.
+        -->
+        <receiver
+            android:name=".widget.UsipipoWidgetActionReceiver"
+            android:exported="false" />
+
         <receiver
             android:name=".widget.UsipipoWidgetProvider"
             android:exported="true">

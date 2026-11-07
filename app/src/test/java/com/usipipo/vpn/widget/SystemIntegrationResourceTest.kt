@@ -58,6 +58,31 @@ class SystemIntegrationResourceTest {
     }
 
     @Test
+    fun `el receptor del widget no atiende la accion privada del boton`() {
+        val receiver = manifestReceiver()
+
+        assertTrue(
+            "la accion privada no puede vivir en un receptor exportado",
+            ACTION_TOGGLE !in receiverActions(receiver),
+        )
+    }
+
+    @Test
+    fun `la accion privada vive en un receptor cerrado y sin filtro`() {
+        val receiver = manifestReceiver(ACTION_RECEIVER_NAME)
+
+        assertEquals(
+            "el receptor de la accion debe estar cerrado a otras apps",
+            "false",
+            receiver.androidAttribute("exported"),
+        )
+        assertTrue(
+            "sin intent-filter ninguna emision implicita puede alcanzarlo",
+            receiver.getElementsByTagName("intent-filter").length == 0,
+        )
+    }
+
+    @Test
     fun `el widget declara tamano por defecto de 2 celdas`() {
         val provider = widgetProviderInfo()
         assertEquals("2", provider.androidAttribute("targetCellWidth"))
@@ -213,12 +238,12 @@ class SystemIntegrationResourceTest {
             .singleOrNull { it.androidAttribute("name") == ACTIVITY_NAME }
             ?: throw AssertionError("no existe la Activity $ACTIVITY_NAME en el manifiesto")
 
-    private fun manifestReceiver(): Element =
+    private fun manifestReceiver(name: String = RECEIVER_NAME): Element =
         parse(File(MANIFEST_PATH))
             .getElementsByTagName("receiver")
             .elements()
-            .singleOrNull { it.androidAttribute("name") == RECEIVER_NAME }
-            ?: throw AssertionError("no existe el receiver $RECEIVER_NAME en el manifiesto")
+            .singleOrNull { it.androidAttribute("name") == name }
+            ?: throw AssertionError("no existe el receiver $name en el manifiesto")
 
     private fun manifestService(name: String): Element =
         parse(File(MANIFEST_PATH))
@@ -305,10 +330,12 @@ class SystemIntegrationResourceTest {
         const val COMPACT_LAYOUT_MIN_HEIGHT_DP: Int = 106
         const val ACTIVITY_NAME = ".widget.VpnPermissionActivity"
         const val RECEIVER_NAME = ".widget.UsipipoWidgetProvider"
+        const val ACTION_RECEIVER_NAME = ".widget.UsipipoWidgetActionReceiver"
         const val TILE_SERVICE_NAME = ".widget.UsipipoTileService"
         const val TUNNEL_SERVICE_NAME = ".tunnel.TunnelForegroundService"
         const val TRANSPARENT_THEME = "Theme.Usipipo.Transparent"
         const val APPWIDGET_UPDATE_ACTION = "android.appwidget.action.APPWIDGET_UPDATE"
+        const val ACTION_TOGGLE = "com.usipipo.vpn.widget.action.TOGGLE"
         const val PROVIDER_METADATA_NAME = "android.appwidget.provider"
         const val ANDROID_NAMESPACE = "http://schemas.android.com/apk/res/android"
 

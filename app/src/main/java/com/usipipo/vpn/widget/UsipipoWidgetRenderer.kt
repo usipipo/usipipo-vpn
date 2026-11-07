@@ -122,7 +122,8 @@ class UsipipoWidgetRenderer(context: Context) {
     }
 
     private fun togglePendingIntent(appWidgetId: Int): PendingIntent {
-        val intent = Intent(appContext, UsipipoWidgetProvider::class.java).apply {
+        // Componente explícito y no exportado: solo esta app puede lanzar la acción.
+        val intent = Intent(appContext, UsipipoWidgetActionReceiver::class.java).apply {
             action = WidgetIntents.ACTION_TOGGLE
         }
         return PendingIntent.getBroadcast(

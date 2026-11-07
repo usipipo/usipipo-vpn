@@ -158,6 +158,18 @@ class BackupViewModelTest {
     }
 
     @Test
+    fun `una contrasena demasiado corta no exporta`() = runTest {
+        val viewModel = viewModel()
+        val salida = ByteArrayOutputStream()
+
+        viewModel.exportAll("corta", salida)
+
+        assertEquals(0, salida.size())
+        assertEquals(0L, settings.backupLastAt)
+        assertEquals(BackupMessage.WeakPassword, viewModel.uiState.value.message)
+    }
+
+    @Test
     fun `si la escritura falla se avisa y no queda marca de copia`() = runTest {
         val viewModel = viewModel()
         val roto = object : OutputStream() {

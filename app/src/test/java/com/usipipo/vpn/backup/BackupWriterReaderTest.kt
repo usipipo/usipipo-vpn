@@ -126,6 +126,48 @@ class BackupWriterReaderTest {
         assertEquals(true, contenido.settings["notifications_enabled"])
     }
 
+    @Test
+    fun `una entrada mas grande que el tope se rechaza`() {
+        val grande = ByteArray(64) { 0x41 }
+        val zip = escribirZipConEntrada("p1.conf.enc", grande)
+        val apretado = BackupReader(crypto, maxEntryBytes = 16)
+
+        try {
+            apretado.read(ByteArrayInputStream(zip), "secreta")
+            throw AssertionError("se esperaba CorruptBackupException")
+        } catch (e: CorruptBackupException) {
+            assertTrue(e.message?.contains("grande") == true)
+        }
+    }
+
+    @Test
+    fun `mas entradas de las permitidas se rechazan`() {
+        val zip = ByteArrayOutputStream().also { salida ->
+            ZipOutputStream(salida).use { zipOut ->
+                listOf("p1.conf.enc", "p2.conf.enc", "p3.conf.enc").forEach { nombre ->
+                    zipOut.putNextEntry(ZipEntry(nombre))
+                    zipOut.write("x".toByteArray())
+                    zipOut.closeEntry()
+                }
+            }
+        }.toByteArray()
+        val apretado = BackupReader(crypto, maxEntries = 2)
+
+        try {
+            apretado.read(ByteArrayInputStream(zip), "secreta")
+            throw AssertionError("se esperaba CorruptBackupException")
+        } catch (e: CorruptBackupException) {
+            assertTrue(e.message?.contains("entradas") == true)
+        }
+    }
+
+    @Test
+    fun `una copia normal cabe en los topes por defecto`() {
+        val contenido = reader.read(ByteArrayInputStream(escribirZip(contraseña = "secreta")), "secreta")
+
+        assertEquals(2, contenido.profiles.size)
+    }
+
     private fun escribirZip(contraseña: String): ByteArray {
         val salida = ByteArrayOutputStream()
         writer.write(perfiles, ajustes, contraseña, salida)

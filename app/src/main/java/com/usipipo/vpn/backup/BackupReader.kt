@@ -1,5 +1,6 @@
 package com.usipipo.vpn.backup
 
+import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.util.zip.ZipInputStream
 
@@ -13,7 +14,16 @@ data class BackupContent(val profiles: List<BackupProfile>, val settings: Map<St
  * un zip no es de fiar y una entrada `../` escribiría fuera del destino. Las
  * entradas sin nombre válido abortan la lectura: no se importa nada a medias.
  */
-class BackupReader(private val crypto: BackupCrypto = BackupCrypto()) {
+class BackupReader(
+    private val crypto: BackupCrypto = BackupCrypto(),
+    /**
+     * Tope por entrada. Un `.conf` cifrado pesa KB, asi que 1 MiB es holgado para una
+     * copia legitima y corta el zip bomba antes de que agote la memoria.
+     */
+    private val maxEntryBytes: Long = MAX_ENTRY_BYTES,
+    /** Tope de entradas: cada una cuesta una derivacion de clave antes de validarse. */
+    private val maxEntries: Int = MAX_ENTRIES,
+) {
 
     fun read(input: InputStream, password: String): BackupContent {
         val encryptions = try {
@@ -61,9 +71,43 @@ class BackupReader(private val crypto: BackupCrypto = BackupCrypto()) {
                 if (!BackupArchive.isSafeEntryName(entry.name)) {
                     throw CorruptBackupException("Entrada con nombre no válido: ${entry.name}")
                 }
-                encryptions[entry.name] = zip.readBytes()
+                if (encryptions.size >= maxEntries) {
+                    throw CorruptBackupException("La copia tiene demasiadas entradas")
+                }
+                encryptions[entry.name] = readCapped(zip)
             }
         }
         return encryptions
+    }
+
+    /**
+     * Lee una entrada sin pasarse del tope. La copia la elige el usuario, asi que su
+     * contenido no es de fiar: sin este tope, una entrada muy comprimida puede agotar
+     * la memoria del proceso.
+     */
+    private fun readCapped(zip: ZipInputStream): ByteArray {
+        val salida = ByteArrayOutputStream()
+        val bloque = ByteArray(CHUNK_BYTES)
+        var leidos = 0L
+        while (true) {
+            val cuenta = zip.read(bloque)
+            if (cuenta < 0) break
+            leidos += cuenta
+            if (leidos > maxEntryBytes) {
+                throw CorruptBackupException("Entrada demasiado grande")
+            }
+            salida.write(bloque, 0, cuenta)
+        }
+        return salida.toByteArray()
+    }
+
+    private companion object {
+        /** Holgado para una copia legitima; corto para el abuso. */
+        const val MAX_ENTRY_BYTES: Long = 1_048_576L
+
+        /** La app escribe una entrada por perfil mas dos fijas: 500 perfiles de margen. */
+        const val MAX_ENTRIES: Int = 512
+
+        const val CHUNK_BYTES: Int = 8_192
     }
 }

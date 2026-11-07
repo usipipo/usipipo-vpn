@@ -1,5 +1,6 @@
 package com.usipipo.vpn.backup
 
+import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.util.zip.ZipInputStream
 

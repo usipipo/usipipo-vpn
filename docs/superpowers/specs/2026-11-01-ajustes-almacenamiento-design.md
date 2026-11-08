@@ -3,8 +3,9 @@
 **Fecha:** 2026-11-01
 **Estado:** aprobado por el usuario (2026-11-01)
 **Implementación:** fase 7 · implementada · rama `feat/ajustes-almacenamiento` · PR #27
-**Enmiendas:** §2, §3 (RF-1), §4, §5 y §9 — el 2026-11-08, al comprobar que dos de las
-cinco filas del resumen medían almacenamiento que no existe. Ver la tabla de §2.
+**Enmiendas:** §2, §3 (RF-1), §4, §5, §7 y §9 — el 2026-11-08, al comprobar que dos de las
+cinco filas del resumen medían almacenamiento que no existe (ver la tabla de §2), y el
+mismo día para fijar el idioma del formato de los tamaños (ver §7).
 **Proyecto:** uSipipo VPN
 **Alcance:** Pantalla de Almacenamiento dentro del hub de Ajustes: resumen del espacio usado, borrado de registro, limpieza de caché y borrado completo de todos los datos de la app.
 
@@ -35,6 +36,7 @@ Que el usuario pueda ver cuánto espacio ocupa la app y liberarlo de forma contr
 | Palabra clave de confirmación | "BORRAR" escrita por el usuario en un campo de texto | Evita borrados accidentales; doble confirmación explícita |
 | Caché de geolocalización | Se borra el campo país de cada perfil en `EncryptedFileConfigStore` (no hay caché separada; el país vive en el perfil) | `CountryRepository` no tiene caché propia; la caché son los campos `countryCode`/`countryName`/`countryIp`/`countryFetchedAt` del perfil |
 | Archivos temporales de importación | Se borra el directorio de caché de la app (`cacheDir`) | `ConfigImporter` y `ReportSender` escriben en `cacheDir`; es seguro vaciarlo |
+| Idioma del formato (enmienda 2026-11-08) | Español fijo, no `Locale.getDefault()` | La app solo está en español (no hay `values-en` ni `localeConfig`): los números tienen que acompañar a las etiquetas. Ver §7 |
 
 ### Lo que el spec daba por hecho y no existe (enmienda 2026-11-08)
 
@@ -132,6 +134,26 @@ No se requieren permisos de runtime. La app solo accede a sus propios directorio
 | `app/src/main/java/com/usipipo/vpn/ui/diagnostics/DiagnosticsScreen.kt` | **Sin cambios**: se reutiliza intacta dentro de "Más → Reportar un problema" |
 | `app/src/main/java/com/usipipo/vpn/ui/UsipipoRoot.kt` | Añadir ruta `SettingsRoute.Storage` y pantalla `StorageScreen` |
 | `app/src/main/java/com/usipipo/vpn/ui/settings/SettingsRoute.kt` | Añadir `Storage` al enum |
+| `app/src/main/java/com/usipipo/vpn/ui/UiLocale.kt` | **Nuevo** (enmienda 2026-11-08): la locale con la que la app da formato a sus textos |
+| `app/src/main/java/com/usipipo/vpn/ui/settings/storage/StorageFormat.kt` | **Nuevo**: `readable(bytes)` y `total(...)`. Sin parámetro de locale: el idioma es único |
+
+### Idioma del formato (enmienda 2026-11-08)
+
+El spec no decía nada de locale. La primera versión usaba `Locale.getDefault()`, y la
+CI lo cazó dos veces: el runner no está en español, así que «2,5 MB» salía «2.5 MB»
+junto a etiquetas españolas.
+
+La guía de Android (*Be wary of the default locale*) recomienda la locale del usuario
+para texto que ve una persona. Aquí esa premisa no se cumple: la app no tiene segundo
+idioma, así que la locale del usuario no corresponde a ningún texto de la UI. Se fija
+`Locale.forLanguageTag("es-ES")` en `UiLocale.kt` y los tests de `StorageFormatTest`
+corren con `Locale.setDefault(Locale.US)` para que el pinado se note si alguien lo
+quita.
+
+**Coste:** desvío de la recomendación genérica, asumido a propósito. Si algún día se
+añade `values-en`, se sustituye por la locale con la que Android resuelve los recursos
+y los tests dejan de fijarla. Queda pendiente aplicarlo a `formatRate`
+(`ui/details/Formatters.kt`), que sigue con `Locale.getDefault()`.
 
 ### APIs del SDK
 
@@ -162,6 +184,7 @@ No se requieren permisos de runtime. La app solo accede a sus propios directorio
 | Ámbito | Prueba | Tipo |
 |---|---|---|
 | `StorageFormat` | Tamaños legibles y total como suma de las tres categorías | JVM (JUnit 4) |
+| `StorageFormat` | El separador decimal es español aunque el dispositivo esté en otro idioma | JVM con `Locale.setDefault` en `@Before` |
 | `StorageSizes` | Suma los ficheros de cada directorio, con subdirectorios y con directorios ausentes | JVM con carpetas temporales |
 | `StorageViewModel` | Cálculo de `totalBytes` como suma de categorías | JVM (JUnit 4) |
 | `StorageViewModel` | La palabra "BORRAR" habilita el borrado y nada más lo hace | JVM |

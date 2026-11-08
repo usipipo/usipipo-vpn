@@ -1,35 +1,58 @@
 package com.usipipo.vpn.ui.settings.storage
 
 import java.util.Locale
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
 
-private val ESPANOL = Locale.forLanguageTag("es-ES")
-
-/** Tamaños legibles para el resumen de almacenamiento. */
+/**
+ * Tamaños legibles para el resumen de almacenamiento.
+ *
+ * La clase entera corre con la locale del dispositivo en inglés a propósito: si
+ * alguna aserción depende de la máquina que ejecuta los tests, aquí se ve.
+ */
 class StorageFormatTest {
+
+    private val localeAnterior = Locale.getDefault()
+
+    @Before
+    fun dispositivoEnIngles() {
+        Locale.setDefault(Locale.US)
+    }
+
+    @After
+    fun restaurarLocale() {
+        Locale.setDefault(localeAnterior)
+    }
 
     @Test
     fun `los bytes se muestran tal cual`() {
-        assertEquals("0 B", StorageFormat.readable(0, ESPANOL))
-        assertEquals("512 B", StorageFormat.readable(512, ESPANOL))
+        assertEquals("0 B", StorageFormat.readable(0))
+        assertEquals("512 B", StorageFormat.readable(512))
     }
 
     @Test
     fun `los kilobytes se muestran con un decimal`() {
-        assertEquals("1,0 KB", StorageFormat.readable(1_024, ESPANOL))
-        assertEquals("1,5 KB", StorageFormat.readable(1_536, ESPANOL))
+        assertEquals("1,0 KB", StorageFormat.readable(1_024))
+        assertEquals("1,5 KB", StorageFormat.readable(1_536))
     }
 
     @Test
     fun `los megabytes se muestran con un decimal`() {
-        assertEquals("1,0 MB", StorageFormat.readable(1_048_576, ESPANOL))
-        assertEquals("2,5 MB", StorageFormat.readable(2_621_440, ESPANOL))
+        assertEquals("1,0 MB", StorageFormat.readable(1_048_576))
+        assertEquals("2,5 MB", StorageFormat.readable(2_621_440))
     }
 
     @Test
     fun `los gigabytes se muestran con un decimal`() {
-        assertEquals("1,0 GB", StorageFormat.readable(1_073_741_824, ESPANOL))
+        assertEquals("1,0 GB", StorageFormat.readable(1_073_741_824))
+    }
+
+    /** El separador decimal es español aunque el dispositivo esté en inglés. */
+    @Test
+    fun `el separador decimal es el espanol aunque el dispositivo este en otro idioma`() {
+        assertEquals("2,5 MB", StorageFormat.readable(2_621_440))
     }
 
     @Test
@@ -45,12 +68,6 @@ class StorageFormatTest {
 
     @Test
     fun `un tamano negativo se muestra como cero`() {
-        assertEquals("0 B", StorageFormat.readable(-1, ESPANOL))
-    }
-
-    /** El separador lo decide la locale: en inglés el mismo tamaño lleva punto. */
-    @Test
-    fun `la locale decide el separador decimal`() {
-        assertEquals("1.0 KB", StorageFormat.readable(1_024, Locale.US))
+        assertEquals("0 B", StorageFormat.readable(-1))
     }
 }

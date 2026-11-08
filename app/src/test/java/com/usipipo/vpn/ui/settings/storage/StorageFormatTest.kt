@@ -34,9 +34,7 @@ class StorageFormatTest {
         val total = StorageFormat.total(
             profilesBytes = 1_024,
             logBytes = 2_048,
-            geoCacheBytes = 0,
-            pingBytes = 512,
-            tempBytes = 0,
+            tempBytes = 512,
         )
 
         assertEquals(3_584, total)

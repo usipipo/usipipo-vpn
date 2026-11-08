@@ -7,7 +7,6 @@ import android.content.Intent
 import android.os.Bundle
 import com.usipipo.vpn.AppContainer
 import com.usipipo.vpn.UsipipoApp
-import kotlinx.coroutines.launch
 
 class UsipipoWidgetProvider : AppWidgetProvider() {
 
@@ -37,27 +36,10 @@ class UsipipoWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent): Unit {
         when (intent.action) {
-            WidgetIntents.ACTION_TOGGLE -> toggle(context)
-
             Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED ->
                 container(context).widgetUpdater.refreshNow()
 
             else -> super.onReceive(context, intent)
-        }
-    }
-
-    private fun toggle(context: Context) {
-        val pendingResult = goAsync()
-        val container = container(context)
-        container.applicationScope.launch {
-            try {
-                QuickActionRouter(
-                    context.applicationContext,
-                    container.quickConnectController,
-                ).toggle()
-            } finally {
-                pendingResult.finish()
-            }
         }
     }
 

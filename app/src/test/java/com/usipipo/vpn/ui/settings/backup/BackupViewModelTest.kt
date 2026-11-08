@@ -58,7 +58,7 @@ class BackupViewModelTest {
         val viewModel = viewModel()
         val salida = ByteArrayOutputStream()
 
-        viewModel.exportAll("secreta", salida)
+        viewModel.exportAll("contrasena-segura", salida)
 
         assertTrue(salida.size() > 0)
         assertTrue(settings.backupLastAt > 0L)
@@ -100,7 +100,7 @@ class BackupViewModelTest {
         settings.themeMode = "dark"
         settings.palette = "verde_bosque"
 
-        viewModel.import("secreta", ByteArrayInputStream(zip))
+        viewModel.import("contrasena-segura", ByteArrayInputStream(zip))
 
         assertEquals(2, store.configs.value.size)
         assertEquals("light", settings.themeMode)
@@ -114,7 +114,7 @@ class BackupViewModelTest {
         val zip = zipCon(listOf(perfil("p9", "Casa", "CLAVE-B", "2.2.2.2:51820")))
         val viewModel = viewModel()
 
-        viewModel.import("secreta", ByteArrayInputStream(zip))
+        viewModel.import("contrasena-segura", ByteArrayInputStream(zip))
 
         // El duplicado se detecta por el nombre, y no se importa a medias.
         assertEquals(1, viewModel.uiState.value.conflicts.size)
@@ -125,7 +125,7 @@ class BackupViewModelTest {
     @Test
     fun `sobrescribir reemplaza el perfil existente`() = runTest {
         val viewModel = viewModel()
-        viewModel.import("secreta", ByteArrayInputStream(zipCon(listOf(perfil("p9", "Casa", "CLAVE-B", "2.2.2.2:51820")))))
+        viewModel.import("contrasena-segura", ByteArrayInputStream(zipCon(listOf(perfil("p9", "Casa", "CLAVE-B", "2.2.2.2:51820")))))
 
         viewModel.resolveConflict(DuplicateDecision.Overwrite)
 
@@ -138,7 +138,7 @@ class BackupViewModelTest {
     @Test
     fun `omitir deja el perfil que ya estaba`() = runTest {
         val viewModel = viewModel()
-        viewModel.import("secreta", ByteArrayInputStream(zipCon(listOf(perfil("p9", "Casa", "CLAVE-B", "2.2.2.2:51820")))))
+        viewModel.import("contrasena-segura", ByteArrayInputStream(zipCon(listOf(perfil("p9", "Casa", "CLAVE-B", "2.2.2.2:51820")))))
 
         viewModel.resolveConflict(DuplicateDecision.Skip)
 
@@ -149,12 +149,24 @@ class BackupViewModelTest {
     @Test
     fun `mantener ambos deja los dos perfiles con nombres distintos`() = runTest {
         val viewModel = viewModel()
-        viewModel.import("secreta", ByteArrayInputStream(zipCon(listOf(perfil("p9", "Casa", "CLAVE-B", "2.2.2.2:51820")))))
+        viewModel.import("contrasena-segura", ByteArrayInputStream(zipCon(listOf(perfil("p9", "Casa", "CLAVE-B", "2.2.2.2:51820")))))
 
         viewModel.resolveConflict(DuplicateDecision.KeepBoth)
 
         assertEquals(2, store.configs.value.size)
         assertEquals(listOf("Casa", "Casa (2)"), store.configs.value.map { it.name })
+    }
+
+    @Test
+    fun `una contrasena demasiado corta no exporta`() = runTest {
+        val viewModel = viewModel()
+        val salida = ByteArrayOutputStream()
+
+        viewModel.exportAll("corta", salida)
+
+        assertEquals(0, salida.size())
+        assertEquals(0L, settings.backupLastAt)
+        assertEquals(BackupMessage.WeakPassword, viewModel.uiState.value.message)
     }
 
     @Test
@@ -164,7 +176,7 @@ class BackupViewModelTest {
             override fun write(b: Int) = throw IOException("sin espacio")
         }
 
-        viewModel.exportAll("secreta", roto)
+        viewModel.exportAll("contrasena-segura", roto)
 
         assertEquals(0L, settings.backupLastAt)
         assertTrue(viewModel.uiState.value.message is BackupMessage.ExportFailed)
@@ -200,7 +212,7 @@ class BackupViewModelTest {
     fun `un archivo que no es copia no importa nada`() = runTest {
         val viewModel = viewModel()
 
-        viewModel.import("secreta", ByteArrayInputStream("no es un zip".toByteArray()))
+        viewModel.import("contrasena-segura", ByteArrayInputStream("no es un zip".toByteArray()))
 
         assertEquals(1, store.configs.value.size)
         val mensaje = viewModel.uiState.value.message
@@ -210,7 +222,7 @@ class BackupViewModelTest {
     @Test
     fun `cancelar el import deja los duplicados pendientes sin resolver`() = runTest {
         val viewModel = viewModel()
-        viewModel.import("secreta", ByteArrayInputStream(zipCon(listOf(perfil("p9", "Casa", "CLAVE-B", "2.2.2.2:51820")))))
+        viewModel.import("contrasena-segura", ByteArrayInputStream(zipCon(listOf(perfil("p9", "Casa", "CLAVE-B", "2.2.2.2:51820")))))
 
         viewModel.cancelImport()
 
@@ -261,7 +273,7 @@ class BackupViewModelTest {
     private fun zipCon(perfiles: List<BackupProfile>): ByteArray {
         settings.themeMode = "light"
         val salida = ByteArrayOutputStream()
-        writer.write(perfiles, com.usipipo.vpn.backup.BackupSettings.snapshot(settings), "secreta", salida)
+        writer.write(perfiles, com.usipipo.vpn.backup.BackupSettings.snapshot(settings), "contrasena-segura", salida)
         val nombres = nombresZip(salida.toByteArray())
         assertTrue(nombres.contains(BackupArchive.SETTINGS_ENTRY))
         return salida.toByteArray()

@@ -36,9 +36,9 @@ class BackupSettingsTest {
         BackupSettings.restore(settings, fotoRemota)
 
         assertEquals("light", settings.themeMode)
-        assertTrue(settings.notificationTraffic)
-        assertFalse(settings.notificationsEnabled)
         assertEquals(120f, settings.bubbleX, 0.001f)
+        // Los avisos y el biométrico son controles: la copia no los toca.
+        assertFalse(settings.notificationTraffic)
     }
 
     @Test
@@ -61,6 +61,50 @@ class BackupSettingsTest {
         assertEquals(120f, (leido["bubble_x"] as Number).toFloat(), 0.001f)
         assertEquals(1_700_000_000_000.0, (leido["backup_last_at"] as Number).toDouble(), 0.1)
     }
+
+    @Test
+    fun `restaurar ignora los ajustes que bajan la seguridad`() {
+        // Tal y como los tiene el usuario ahora: todos los controles puestos.
+        settings.biometricEnabled = true
+        settings.notificationsEnabled = true
+        settings.notificationTraffic = true
+        settings.notificationDisconnect = true
+        settings.notificationUpdates = true
+        settings.excludedApps = ""
+
+        BackupSettings.restore(settings, copiaDeOtraFuente)
+
+        // Una copia con la contraseña no puede apagar los controles en silencio.
+        assertTrue(settings.biometricEnabled)
+        assertTrue(settings.notificationsEnabled)
+        assertTrue(settings.notificationTraffic)
+        assertTrue(settings.notificationDisconnect)
+        assertTrue(settings.notificationUpdates)
+        assertEquals("", settings.excludedApps)
+    }
+
+    @Test
+    fun `restaurar si trae los ajustes de aspecto y burbuja`() {
+        settings.themeMode = "dark"
+        settings.bubbleEnabled = false
+
+        BackupSettings.restore(settings, copiaDeOtraFuente)
+
+        assertEquals("light", settings.themeMode)
+        assertTrue(settings.bubbleEnabled)
+    }
+
+    private val copiaDeOtraFuente = mapOf<String, Any>(
+        "theme_mode" to "light",
+        "animations_enabled" to true,
+        "biometric_enabled" to false,
+        "excluded_apps" to "com.app.excluida",
+        "notifications_enabled" to false,
+        "notification_traffic" to false,
+        "notification_disconnect" to false,
+        "notification_updates" to false,
+        "bubble_enabled" to true,
+    )
 
     private val fotoRemota = mapOf<String, Any>(
         "theme_mode" to "light",

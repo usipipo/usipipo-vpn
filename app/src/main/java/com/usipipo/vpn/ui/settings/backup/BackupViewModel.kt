@@ -47,6 +47,9 @@ sealed interface BackupMessage {
     data object ProfileExported : BackupMessage
     data object ProfileUnreadable : BackupMessage
     data object EmptyPassword : BackupMessage
+
+    /** Contraseña por debajo del mínimo aceptado. */
+    data object WeakPassword : BackupMessage
     data object WrongPassword : BackupMessage
 
     /** Copia ilegible; [reason] es el motivo concreto, para poder diagnosticarlo. */
@@ -86,6 +89,12 @@ class BackupViewModel(
     fun exportAll(password: String, output: OutputStream) {
         if (password.isEmpty()) {
             publish(BackupMessage.EmptyPassword)
+            return
+        }
+        if (password.length < MIN_PASSWORD_LENGTH) {
+            // La copia vive donde el usuario la guarde y se puede romper sin conexion:
+            // una contrasena corta no la protege de nada.
+            publish(BackupMessage.WeakPassword)
             return
         }
         launchCopy {
@@ -269,4 +278,9 @@ class BackupViewModel(
         lastBackupAt = settings.backupLastAt,
         profiles = store.configs.value,
     )
+
+    private companion object {
+        /** Mínimo razonable para que la derivación de clave signifique algo. */
+        const val MIN_PASSWORD_LENGTH: Int = 8
+    }
 }

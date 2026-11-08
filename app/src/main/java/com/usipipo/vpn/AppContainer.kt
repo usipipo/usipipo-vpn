@@ -6,6 +6,7 @@ import com.usipipo.vpn.data.ConfigStore
 import com.usipipo.vpn.data.ConfigTextReader
 import com.usipipo.vpn.data.EncryptedFileConfigStore
 import com.usipipo.vpn.data.KeystoreCrypto
+import com.usipipo.vpn.data.StorageWipe
 import com.usipipo.vpn.data.geo.CountryRepository
 import com.usipipo.vpn.data.geo.GeoLocator
 import com.usipipo.vpn.data.geo.IpinfoLiteClient
@@ -114,6 +115,41 @@ class AppContainer(context: Context) {
 
     /** Ajustes globales de la app (tema, animaciones, paleta, …). */
     val appSettings: AppSettings by lazy { AppSettings.create(appContext) }
+
+    /**
+     * Borrado completo de los datos: caché y ajustes. Los nombres de los ficheros de
+     * preferencias se conocen aquí, que es el único sitio que ve todas las dependencias.
+     */
+    private val storageWipe: StorageWipe by lazy {
+        StorageWipe(
+            cacheDir = appContext.cacheDir,
+            prefsByName = { name -> appContext.getSharedPreferences(name, Context.MODE_PRIVATE) },
+            prefNames = listOf(
+                AppSettings.PREFS_NAME,
+                DiagnosticsSettings.PREFS_NAME,
+                PrefsUpdateStateStore.PREFS_NAME,
+                SharedPreferencesWidgetStateStore.PREFERENCES_NAME,
+            ),
+        )
+    }
+
+    /**
+     * Deja la app como recién instalada: ajustes, caché, registro y perfiles.
+     *
+     * Devuelve fallo si algo no se pudo borrar, y en ese caso no toca nada más: es
+     * mejor una app a medias que una app que dice haber borrado y no lo hizo.
+     */
+    suspend fun wipeAll(): Result<Unit> {
+        val borrado = storageWipe.run()
+        if (borrado.isSuccess) {
+            // El registro se trunca, no se borra el fichero: AppLog lo tiene abierto.
+            AppLog.clear()
+            // Los perfiles se borran por el almacén y no borrando el directorio: así
+            // su estado en memoria queda coherente con lo que hay en disco.
+            configStore.configs.value.forEach { configStore.remove(it.id) }
+        }
+        return borrado
+    }
 
     /**
      * Avisos propios de la app: estado del túnel con tráfico, desconexión o fallo y

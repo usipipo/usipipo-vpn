@@ -148,7 +148,7 @@ class StorageViewModelTest {
         vm.wipeAll()
 
         assertEquals(1, borrados)
-        assertEquals(StorageMessage.WipeFailed, vm.uiState.value.message)
+        assertEquals(StorageMessage.Failed, vm.uiState.value.message)
         assertFalse(vm.uiState.value.busy)
     }
 

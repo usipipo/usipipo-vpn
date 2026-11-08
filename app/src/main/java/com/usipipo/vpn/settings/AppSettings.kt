@@ -125,7 +125,11 @@ class AppSettings(private val prefs: SharedPreferences) {
         const val KEY_BUBBLE_Y: String = "bubble_y"
         const val KEY_BACKUP_LAST_AT: String = "backup_last_at"
 
-        private const val PREFS_NAME = "usipipo_settings"
+        /**
+         * Visible fuera de la clase porque [com.usipipo.vpn.AppContainer] borra este
+         * fichero entero al dejar la app como recién instalada.
+         */
+        const val PREFS_NAME = "usipipo_settings"
         private const val DEFAULT_THEME_MODE = "system"
         private const val DEFAULT_ANIMATIONS_ENABLED = true
         private const val DEFAULT_PALETTE = "azul_noche"

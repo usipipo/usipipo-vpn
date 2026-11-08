@@ -44,6 +44,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.usipipo.vpn.AppContainer
 import com.usipipo.vpn.R
+import com.usipipo.vpn.data.emptyDir
 import com.usipipo.vpn.diagnostics.AppLog
 import com.usipipo.vpn.domain.TunnelState
 import com.usipipo.vpn.ui.components.UsipipoBottomBar
@@ -51,6 +52,9 @@ import com.usipipo.vpn.ui.configs.ConfigsScreen
 import com.usipipo.vpn.ui.settings.SettingsRoute
 import com.usipipo.vpn.ui.settings.SettingsScreen
 import com.usipipo.vpn.ui.settings.SettingsViewModel
+import com.usipipo.vpn.ui.settings.storage.StorageRoute
+import com.usipipo.vpn.ui.settings.storage.StorageSizes
+import com.usipipo.vpn.ui.settings.storage.StorageViewModel
 import com.usipipo.vpn.ui.settings.appearance.AppearanceRoute
 import com.usipipo.vpn.ui.settings.appearance.AppearanceViewModel
 import com.usipipo.vpn.ui.settings.backup.BackupRoute
@@ -73,6 +77,7 @@ import com.usipipo.vpn.ui.nav.backTarget
 import com.usipipo.vpn.ui.theme.rememberReduceMotion
 import com.usipipo.vpn.ui.update.UpdateDialog
 import com.usipipo.vpn.update.UpdateStatus
+import java.io.File
 
 /** Navegación por pestañas con barra inferior. */
 @OptIn(ExperimentalLayoutApi::class)
@@ -115,7 +120,14 @@ fun UsipipoRoot(
     // Versión cuya ventana ya se cerró (descarte o descarga): no reaparece.
     var handledUpdate by rememberSaveable { mutableStateOf<String?>(null) }
 
-    val settingsVm = remember { SettingsViewModel(container.appSettings) }
+    val settingsVm = remember {
+        SettingsViewModel(container.appSettings) {
+            StorageSizes.read(
+                configsDir = File(container.appContext.filesDir, "configs"),
+                cacheDir = container.appContext.cacheDir,
+            ).totalBytes
+        }
+    }
 
     // Subpantalla de Ajustes abierta (null = se está en la lista de secciones).
     var settingsRoute by rememberSaveable { mutableStateOf<SettingsRoute?>(null) }
@@ -197,7 +209,8 @@ fun UsipipoRoot(
                                         clicked == SettingsRoute.Security ||
                                         clicked == SettingsRoute.Notifications ||
                                         clicked == SettingsRoute.TrafficBubble ||
-                                        clicked == SettingsRoute.Backup
+                                        clicked == SettingsRoute.Backup ||
+                                        clicked == SettingsRoute.Storage
                                     ) {
                                         settingsRoute = clicked
                                     }
@@ -226,6 +239,11 @@ fun UsipipoRoot(
                         } else if (route == SettingsRoute.Backup) {
                             BackupRoute(
                                 viewModel = backupViewModel(container),
+                                onBack = { settingsRoute = null },
+                            )
+                        } else if (route == SettingsRoute.Storage) {
+                            StorageRoute(
+                                viewModel = storageViewModel(container),
                                 onBack = { settingsRoute = null },
                             )
                         }
@@ -348,6 +366,32 @@ private fun trafficBubbleViewModel(container: AppContainer): TrafficBubbleViewMo
 private fun backupViewModel(container: AppContainer): BackupViewModel = viewModel(
     factory = viewModelFactory {
         initializer { BackupViewModel(container.configStore, container.appSettings) }
+    },
+)
+
+/**
+ * Almacenamiento: el tamaño se mide al entrar, no en vivo. El registro y la caché
+ * cambian cuando el usuario los borra, y eso ya refresca el resumen.
+ */
+@Composable
+private fun storageViewModel(container: AppContainer): StorageViewModel = viewModel(
+    factory = viewModelFactory {
+        initializer {
+            StorageViewModel(
+                sizes = {
+                    StorageSizes.read(
+                        configsDir = File(container.appContext.filesDir, "configs"),
+                        cacheDir = container.appContext.cacheDir,
+                    )
+                },
+                onClearLog = { AppLog.clear() },
+                onClearCache = {
+                    container.configStore.clearGeoCache()
+                    emptyDir(container.appContext.cacheDir)
+                },
+                onWipeAll = { container.wipeAll().isSuccess },
+            )
+        }
     },
 )
 

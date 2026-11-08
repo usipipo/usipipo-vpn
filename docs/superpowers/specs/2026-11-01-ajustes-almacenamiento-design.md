@@ -2,7 +2,9 @@
 
 **Fecha:** 2026-11-01
 **Estado:** aprobado por el usuario (2026-11-01)
-**Implementación:** fase 7 · no iniciada · rama `feat/ajustes-almacenamiento` · -
+**Implementación:** fase 7 · implementada · rama `feat/ajustes-almacenamiento` · PR #27
+**Enmiendas:** §2, §3 (RF-1), §4, §5 y §9 — el 2026-11-08, al comprobar que dos de las
+cinco filas del resumen medían almacenamiento que no existe. Ver la tabla de §2.
 **Proyecto:** uSipipo VPN
 **Alcance:** Pantalla de Almacenamiento dentro del hub de Ajustes: resumen del espacio usado, borrado de registro, limpieza de caché y borrado completo de todos los datos de la app.
 
@@ -28,17 +30,33 @@ Que el usuario pueda ver cuánto espacio ocupa la app y liberarlo de forma contr
 | Ubicación del código | `ui/settings/storage/StorageScreen.kt` + `StorageViewModel.kt` | Co-locación según `AGENTS.md`; cada sección tiene su paquete, ViewModel y componentes privados |
 | Borrado de registro | `AppLog.clear()` invocado desde `StorageViewModel` (Almacenamiento) y también desde `DiagnosticsViewModel` (Diagnósticos) | El registro es el mismo desde ambos puntos de entrada; el diagnóstico se conserva intacto dentro de "Más → Reportar un problema" |
 | Borrado total | `AppContainer.wipeAll()` borra `File(appContext.filesDir, "configs")` y los `SharedPreferences` de ajustes | `AppContainer` ya conoce todas las rutas (configs cifrados, prefs de actualizaciones, prefs de diagnóstico); es el único sitio con visibilidad global |
+| Filas del resumen (enmienda 2026-11-08) | Solo tres: perfiles, registro y temporales | Las otras dos medían almacenamiento que no existe. Ver la tabla de abajo |
+| Borrado de perfiles (enmienda 2026-11-08) | Uno a uno por `ConfigStore.remove`, no borrando el directorio | Borrar el directorio dejaría el estado en memoria del almacén contando perfiles que ya no están en disco |
 | Palabra clave de confirmación | "BORRAR" escrita por el usuario en un campo de texto | Evita borrados accidentales; doble confirmación explícita |
 | Caché de geolocalización | Se borra el campo país de cada perfil en `EncryptedFileConfigStore` (no hay caché separada; el país vive en el perfil) | `CountryRepository` no tiene caché propia; la caché son los campos `countryCode`/`countryName`/`countryIp`/`countryFetchedAt` del perfil |
 | Archivos temporales de importación | Se borra el directorio de caché de la app (`cacheDir`) | `ConfigImporter` y `ReportSender` escriben en `cacheDir`; es seguro vaciarlo |
+
+### Lo que el spec daba por hecho y no existe (enmienda 2026-11-08)
+
+El spec aprobado describía un resumen de cinco categorías. Dos de ellas medían
+almacenamiento inexistente, así que se han quitado. No se ha inventado nada para
+cuadrar con el texto:
+
+| Fila del spec | Por qué no puede existir |
+|---|---|
+| «Resultados de ping (X KB)» | `PingRepository` es stateless: `ping(target)` devuelve el resultado y se pierde. No hay fichero que medir ni nada que borrar. Los resultados viven solo en memoria del `CountryPingViewModel` mientras la pantalla está abierta |
+| «Caché de geolocalización (X KB)» | La caché de país son los campos `countryCode`/`countryName`/`countryIp`/`countryFetchedAt` **dentro** de cada perfil cifrado. `CountryRepository` no tiene fichero propio. Ya están contados en «Perfiles cifrados» |
+
+Consecuencia en RF-3: «Limpiar caché» borra el país de los perfiles y vacía `cacheDir`.
+No hay resultados de ping que borrar porque no se guardan.
 
 ---
 
 ## 3. Requisitos funcionales
 
-- **RF-1** — La pantalla muestra el espacio usado por: perfiles cifrados, registro de diagnóstico, caché (geolocalización, ping), archivos temporales de importación, y el total.
+- **RF-1** — La pantalla muestra el espacio usado por: perfiles cifrados, registro de diagnóstico, archivos temporales de importación, y el total.
 - **RF-2** — "Borrar registro" muestra un diálogo de confirmación y, al aceptar, llama a `AppLog.clear()` y refresca el resumen.
-- **RF-3** — "Limpiar caché" borra: campos de país de todos los perfiles en `EncryptedFileConfigStore`, resultados de ping en `PingRepository`, y archivos temporales en `cacheDir`.
+- **RF-3** — "Limpiar caché" borra: campos de país de todos los perfiles en `EncryptedFileConfigStore`, y archivos temporales en `cacheDir`.
 - **RF-4** — "Borrar todos los datos" requiere escribir la palabra clave "BORRAR" en un campo de texto antes de habilitar el botón de confirmación.
 - **RF-5** — Al borrar todos los datos, `AppContainer.wipeAll()` borra el directorio de configs cifrados y todos los `SharedPreferences` de ajustes, dejando la app en estado de recién instalada (directorios vacíos recreados).
 - **RF-6** — Tras cualquier acción de borrado, el resumen de espacio se vuelve a calcular y se muestra el estado vacío si no hay datos.
@@ -50,7 +68,7 @@ Que el usuario pueda ver cuánto espacio ocupa la app y liberarlo de forma contr
 ### Qué se ve
 
 - Cabecera con flecha de vuelta y título "Almacenamiento".
-- Tarjeta "Espacio usado" con filas: Perfiles cifrados (X KB), Registro de diagnóstico (X KB), Caché de geolocalización (X KB), Resultados de ping (X KB), Temporales de importación (X KB), Total (X KB).
+- Tarjeta "Espacio usado" con filas: Perfiles cifrados (X KB), Registro de diagnóstico (X KB), Temporales de importación (X KB), Total (X KB).
 - Fila "Borrar registro" con icono de papelera y confirmación.
 - Fila "Limpiar caché" con icono de escoba y confirmación simple.
 - Fila "Borrar todos los datos" con icono de advertencia, campo de texto para la palabra clave y botón deshabilitado hasta escribir "BORRAR".
@@ -80,8 +98,6 @@ No se añaden claves nuevas a `AppSettings`. Todo lo que se borra vive fuera de 
 `StorageUiState` (en `StorageViewModel`):
 - `profilesBytes: Long`
 - `logBytes: Long`
-- `geoCacheBytes: Long`
-- `pingBytes: Long`
 - `tempBytes: Long`
 - `totalBytes: Long` (suma)
 - `wipeInProgress: Boolean`
@@ -145,12 +161,21 @@ No se requieren permisos de runtime. La app solo accede a sus propios directorio
 
 | Ámbito | Prueba | Tipo |
 |---|---|---|
+| `StorageFormat` | Tamaños legibles y total como suma de las tres categorías | JVM (JUnit 4) |
+| `StorageSizes` | Suma los ficheros de cada directorio, con subdirectorios y con directorios ausentes | JVM con carpetas temporales |
 | `StorageViewModel` | Cálculo de `totalBytes` como suma de categorías | JVM (JUnit 4) |
-| `StorageViewModel` | `clearLog()` llama a `AppLog.clear()` y refresca el estado | JVM con `AppLog` mockeado |
-| `StorageViewModel` | `clearCache()` vacía campos país de perfiles y limpia `cacheDir` | JVM |
-| `AppContainer.wipeAll()` | Borra directorio de configs y prefs de ajustes | JVM con `Context` de test |
-| Interfaz | El botón "Borrar todos los datos" está deshabilitado hasta escribir "BORRAR" | JVM (ComposeTest) o dispositivo |
-| Error | Si `wipeAll` falla, se muestra snackbar y no se marca como completado | Dispositivo (simulado) |
+| `StorageViewModel` | La palabra "BORRAR" habilita el borrado y nada más lo hace | JVM |
+| `StorageViewModel` | `clearLog()` llama al limpiador y refresca el resumen | JVM con el limpiador inyectado |
+| `StorageViewModel` | `clearCache()` vacía los campos país y refresca el resumen | JVM |
+| `StorageViewModel` | `wipeAll()` con éxito deja el resumen a cero y olvida la palabra clave | JVM |
+| `StorageWipe` | Vacía `cacheDir` dejándolo creado y limpia cada fichero de preferencias | JVM con `SharedPreferences` en memoria |
+| `StorageWipe` | Si las preferencias fallan, el borrado entero falla y no toca la caché | JVM |
+| Error | Si el borrado falla, se avisa y no se marca como completado | JVM (el mensaje sale del ViewModel) |
+
+`AppContainer.wipeAll()` no se prueba en la JVM: construir un `Context` haría falta
+Robolectric, que no está en el proyecto. La parte que borra de verdad (`StorageWipe`)
+se prueba con preferencias en memoria, y el orquestador queda como pegamento fino
+sobre Android.
 
 Los tests JVM son los únicos ejecutables localmente. El comportamiento visual se valida en `@Preview` (tema claro y oscuro) y en la CI.
 

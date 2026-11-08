@@ -266,4 +266,28 @@
     <string name="quick_access_add_tile">Añadir mosaico a Ajustes rápidos</string>
     <string name="diag_tile_added">Mosaico añadido a Ajustes rápidos</string>
     <string name="diag_tile_denied">No se pudo añadir el mosaico</string>
+
+    <!-- Almacenamiento -->
+    <string name="storage_title">Almacenamiento</string>
+    <string name="storage_used">Espacio usado</string>
+    <string name="storage_profiles">Perfiles cifrados</string>
+    <string name="storage_log">Registro de diagnóstico</string>
+    <string name="storage_temp">Temporales de importación</string>
+    <string name="storage_total">Total</string>
+    <string name="storage_empty">Sin datos guardados</string>
+    <string name="storage_clear_log">Borrar registro</string>
+    <string name="storage_clear_log_title">Borrar el registro de diagnóstico</string>
+    <string name="storage_clear_log_body">Se borra el registro que se envía al reportar un problema. No afecta a los perfiles.</string>
+    <string name="storage_clear_cache">Limpiar caché</string>
+    <string name="storage_clear_cache_title">Limpiar la caché</string>
+    <string name="storage_clear_cache_body">Se borra el país consultado de cada perfil y los archivos temporales. El país se vuelve a consultar solo.</string>
+    <string name="storage_wipe">Borrar todos los datos</string>
+    <string name="storage_wipe_title">Borrar todos los datos</string>
+    <string name="storage_wipe_body">Se borran los perfiles, el registro, la caché y todos los ajustes. La app queda como recién instalada y no se puede deshacer.</string>
+    <string name="storage_wipe_word_hint">Escribe BORRAR para confirmar</string>
+    <string name="storage_wipe_confirm">Borrar todo</string>
+    <string name="storage_log_cleared">Registro borrado</string>
+    <string name="storage_cache_cleared">Caché limpiada</string>
+    <string name="storage_wiped">Datos borrados</string>
+    <string name="storage_failed">No se pudo completar el borrado</string>
 </resources>

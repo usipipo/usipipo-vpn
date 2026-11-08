@@ -1,6 +1,7 @@
 package com.usipipo.vpn.ui.settings.storage
 
 import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import java.util.Locale
 
 /**
@@ -34,10 +35,8 @@ object StorageFormat {
     fun total(
         profilesBytes: Long,
         logBytes: Long,
-        geoCacheBytes: Long,
-        pingBytes: Long,
         tempBytes: Long,
-    ): Long = profilesBytes + logBytes + geoCacheBytes + pingBytes + tempBytes
+    ): Long = profilesBytes + logBytes + tempBytes
 
     private val SIMBOLOS = DecimalFormatSymbols(Locale.getDefault())
     private const val B = "B"

@@ -284,7 +284,7 @@ Una fase se marca como completada cuando su PR está en verde y fusionado en `ma
 | 4 | Notificaciones | `feat/ajustes-notificaciones` | [#17](https://github.com/usipipo/usipipo-vpn/pull/17) | Completada · merge `7c363db` |
 | 5 | Burbuja de tráfico | `feat/ajustes-burbuja-trafico` | [#19](https://github.com/usipipo/usipipo-vpn/pull/19) | Completada · merge `4b820c8` |
 | 6 | Copia de seguridad | `feat/ajustes-copia-seguridad` | [#21](https://github.com/usipipo/usipipo-vpn/pull/21) | Completada · merge `2a3deb5` |
-| 7 | Almacenamiento | `feat/ajustes-almacenamiento` | - | Siguiente |
+| 7 | Almacenamiento | `feat/ajustes-almacenamiento` | [#27](https://github.com/usipipo/usipipo-vpn/pull/27) | Implementada · pendiente de la CI |
 | 8 | Pantalla inicial y panel | `feat/ajustes-pantalla-inicial-panel` | - | No iniciada |
 | 9 | Actualizaciones | `feat/ajustes-actualizaciones` | - | No iniciada |
 | 10 | Más | `feat/ajustes-mas` | - | No iniciada |

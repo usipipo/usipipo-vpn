@@ -152,8 +152,9 @@ quita.
 
 **Coste:** desvío de la recomendación genérica, asumido a propósito. Si algún día se
 añade `values-en`, se sustituye por la locale con la que Android resuelve los recursos
-y los tests dejan de fijarla. Queda pendiente aplicarlo a `formatRate`
-(`ui/details/Formatters.kt`), que sigue con `Locale.getDefault()`.
+y los tests dejan de fijarla. Se aplica también a `formatRate`
+(`ui/details/Formatters.kt`), que leía la locale del dispositivo por su cuenta;
+`formatUptime` no necesita nada porque su patrón no lleva separador decimal.
 
 ### APIs del SDK
 

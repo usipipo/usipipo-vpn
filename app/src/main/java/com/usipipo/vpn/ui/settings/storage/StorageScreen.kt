@@ -34,8 +34,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.usipipo.vpn.R
-import com.usipipo.vpn.ui.components.SettingsRow
 import com.usipipo.vpn.ui.components.UsipipoCard
+import com.usipipo.vpn.ui.settings.components.SettingsRow
 import com.usipipo.vpn.ui.theme.UsipipoTheme
 
 /**

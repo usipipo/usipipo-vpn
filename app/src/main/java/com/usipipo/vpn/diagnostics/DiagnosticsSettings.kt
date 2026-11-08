@@ -26,7 +26,11 @@ class DiagnosticsSettings(context: Context) {
         prefs.edit().putBoolean(KEY_CRASH_PENDING, false).apply()
     }
 
-    private companion object {
+    /**
+     * Visible fuera de la clase porque [com.usipipo.vpn.AppContainer] borra este
+     * fichero entero al dejar la app como recién instalada.
+     */
+    companion object {
         const val PREFS_NAME = "diagnostics"
         const val KEY_VERBOSE = "verbose"
         const val KEY_CRASH_PENDING = "crash_pending"

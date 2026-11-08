@@ -3,9 +3,17 @@ package com.usipipo.vpn.ui.settings
 import com.usipipo.vpn.settings.AppSettings
 import com.usipipo.vpn.settings.PaletteVariant
 import com.usipipo.vpn.settings.ThemeMode
+import com.usipipo.vpn.ui.settings.storage.StorageFormat
 
 /** ViewModel de la pantalla hub de Ajustes: resúmenes del valor actual de cada sección. */
-class SettingsViewModel(private val appSettings: AppSettings) {
+class SettingsViewModel(
+    private val appSettings: AppSettings,
+    /**
+     * Bytes que ocupa la app. Se lee al pintar cada fila, que es justo cuando el
+     * usuario vuelve de una subpantalla y quiere ver el valor actualizado.
+     */
+    private val storageBytes: () -> Long = { 0L },
+) {
 
     /**
      * Resumen del valor actual de cada sección, para mostrar a la derecha de su
@@ -20,7 +28,7 @@ class SettingsViewModel(private val appSettings: AppSettings) {
         SettingsRoute.Notifications -> if (appSettings.notificationsEnabled) "Activadas" else "Desactivadas"
         SettingsRoute.Updates -> "Activada"
         SettingsRoute.Backup -> if (appSettings.backupLastAt > 0L) "Con copias" else "Sin copias"
-        SettingsRoute.Storage -> "—"
+        SettingsRoute.Storage -> StorageFormat.readable(storageBytes())
         SettingsRoute.More -> "—"
     }
 

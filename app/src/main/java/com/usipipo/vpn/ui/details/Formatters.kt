@@ -1,17 +1,18 @@
 package com.usipipo.vpn.ui.details
 
+import com.usipipo.vpn.ui.ESPANOL
 import java.util.Locale
 
 /** Por encima de este umbral (en bits/s) se muestra en Mbps; evita «1000 Kbps». */
 private const val MBPS_THRESHOLD_BITS = 999_500L
 
-/** Velocidad en bytes por segundo, mostrada en bits como en el mockup («60.00 Mbps»). */
-fun formatRate(bytesPerSecond: Long, locale: Locale = Locale.getDefault()): String {
+/** Velocidad en bytes por segundo, mostrada en bits como en el mockup («60,00 Mbps»). */
+fun formatRate(bytesPerSecond: Long): String {
     val bits = bytesPerSecond * 8L
     return if (bits >= MBPS_THRESHOLD_BITS) {
-        String.format(locale, "%.2f Mbps", bits / 1_000_000.0)
+        String.format(ESPANOL, "%.2f Mbps", bits / 1_000_000.0)
     } else {
-        String.format(locale, "%.0f Kbps", bits / 1_000.0)
+        String.format(ESPANOL, "%.0f Kbps", bits / 1_000.0)
     }
 }
 

@@ -25,7 +25,11 @@ class PrefsUpdateStateStore(private val prefs: SharedPreferences) : UpdateStateS
         }
 
     companion object {
-        private const val PREFS_NAME = "updates"
+        /**
+         * Visible fuera de la clase porque [com.usipipo.vpn.AppContainer] borra este
+         * fichero entero al dejar la app como recién instalada.
+         */
+        const val PREFS_NAME = "updates"
         private const val KEY_SKIPPED = "skipped_version"
         private const val KEY_LAST_CHECK = "last_check_at"
 

@@ -30,6 +30,9 @@ class FakeConfigStore(
     val storedTexts: Map<String, String>
         get() = texts + addedTexts
 
+    /** Países borrados por [clearGeoCache], para poder comprobarlo en los tests. */
+    val clearedGeo: MutableList<String> = mutableListOf()
+
     override suspend fun add(name: String, configText: String): Result<SavedConfig> {
         // Igual que el almacén real: no admite dos perfiles con el mismo nombre.
         if (_configs.value.any { it.name.equals(name.trim(), ignoreCase = true) }) {
@@ -86,6 +89,13 @@ class FakeConfigStore(
                     countryFetchedAt = countryInfo.fetchedAt,
                 )
             } else cfg
+        }
+    }
+
+    override suspend fun clearGeoCache() {
+        _configs.value.forEach { cfg -> clearedGeo += cfg.id }
+        _configs.value = _configs.value.map { cfg ->
+            cfg.copy(countryCode = null, countryName = null, countryIp = null, countryFetchedAt = null)
         }
     }
 }

@@ -110,6 +110,17 @@ class CountryRepositoryLogTest {
                 } else c
             }
         }
+
+        override suspend fun clearGeoCache() {
+            _configs.value = _configs.value.map { c ->
+                c.copy(
+                    countryCode = null,
+                    countryName = null,
+                    countryIp = null,
+                    countryFetchedAt = null,
+                )
+            }
+        }
     }
 
     private class FakeHttp(private val call: (String) -> CountryInfo?) : CountryHttpClient {

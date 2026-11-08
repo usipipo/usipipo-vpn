@@ -30,7 +30,11 @@ class SharedPreferencesWidgetStateStore(context: Context) : WidgetStateStore {
             .apply()
     }
 
-    private companion object {
+    /**
+     * Visible fuera de la clase porque [com.usipipo.vpn.AppContainer] borra este
+     * fichero entero al dejar la app como recién instalada.
+     */
+    companion object {
         const val PREFERENCES_NAME = "usipipo_widget_state"
         const val KEY_STATUS = "status"
         const val KEY_UPDATED_AT = "updatedAtEpochMs"

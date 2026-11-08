@@ -1,29 +1,47 @@
 package com.usipipo.vpn.ui.details
 
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
 import java.util.Locale
 
+/**
+ * La clase corre con la locale del dispositivo en inglés a propósito: si alguna
+ * aserción depende de la máquina que ejecuta los tests, aquí se ve.
+ */
 class FormattersTest {
+
+    private val localeAnterior = Locale.getDefault()
+
+    @Before
+    fun dispositivoEnIngles() {
+        Locale.setDefault(Locale.US)
+    }
+
+    @After
+    fun restaurarLocale() {
+        Locale.setDefault(localeAnterior)
+    }
 
     @Test
     fun `una velocidad alta se muestra en Mbps`() {
-        assertEquals("60.00 Mbps", formatRate(7_500_000L, Locale.US))
+        assertEquals("60,00 Mbps", formatRate(7_500_000L))
     }
 
     @Test
     fun `una velocidad baja se muestra en Kbps`() {
-        assertEquals("500 Kbps", formatRate(62_500L, Locale.US))
+        assertEquals("500 Kbps", formatRate(62_500L))
     }
 
     @Test
     fun `sin trafico se muestra cero`() {
-        assertEquals("0 Kbps", formatRate(0L, Locale.US))
+        assertEquals("0 Kbps", formatRate(0L))
     }
 
     @Test
     fun `justo bajo 1 Mbps no muestra mil Kbps`() {
-        assertEquals("1.00 Mbps", formatRate(124_999L, Locale.US))
+        assertEquals("1,00 Mbps", formatRate(124_999L))
     }
 
     @Test

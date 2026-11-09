@@ -42,15 +42,30 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Usipipo">
 
+        <!--
+          Punto de entrada del lanzador. Es el único componente expuesto al sistema y a
+          otras apps: se queda con el filtro MAIN/LAUNCHER y descarta el intent con el
+          que la abren, para que ningún proceso ajeno pueda forzar una pestaña ni abrir
+          el panel de detalles. Delega en MainActivity sin arrastrar ningún extra.
+        -->
         <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:windowSoftInputMode="adjustResize">
+            android:name=".LauncherActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!--
+          Cerrada y sin filtro: solo la alcanzan los componentes de la app (widget,
+          notificaciones, burbuja de tráfico), que ya mandan sus extras por intents
+          explícitos. Ninguna app ajena puede lanzarla por nombre de componente.
+        -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".widget.VpnPermissionActivity"

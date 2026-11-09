@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-11-01
 **Estado:** aprobado por el usuario (2026-11-01)
-**Implementación:** fase 7 · implementada · rama `feat/ajustes-almacenamiento` · PR #27
+**Implementación:** fase 7 · fusionada en `main` (merge `446230e`) · rama `feat/ajustes-almacenamiento` · PR #27
 **Enmiendas:** §2, §3 (RF-1), §4, §5, §7 y §9 — el 2026-11-08, al comprobar que dos de las
 cinco filas del resumen medían almacenamiento que no existe (ver la tabla de §2), y el
 mismo día para fijar el idioma del formato de los tamaños (ver §7).
@@ -176,7 +176,7 @@ y los tests dejan de fijarla. Se aplica también a `formatRate`
 4. "Borrar todos los datos" solo se habilita tras escribir exactamente "BORRAR" en el campo de texto.
 5. Tras "Borrar todos los datos", la app queda sin perfiles, sin registro y sin caché; los directorios se recrean vacíos.
 6. Tras cualquier borrado, el resumen se actualiza sin reiniciar la app.
-7. `./gradlew testDebugUnitTest` y `assembleDebug`/`assembleRelease` verdes en la CI.
+7. `./gradlew testDebugUnitTest` y `assembleDebug`/`assembleRelease` verdes en la CI. Cumplido: run 42537193756 sobre `1eab81c`, los tres en verde, fusionado como `446230e`.
 
 ---
 

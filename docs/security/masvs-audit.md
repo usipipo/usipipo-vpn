@@ -13,7 +13,7 @@
 | 2 | Lectura sin tope del zip importado | medium | **corregido** (PR #25, merge `f7b7faa`) |
 | 3 | Controles de seguridad restaurados desde la copia | low | **corregido** (PR #26, merge `be10997`) |
 | 4 | Sin mínimo de fortaleza de contraseña | low | **corregido** (PR #25) |
-| 5 | `EXTRA_SHOW_DETAILS` sin validar en actividad exportada | low | abierto |
+| 5 | `EXTRA_SHOW_DETAILS` sin validar en actividad exportada | low | **corregido** (PR #28, `51ed8c3`, sin merge) |
 | 6 | `allowBackup` y extracción de datos | — | cerrado por diseño (`allowBackup="false"`) |
 | 7 | Contenido de la notificación en pantalla de bloqueo | — | `needs-validation` |
 
@@ -45,11 +45,19 @@
 
 La exportación solo rechazaba la cadena vacía. Se piden 8 caracteres: la copia vive donde el usuario la guarde y se puede romper sin conexión.
 
-## 5 · `EXTRA_SHOW_DETAILS` sin validar (low, abierto)
+## 5 · `EXTRA_SHOW_DETAILS` sin validar en actividad exportada (low, corregido)
 
-`MainActivity` está exportado y lee el booleano `EXTRA_SHOW_DETAILS` sin validar. Otra app puede forzar el panel de Detalles del perfil activo. No hay escalada de privilegios ni fuga de datos.
+**Frontera.** `MainActivity` estaba `exported="true"` con el filtro `MAIN`/`LAUNCHER` y leía dos extras del intent: `EXTRA_SHOW_DETAILS` y `EXTRA_INITIAL_TAB`. Cualquier proceso del dispositivo podía lanzarla por nombre de componente y forzar el panel de Detalles del perfil activo o la pestaña Importar.
 
-**Arreglo propuesto:** actividad dedicada no exportada para ese extra, como ya se hizo con la acción del widget. Pendiente de decidir.
+**Consecuencia.** Otra app abre la UI en un estado que el usuario no ha pedido. No hay escalada de privilegios ni fuga de datos, y por eso la gravedad se queda en *low*.
+
+**Arreglo.** El filtro `MAIN`/`LAUNCHER` pasa a una actividad nueva, `LauncherActivity`, y `MainActivity` queda `exported="false"` y sin `intent-filter`. `LauncherActivity` es una `ComponentActivity` que tira el intent con el que la abren y delega en `MainActivity` con un `Intent` nuevo y vacío antes de llamar a `finish()`. Los llamadores internos siguen funcionando porque nombran el componente y van con el mismo UID: `widget/WidgetIntents.kt:14` (`EXTRA_INITIAL_TAB`), `notifications/NotificationsManager.kt:150`, `tunnel/TunnelForegroundService.kt:391` (`EXTRA_SHOW_DETAILS`, la burbuja de tráfico) y `tunnel/TunnelForegroundService.kt:449`. También la ruta del mosaico: `widget/UsipipoTileService.kt:76` (invoca `QuickActionRouter`) → `widget/QuickActionRouter.kt:28` (`WidgetIntents.importerIntent`). Las dos constantes siguen declaradas en `MainActivity`.
+
+**Alternativa descartada.** Mover el filtro a un `activity-alias` que apunte a `MainActivity`: el alias seguiría exportado, así que un proceso ajeno podría seguir poniendo extras que acabarían llegando a `MainActivity`. Solo cierra el hueco una actividad que descarte el intent de entrada.
+
+**Regresión.** Cuatro pruebas de contrato en `app/src/test/java/com/usipipo/vpn/widget/SystemIntegrationResourceTest.kt`: `la actividad de lanzamiento esta expuesta y la de la UI no`, `la actividad expuesta no lleva filtro que otro proceso pueda imitar`, `la actividad de la UI no es alcanzable desde fuera` y `la actividad expuesta no lee datos del intent`. Las tres primeras leen el manifiesto; la última lee el código de `LauncherActivity` y falla si vuelve a aparecer `getStringExtra` o `getBooleanExtra`. El rojo lo confirmó la CI (`42547882706`, 4 fallos de 484) y el verde `42551438629` sobre `51ed8c3`.
+
+*Enmienda del 2026-11-08: en la auditoría original este hallazgo quedaba abierto a la espera de decidir el arreglo.*
 
 ## Needs-validation (sin gravedad asignada)
 

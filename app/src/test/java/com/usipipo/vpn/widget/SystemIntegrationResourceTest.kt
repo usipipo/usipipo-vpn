@@ -3,6 +3,7 @@ package com.usipipo.vpn.widget
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.w3c.dom.Document
@@ -224,6 +225,50 @@ class SystemIntegrationResourceTest {
     }
 
     @Test
+    fun `la actividad de lanzamiento esta expuesta y la de la UI no`() {
+        assertEquals("true", manifestActivity(LAUNCHER_ACTIVITY_NAME).androidAttribute("exported"))
+        assertEquals("false", manifestActivity(MAIN_ACTIVITY_NAME).androidAttribute("exported"))
+    }
+
+    @Test
+    fun `la actividad expuesta no lleva filtro que otro proceso pueda imitar`() {
+        val launcher = manifestActivity(LAUNCHER_ACTIVITY_NAME)
+        val filtros = launcher.getElementsByTagName("intent-filter")
+
+        assertEquals(
+            "la actividad expuesta solo debe tener el filtro de lanzador",
+            1,
+            filtros.length,
+        )
+        assertEquals("android.intent.action.MAIN", filtro(filtros, "action"))
+        assertEquals("android.intent.category.LAUNCHER", filtro(filtros, "category"))
+    }
+
+    @Test
+    fun `la actividad de la UI no es alcanzable desde fuera`() {
+        assertEquals(
+            "MainActivity no debe tener intent-filter: si lo tiene, otro proceso la alcanza",
+            0,
+            manifestActivity(MAIN_ACTIVITY_NAME).getElementsByTagName("intent-filter").length,
+        )
+    }
+
+    /**
+     * El cierre de verdad: que la actividad expuesta no mire el intent. Sin esto, el
+     * manisfiesto podría volver a aceptar extras sin que ningún test de manifiesto se
+     * queje, porque leer extras es código, no declaración.
+     */
+    @Test
+    fun `la actividad expuesta no lee datos del intent`() {
+        val codigo = File(LAUNCHER_ACTIVITY_PATH).readText()
+
+        assertFalse(
+            "LauncherActivity es la única actividad alcanzable desde fuera: no puede leer extras",
+            codigo.contains("getStringExtra") || codigo.contains("getBooleanExtra"),
+        )
+    }
+
+    @Test
     fun `el tema de la Activity de permiso VPN es transparente`() {
         val style = transparentStyle()
 
@@ -237,6 +282,25 @@ class SystemIntegrationResourceTest {
             .elements()
             .singleOrNull { it.androidAttribute("name") == ACTIVITY_NAME }
             ?: throw AssertionError("no existe la Activity $ACTIVITY_NAME en el manifiesto")
+
+    private fun manifestActivity(name: String): Element =
+        parse(File(MANIFEST_PATH))
+            .getElementsByTagName("activity")
+            .elements()
+            .singleOrNull { it.androidAttribute("name") == name }
+            ?: throw AssertionError("no existe la Activity $name en el manifiesto")
+
+    /** Valor del primer elemento `tag` dentro del único `intent-filter` de una actividad. */
+    private fun filtro(filtros: NodeList, tag: String): String {
+        val hijos = filtros.item(0).childNodes
+        for (i in 0 until hijos.length) {
+            val nodo = hijos.item(i)
+            if (nodo is Element && nodo.tagName == tag) {
+                return nodo.androidAttribute("name")
+            }
+        }
+        throw AssertionError("el filtro no declara <$tag>")
+    }
 
     private fun manifestReceiver(name: String = RECEIVER_NAME): Element =
         parse(File(MANIFEST_PATH))
@@ -318,6 +382,7 @@ class SystemIntegrationResourceTest {
 
     private companion object {
         const val MANIFEST_PATH = "src/main/AndroidManifest.xml"
+        const val LAUNCHER_ACTIVITY_PATH = "src/main/java/com/usipipo/vpn/LauncherActivity.kt"
         const val THEMES_PATH = "src/main/res/values/themes.xml"
         const val WIDGET_LAYOUT_PATH = "src/main/res/layout/widget_usipipo.xml"
         const val WIDGET_WIDE_LAYOUT_PATH = "src/main/res/layout/widget_usipipo_wide.xml"
@@ -329,6 +394,8 @@ class SystemIntegrationResourceTest {
          */
         const val COMPACT_LAYOUT_MIN_HEIGHT_DP: Int = 106
         const val ACTIVITY_NAME = ".widget.VpnPermissionActivity"
+        const val MAIN_ACTIVITY_NAME = ".MainActivity"
+        const val LAUNCHER_ACTIVITY_NAME = ".LauncherActivity"
         const val RECEIVER_NAME = ".widget.UsipipoWidgetProvider"
         const val ACTION_RECEIVER_NAME = ".widget.UsipipoWidgetActionReceiver"
         const val TILE_SERVICE_NAME = ".widget.UsipipoTileService"

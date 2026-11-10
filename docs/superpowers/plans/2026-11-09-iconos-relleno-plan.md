@@ -48,7 +48,9 @@
 
 **Interfaces:**
 - Consumes: `iconosDelSet()`, `trazados(nombre)`, `atributo(bloque, nombre)`, `DRAWABLES`, `PATH` — todos privados y ya existentes, no se tocan.
-- Produces: `pathDataValido(pathData: String): Boolean` y las constantes `PRIMITIVAS_SVG`, `CON_SUBPATHS_NEGATIVOS`, `ICONOS_MIXTOS`. Las Tasks 2-5 no las usan directamente; las usan sus contratos.
+- Produces: `pathDataValido(pathData: String): Boolean` y las constantes `PRIMITIVAS_SVG`, `CON_SUBPATHS_NEGATIVOS`, `ICONOS_MIXTOS`, `ARIDADES`, `BANDERAS`, `TOKEN`. Las Tasks 2-5 no las usan directamente; las usan sus contratos.
+
+**Dependencia de import:** `assertFalse` **no está importado** en `IconSetStyleTest.kt` (solo `assertEquals`, `assertTrue`, `Test` y `java.io.File`). Hay que añadir `import org.junit.Assert.assertFalse`. Comprobado el 2026-11-10 sobre el fichero real; si ya estuviera, el import no rompe nada.
 
 - [ ] **Step 1: Commitear los documentos**
 
@@ -187,11 +189,11 @@ Reglas que definen el `true`, todas obligatorias:
 
 1. Solo se aceptan los comandos `M`, `L`, `C`, `A`, `V`, `H`, `Z` y sus minúsculas. Cualquier otra letra invalida.
 2. Aridades: `M` 2, `L` 2, `C` 6, `A` 7, `V` 1, `H` 1, `Z` 0.
-3. Tras cada comando, la cuenta de números debe ser **múltiplo exacto** de su aridad. Un número suelto al final invalida.
+3. Tras cada comando, la cuenta de números debe ser **múltiplo exacto** de su aridad. Un número suelto al final invalida. La repetición implícita de SVG (varios grupos sin comando delante) **se admite**: cinco drawables del set la usan, entre ellos los cuatro del mosaico y del widget, que este plan no toca. Si se exigiera un grupo exacto, el test fallaría sobre iconos fuera de alcance.
 4. En cada grupo de 7 de `A`, el 4.º y el 5.º valor solo pueden ser `0` o `1` (los flags de arco).
 5. Un número es `[-+]?(\d+(\.\d*)?|\.\d+)`. La notación científica invalida.
 6. La cadena vacía invalida. `Z` no consume números y puede ir seguido de otro comando.
-7. **No se admite la repetición implícita de SVG**: la fuente siempre repite el comando, así que un segundo grupo de números sin comando delante invalida. Es lo que hace que el chequeo muerda de verdad en lugar de aceptar casi todo.
+7. Ningún comando fuera de `M L C A V H Z` y sus minúsculas. Un `Q`, `S`, `T` o una letra cualquiera entre los números invalida.
 
 El implementador escribe el cuerpo; las reglas son el contrato.
 

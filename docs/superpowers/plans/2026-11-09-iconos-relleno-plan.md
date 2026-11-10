@@ -259,6 +259,18 @@ Lo que esta prueba **no** cubre: la tercera guarda profiláctica,
 `los cuatro iconos mixtos declaran su trazo`. Es la única de las cinco cuyo mordisco no se
 ha visto ni en rojo de CI ni por mutación. Su evidencia actual es solo que está en verde.
 
+**Cerrado el 2026-11-10.** Quitando el `strokeColor` del badajo de
+`ic_settings_notifications.xml`, run `42908774364`: **489 tests, 1 falló**, y es esa guarda:
+
+```
+java.lang.AssertionError: ic_settings_notifications.xml deberia mezclar relleno y trazo,
+y no declara ningun trazo                                    (IconSetStyleTest.kt:134)
+```
+
+Con esto las **cinco** guardas tienen mordisco observado: dos por el rojo real de la Task 1
+que las Tasks 2 y 3 pusieron en verde (`fillType` par, par de la estrella), y tres por
+mutación con la CI en rojo.
+
 - [ ] **Step 7: Commit**
 
 ```bash

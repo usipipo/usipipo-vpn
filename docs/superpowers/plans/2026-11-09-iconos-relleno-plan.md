@@ -381,11 +381,21 @@ for f in ic_nav_home.xml ic_shield_check.xml; do
 done
 ```
 
-Expected: **`ic_nav_home.xml` → `M=1 Z=1`** y **`ic_shield_check.xml` → `M=2 Z=2`**.
+Expected: **`ic_nav_home.xml` → `M=2 Z=2`** y **`ic_shield_check.xml` → `M=3 Z=3`**.
 
-Leídos así: el `M` y el `Z` de `shield_check` salen de su `<path>` de relleno, que es el
-único con dos subpaths. Un `M=1 Z=1` en cualquiera de los dos significa que falta el
-segundo subpath: el negativo se ha perdido y hay que volver a la fuente.
+El `grep` cuenta sobre el fichero entero, y los dos ficheros no tienen la misma forma:
+`ic_nav_home.xml` es un solo `<path>` con dos subpaths (el contorno de la casa y la
+puerta), y `ic_shield_check.xml` son dos `<path>`: el de relleno, con dos subpaths (el
+escudo y el check), y el de contorno, con uno. Por eso el segundo suma un `M` y un `Z`
+más. Lo que hay que mirar en realidad es por `<path>`: **el de relleno de cada uno tiene
+`M=2 Z=2`**. Un path de relleno con `M=1 Z=1` significa que le falta el subpath negativo:
+la casa sale sin puerta o el escudo sin check, y hay que volver a la fuente.
+
+*Corrección del 2026-11-10: esta línea esperaba originalmente `M=1 Z=1` para
+`ic_nav_home.xml` y `M=2 Z=2` para `ic_shield_check.xml`, y las dos estaban mal. La
+primera porque la puerta de la casa es un subpath propio y también cierra; la segunda
+porque el `grep` cuenta los dos `<path>` del fichero, no uno. Comprobado sobre los
+ficheros escritos: `M=2 Z=2`, `M=3 Z=3`, y por path `2/2`, `2/2` y `1/1`.*
 
 ```bash
 grep -c 'android:fillType="evenOdd"' app/src/main/res/drawable/ic_nav_home.xml \

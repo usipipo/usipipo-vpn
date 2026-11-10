@@ -1,7 +1,7 @@
 # Spec de diseño — Iconos: paso a relleno sólido
 
 **Fecha:** 2026-11-09
-**Estado:** aprobado por el usuario (2026-11-10)
+**Estado:** implementado · rama `feat/iconos-relleno` · PR #30 (2026-11-10)
 **Proyecto:** uSipipo VPN
 **Alcance:** migrar 11 drawables del set propio de iconos (`res/drawable/ic_*.xml`) de contorno a relleno sólido, usando como fuente la librería `iconmcp`. Es la continuación natural del cierre del hallazgo 5 de la auditoría MASVS, y la razón por la que aquel plan dejó fuera «los 3 iconos del mosaico y el contrato de trazo»: **es este trabajo, no aquel**.
 

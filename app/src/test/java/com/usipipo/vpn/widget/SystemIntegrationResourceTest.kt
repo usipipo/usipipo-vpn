@@ -225,7 +225,7 @@ class SystemIntegrationResourceTest {
     }
 
     @Test
-    fun `solo la actividad de lanzamiento esta expuesta al sistema`() {
+    fun `la actividad de lanzamiento esta expuesta y la de la UI no`() {
         assertEquals("true", manifestActivity(LAUNCHER_ACTIVITY_NAME).androidAttribute("exported"))
         assertEquals("false", manifestActivity(MAIN_ACTIVITY_NAME).androidAttribute("exported"))
     }
@@ -263,7 +263,7 @@ class SystemIntegrationResourceTest {
         val codigo = File(LAUNCHER_ACTIVITY_PATH).readText()
 
         assertFalse(
-            "LauncherActivity es el único componente alcanzable desde fuera: no puede leer extras",
+            "LauncherActivity es la única actividad alcanzable desde fuera: no puede leer extras",
             codigo.contains("getStringExtra") || codigo.contains("getBooleanExtra"),
         )
     }

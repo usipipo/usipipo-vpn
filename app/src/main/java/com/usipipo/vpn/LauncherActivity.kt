@@ -5,8 +5,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 
 /**
- * Punto de entrada del lanzador. Es el único componente expuesto al sistema y al resto
- * de apps, así que se queda con el filtro MAIN/LAUNCHER y tira el intent con el que la
+ * Punto de entrada del lanzador. Es la única actividad expuesta al sistema y al resto
+ * de apps (el receptor del widget y el mosaico siguen exportados a propósito, el sistema
+ * los necesita), así que se queda con el filtro MAIN/LAUNCHER y tira el intent con el
  * abren: sus extras podrían forzar una pestaña o abrir el panel de detalles. La UI real
  * vive en `MainActivity`, cerrada a otros procesos.
  */

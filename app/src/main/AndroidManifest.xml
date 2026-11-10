@@ -43,10 +43,12 @@
         android:theme="@style/Theme.Usipipo">
 
         <!--
-          Punto de entrada del lanzador. Es el único componente expuesto al sistema y a
+          Punto de entrada del lanzador. Es la única actividad expuesta al sistema y a
           otras apps: se queda con el filtro MAIN/LAUNCHER y descarta el intent con el
           que la abren, para que ningún proceso ajeno pueda forzar una pestaña ni abrir
-          el panel de detalles. Delega en MainActivity sin arrastrar ningún extra.
+          el panel de detalles. Delega en MainActivity sin arrastrar ningún extra. El
+          receptor del widget y el mosaico siguen exportados a propósito: el sistema los
+          necesita y aquí no se cambia ninguna declaración exported.
         -->
         <activity
             android:name=".LauncherActivity"

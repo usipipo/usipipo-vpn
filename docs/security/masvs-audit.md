@@ -91,7 +91,7 @@ La exportación solo rechazaba la cadena vacía. Se piden 8 caracteres: la copia
 | Copia con AES-GCM + PBKDF2-HMAC-SHA256, sal e IV por archivo | `backup/BackupCrypto.kt` |
 | `PendingIntent` inmutables y con componente explícito | widget, servicio del túnel, notificaciones |
 | Mosaico protegido por `BIND_QUICK_SETTINGS_TILE` | `AndroidManifest.xml` |
-| Servicios y actividades quedan `exported="false"`, salvo el lanzador, el receptor del widget y el mosaico, exportados a propósito | `AndroidManifest.xml` |
+| Servicios y actividades quedan `exported="false"`, salvo el lanzador, `UsipipoWidgetProvider` (el receptor que el sistema necesita) y el mosaico, exportados a propósito | `AndroidManifest.xml` |
 | Zip-slip inalcanzable (las entradas nunca tocan el disco) | `backup/BackupReader.kt` |
 | Exportación `.conf` en claro tras aviso de claves privadas | `ui/settings/backup/BackupScreen.kt` |
 | App sin WebView | — |

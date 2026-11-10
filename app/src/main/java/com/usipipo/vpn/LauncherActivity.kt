@@ -3,6 +3,7 @@ package com.usipipo.vpn
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.enableEdgeToEdge
 
 /**
  * Punto de entrada del lanzador. Es la única actividad expuesta al sistema y al resto
@@ -15,6 +16,8 @@ class LauncherActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // La ventana completa también aquí: la actividad se ve en el arranque en frío.
+        enableEdgeToEdge()
         // Intent nuevo y vacío: ningún dato del llamante llega a MainActivity.
         startActivity(Intent(this, MainActivity::class.java))
         finish()

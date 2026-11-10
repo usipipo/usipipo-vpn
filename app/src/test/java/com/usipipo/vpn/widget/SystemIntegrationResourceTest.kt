@@ -280,6 +280,22 @@ class SystemIntegrationResourceTest {
         }
     }
 
+    /**
+     * La actividad de lanzamiento vive ~100 ms y se ve en el arranque en frío: si no
+     * consume la ventana completa, en API < 35 deja una franja sin pintar bajo las
+     * barras del sistema. Es código, no declaración de manifiesto, así que se fija
+     * leyendo el fuente (la compilación de CI confirma que la API existe).
+     */
+    @Test
+    fun `la actividad de lanzamiento pinta edge a edge`() {
+        val codigo = File(LAUNCHER_ACTIVITY_PATH).readText()
+
+        assertTrue(
+            "LauncherActivity debe consumir la ventana completa: enableEdgeToEdge()",
+            codigo.contains("enableEdgeToEdge()"),
+        )
+    }
+
     @Test
     fun `el tema de la Activity de permiso VPN es transparente`() {
         val style = transparentStyle()

@@ -233,6 +233,32 @@ misma conclusión por otro camino. Revertir con `git revert` del commit de mutac
 `reset`, la rama ya está empujada) y comprobar que el fichero queda byte a byte como
 estaba.
 
+**Hecho el 2026-11-10.** Run `42900561777`, disparado con `workflow_dispatch` sobre una rama
+de un solo uso (`test/mutacion-guardas-iconos`, borrada al terminar): **489 tests, 2
+fallaron**, y son los dos mutados. Los mensajes:
+
+```
+java.lang.AssertionError: ic_settings_more.xml: no existe en VectorDrawable,
+hay que convertirlo a pathData                                        (IconSetStyleTest.kt:87)
+
+java.lang.AssertionError: ic_settings_more.xml: el trazado 0 tiene un pathData
+mal formado: "MX.7,8 A0.55,0.55 0 1 0 3.8,8 A0.55,0.55 0 1 0 2.7,8 Z"  (IconSetStyleTest.kt:101)
+```
+
+Dos cosas cambiaron respecto al plan al ejecutarlo, porque para entonces la Task 5 ya había
+migrado el fichero:
+
+- El `pathData` ya no contiene `L8,8` (el icono es ahora tres círculos rellenos en la
+  cuadrícula de 16), así que la mutación de gramática fue `M2.7,8` → `MX.7,8`. Es la misma
+  clase de error: un dígito sustituido por una letra.
+- La rama se borró en lugar de revertirse: no hacía falta un commit de reversión en el
+  historial para dejar constancia de lo contrario. `testDebugUnitTest` corre **antes** que
+  `assembleDebug` en la CI, así que el rojo de tests se vio igual pese al `<rect>`.
+
+Lo que esta prueba **no** cubre: la tercera guarda profiláctica,
+`los cuatro iconos mixtos declaran su trazo`. Es la única de las cinco cuyo mordisco no se
+ha visto ni en rojo de CI ni por mutación. Su evidencia actual es solo que está en verde.
+
 - [ ] **Step 7: Commit**
 
 ```bash

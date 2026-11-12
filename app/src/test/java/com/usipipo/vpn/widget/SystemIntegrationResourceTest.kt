@@ -255,16 +255,44 @@ class SystemIntegrationResourceTest {
 
     /**
      * El cierre de verdad: que la actividad expuesta no mire el intent. Sin esto, el
-     * manisfiesto podría volver a aceptar extras sin que ningún test de manifiesto se
-     * queje, porque leer extras es código, no declaración.
+     * manisfiesto podría volver a aceptar datos del llamante sin que ningún test de
+     * manifiesto se queje, porque leer el intent es código, no declaración.
+     *
+     * La lista cubre todas las APIs de lectura del intent, no solo dos getters: si
+     * alguien añade `intent.extras` o `getIntExtra`, la guarda tiene que fallar
+     * nombrando la cadena que apareció, no pasar en verde en silencio.
      */
     @Test
     fun `la actividad expuesta no lee datos del intent`() {
         val codigo = File(LAUNCHER_ACTIVITY_PATH).readText()
 
-        assertFalse(
-            "LauncherActivity es la única actividad alcanzable desde fuera: no puede leer extras",
-            codigo.contains("getStringExtra") || codigo.contains("getBooleanExtra"),
+        val prohibidos = listOf(
+            "getStringExtra", "getBooleanExtra", "getIntExtra", "getLongExtra",
+            "getParcelableExtra", "getStringArrayListExtra", "extras", "getIntent", "intent.",
+        )
+
+        prohibidos.forEach { prohibido ->
+            assertFalse(
+                "LauncherActivity es la única actividad alcanzable desde fuera: " +
+                    "no puede leer datos del intent (aparece \"$prohibido\")",
+                codigo.contains(prohibido),
+            )
+        }
+    }
+
+    /**
+     * La actividad de lanzamiento vive ~100 ms y se ve en el arranque en frío: si no
+     * consume la ventana completa, en API < 35 deja una franja sin pintar bajo las
+     * barras del sistema. Es código, no declaración de manifiesto, así que se fija
+     * leyendo el fuente (la compilación de CI confirma que la API existe).
+     */
+    @Test
+    fun `la actividad de lanzamiento pinta edge a edge`() {
+        val codigo = File(LAUNCHER_ACTIVITY_PATH).readText()
+
+        assertTrue(
+            "LauncherActivity debe consumir la ventana completa: enableEdgeToEdge()",
+            codigo.contains("enableEdgeToEdge()"),
         )
     }
 

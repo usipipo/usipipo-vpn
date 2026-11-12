@@ -13,7 +13,7 @@
 | 2 | Lectura sin tope del zip importado | medium | **corregido** (PR #25, merge `f7b7faa`) |
 | 3 | Controles de seguridad restaurados desde la copia | low | **corregido** (PR #26, merge `be10997`) |
 | 4 | Sin mínimo de fortaleza de contraseña | low | **corregido** (PR #25) |
-| 5 | `EXTRA_SHOW_DETAILS` sin validar en actividad exportada | low | **corregido** (PR #28, `51ed8c3`, sin merge) |
+| 5 | `EXTRA_SHOW_DETAILS` sin validar en actividad exportada | low | **corregido** (PR #28, `51ed8c3`, merge `a2bd365`) |
 | 6 | `allowBackup` y extracción de datos | — | cerrado por diseño (`allowBackup="false"`) |
 | 7 | Contenido de la notificación en pantalla de bloqueo | — | `needs-validation` |
 
@@ -55,7 +55,7 @@ La exportación solo rechazaba la cadena vacía. Se piden 8 caracteres: la copia
 
 **Alternativa descartada.** Mover el filtro a un `activity-alias` que apunte a `MainActivity`: el alias seguiría exportado, así que un proceso ajeno podría seguir poniendo extras que acabarían llegando a `MainActivity`. Solo cierra el hueco una actividad que descarte el intent de entrada.
 
-**Regresión.** Cuatro pruebas de contrato en `app/src/test/java/com/usipipo/vpn/widget/SystemIntegrationResourceTest.kt`: `la actividad de lanzamiento esta expuesta y la de la UI no`, `la actividad expuesta no lleva filtro que otro proceso pueda imitar`, `la actividad de la UI no es alcanzable desde fuera` y `la actividad expuesta no lee datos del intent`. Las tres primeras leen el manifiesto; la última lee el código de `LauncherActivity` y falla si vuelve a aparecer `getStringExtra` o `getBooleanExtra`. El rojo lo confirmó la CI (`42547882706`, 4 fallos de 484) y el verde `42551438629` sobre `51ed8c3`.
+**Regresión.** Cinco pruebas de contrato en `app/src/test/java/com/usipipo/vpn/widget/SystemIntegrationResourceTest.kt`: `la actividad de lanzamiento esta expuesta y la de la UI no`, `la actividad expuesta no lleva filtro que otro proceso pueda imitar`, `la actividad de la UI no es alcanzable desde fuera`, `la actividad expuesta no lee datos del intent` y `la actividad de lanzamiento pinta edge a edge`. Las tres primeras leen el manifiesto; las dos últimas leen el código de `LauncherActivity`. La de los extras falla si vuelve a aparecer cualquier lectura del intent: nueve cadenas prohibidas, los getters de extras (`getStringExtra`, `getBooleanExtra`, `getIntExtra`, `getLongExtra`, `getParcelableExtra`, `getStringArrayListExtra`) más `extras`, `getIntent` e `intent.`, cada una con su propio mensaje. La de edge a edge fija `enableEdgeToEdge()` en la actividad nueva. El rojo lo confirmó la CI (`42547882706`, 4 fallos de 484) y el verde `42551438629` sobre `51ed8c3`.
 
 *Enmienda del 2026-11-08: en la auditoría original este hallazgo quedaba abierto a la espera de decidir el arreglo.*
 
@@ -91,7 +91,7 @@ La exportación solo rechazaba la cadena vacía. Se piden 8 caracteres: la copia
 | Copia con AES-GCM + PBKDF2-HMAC-SHA256, sal e IV por archivo | `backup/BackupCrypto.kt` |
 | `PendingIntent` inmutables y con componente explícito | widget, servicio del túnel, notificaciones |
 | Mosaico protegido por `BIND_QUICK_SETTINGS_TILE` | `AndroidManifest.xml` |
-| Servicios y actividades auxiliares `exported="false"` | `AndroidManifest.xml` |
+| Servicios y actividades quedan `exported="false"`, salvo el lanzador, `UsipipoWidgetProvider` (el receptor que el sistema necesita) y el mosaico, exportados a propósito | `AndroidManifest.xml` |
 | Zip-slip inalcanzable (las entradas nunca tocan el disco) | `backup/BackupReader.kt` |
 | Exportación `.conf` en claro tras aviso de claves privadas | `ui/settings/backup/BackupScreen.kt` |
 | App sin WebView | — |

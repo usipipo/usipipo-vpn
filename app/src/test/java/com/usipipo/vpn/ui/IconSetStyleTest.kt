@@ -14,11 +14,17 @@ import org.junit.Test
  * de power, el de actualizar) se cerraria y saldria un disco macizo en lugar de un
  * contorno: el relleno se declara tambien transparente, no se omite.
  *
- * Los tres tests siguientes fijan lo que el estilo no puede expresar y ningun otro sitio
- * comprueba: que no quede ninguna primitiva SVG sin convertir (`VectorDrawable` solo
- * tiene `<path>`), que cada `pathData` sea legible (Android lo parsea al inflar el vector,
- * no al compilar, asi que un numero de menos tumba la app y ni el build lo ve), y que los
- * pares que deben leerse como el mismo glifo en dos estados compartan geometria.
+ * Cinco tests fijan lo que el estilo no puede expresar y ningun otro sitio comprueba: que
+ * no quede ninguna primitiva SVG sin convertir (`VectorDrawable` solo tiene `<path>`), que
+ * cada `pathData` sea legible (Android lo parsea al inflar el vector, no al compilar, asi
+ * que un numero de menos tumba la app y ni el build lo ve), que cada trazado que abre
+ * agujeros declare el `fillType` que los abre, que los pares que deben leerse como el mismo
+ * glifo en dos estados compartan geometria, y que los que mezclan relleno y trazo declaren
+ * cuantos trazos necesita su dibujo. Un sexto vigila que nadie dibuje fuera de su viewport,
+ * que es el otro error que Android tampoco ve al compilar: recorta el glifo y el icono sale
+ * cortado sin que ningun test se entere. Los cuatro primeros tests de la clase son de antes
+ * del paso a relleno: dos fijan el invariante de relleno y trazo, y dos vigilan que el
+ * directorio exista y que el set no pierda la barra ni las acciones.
  *
  * El invariante se comprueba leyendo los vectores del disco, porque no hay forma de
  * assertar sobre el trazo de un `ImageVector` desde un test de JVM. El XML se lee con
@@ -35,7 +41,7 @@ class IconSetStyleTest {
                 assertTrue("$nombre: el trazado $indice no declara fillColor", relleno.isNotEmpty())
                 assertTrue(
                     "$nombre: el trazado $indice se rellena de negro opaco",
-                    relleno != "#FF000000",
+                    !relleno.equals("#FF000000", ignoreCase = true),
                 )
             }
         }
@@ -109,10 +115,18 @@ class IconSetStyleTest {
     @Test
     fun `los iconos con subpaths negativos declaran el fillType par`() {
         CON_SUBPATHS_NEGATIVOS.forEach { nombre ->
-            assertTrue(
-                "$nombre: sin android:fillType=\"evenOdd\" los subpaths negativos se rellenan",
-                File(DRAWABLES, nombre).readText().contains("android:fillType=\"evenOdd\""),
-            )
+            trazados(nombre).forEachIndexed { indice, bloque ->
+                // El agujero lo abre el trazado que tiene mas de un subpath. Leer el fichero
+                // entero dejaba pasar el fichero en el que ese trazado concreto no lo declara
+                // pero otro si.
+                val subpathsDelTrazado = subpaths(atributo(bloque, "pathData"))
+                if (subpathsDelTrazado < 2) return@forEachIndexed
+                assertTrue(
+                    "$nombre: el trazado $indice abre $subpathsDelTrazado subpaths y sin " +
+                        "android:fillType=\"evenOdd\" se rellenan",
+                    atributo(bloque, "fillType").equals("evenOdd", ignoreCase = true),
+                )
+            }
         }
     }
 
@@ -129,12 +143,39 @@ class IconSetStyleTest {
 
     @Test
     fun `los cuatro iconos mixtos declaran su trazo`() {
-        ICONOS_MIXTOS.forEach { nombre ->
+        TRAZOS_POR_ICONO.forEach { (nombre, esperados) ->
             val delIcono = trazados(nombre)
+            val conTrazo = delIcono.count { atributo(it, "strokeColor").isNotEmpty() }
+            // El any de antes mordia solo si el icono perdia todo el trazo: bastaba con
+            // que quedara un trazado a trazo para pasar en verde.
             assertTrue(
                 "$nombre deberia mezclar relleno y trazo, y no declara ningun trazo",
-                delIcono.any { atributo(it, "strokeColor").isNotEmpty() },
+                conTrazo > 0,
             )
+            assertTrue(
+                "$nombre deberia declarar $esperados trazados a trazo, y declara $conTrazo",
+                conTrazo == esperados,
+            )
+        }
+    }
+
+    @Test
+    fun `ningun icono dibuja fuera de su viewport`() {
+        iconosDelSet().forEach { nombre ->
+            val limite = viewport(nombre)
+            trazados(nombre).forEachIndexed { indice, bloque ->
+                coordenadas(atributo(bloque, "pathData")).forEach { (x, y) ->
+                    // El paso a relleno movio once glifos de la cuadricula de 24 a la de 16:
+                    // una coordenada que se quedo en la escala vieja es un numero valido,
+                    // nadie lo ve al compilar y el icono sale recortado en la pantalla.
+                    assertTrue(
+                        "$nombre: el trazado $indice se sale del viewport de $limite en " +
+                            "($x, $y)",
+                        x >= -TOLERANCIA && y >= -TOLERANCIA &&
+                            x <= limite + TOLERANCIA && y <= limite + TOLERANCIA,
+                    )
+                }
+            }
         }
     }
 
@@ -178,6 +219,72 @@ class IconSetStyleTest {
         return true
     }
 
+    /** Cuantos subpaths abre un `pathData`: uno por cada `M`, el resto se hereda. */
+    private fun subpaths(pathData: String): Int = pathData.count { it == 'M' || it == 'm' }
+
+    /**
+     * Coordenadas que recorre un `pathData`: el extremo de cada comando y los puntos de
+     * control de las curvas, que tambien encierran geometria. Los radios y el giro de un
+     * arco no son coordenadas y no se comprueban, asi que un arco mas ancho que el viewport
+     * se sale sin que sus extremos lo delaten: eso solo lo ve el ojo en el dispositivo.
+     *
+     * Recorre comandos absolutos y relativos. Nueve iconos del set usan relativos
+     * (`h`, `v`), asi que no se puede suponer que todo cuelga del origen.
+     */
+    private fun coordenadas(pathData: String): List<Pair<Double, Double>> {
+        val tokens = TOKEN.findAll(pathData).map { it.value }.toList()
+        val puntos = ArrayList<Pair<Double, Double>>()
+        var x = 0.0
+        var y = 0.0
+        var indice = 0
+        while (indice < tokens.size) {
+            val comando = tokens[indice][0]
+            val aridad = ARIDADES[comando] ?: return emptyList() // la gramatica ya lo rechaza
+            indice++
+            if (aridad == 0) continue
+            val grupo = ArrayList<Double>()
+            while (indice < tokens.size && !(tokens[indice].length == 1 && tokens[indice][0].isLetter())) {
+                grupo.add(tokens[indice].toDouble())
+                indice++
+            }
+            val absoluto = comando.isUpperCase()
+            var k = 0
+            while (k + aridad <= grupo.size) {
+                when (comando.uppercaseChar()) {
+                    'M', 'L', 'C' -> {
+                        var p = k
+                        while (p + 1 < k + aridad) {
+                            puntos.add(extremo(grupo[p], grupo[p + 1], x, y, absoluto))
+                            p += 2
+                        }
+                        val fin = extremo(grupo[k + aridad - 2], grupo[k + aridad - 1], x, y, absoluto)
+                        x = fin.first
+                        y = fin.second
+                    }
+                    'A' -> {
+                        val fin = extremo(grupo[k + 5], grupo[k + 6], x, y, absoluto)
+                        x = fin.first
+                        y = fin.second
+                        puntos.add(fin)
+                    }
+                    'H' -> {
+                        x = if (absoluto) grupo[k] else x + grupo[k]
+                        puntos.add(x to y)
+                    }
+                    'V' -> {
+                        y = if (absoluto) grupo[k] else y + grupo[k]
+                        puntos.add(x to y)
+                    }
+                }
+                k += aridad
+            }
+        }
+        return puntos
+    }
+
+    private fun extremo(vx: Double, vy: Double, x: Double, y: Double, absoluto: Boolean): Pair<Double, Double> =
+        if (absoluto) vx to vy else (x + vx) to (y + vy)
+
     private fun iconosDelSet(): List<String> =
         File(DRAWABLES).listFiles()
             .orEmpty()
@@ -196,6 +303,19 @@ class IconSetStyleTest {
 
     private fun atributo(bloque: String, nombre: String): String =
         Regex("android:${Regex.escape(nombre)}=\"([^\"]*)\"").find(bloque)?.groupValues?.get(1) ?: ""
+
+    /** El lado del cuadro de coordenadas: todo lo que se dibuje debe caber en el. */
+    private fun viewport(nombre: String): Double {
+        val declarado = atributo(File(DRAWABLES, nombre).readText(), "viewportWidth")
+        val lado = declarado.toDoubleOrNull()
+        assertTrue(
+            "$nombre no declara un viewportWidth legible (\"$declarado\")",
+            lado != null && lado > 0,
+        )
+        // La asercion de arriba ya garantiza que no es nulo; requireNotNull se lo hace saber
+        // al compilador sin recurrir a !!
+        return requireNotNull(lado)
+    }
 
     private companion object {
         const val DRAWABLES = "src/main/res/drawable"
@@ -219,10 +339,15 @@ class IconSetStyleTest {
         /** Los dos glifos cuyo interior sale de un subpath en negativo. */
         val CON_SUBPATHS_NEGATIVOS = listOf("ic_nav_home.xml", "ic_shield_check.xml")
 
-        /** Los cuatro que mezclan silueta rellena y detalle a trazo. */
-        val ICONOS_MIXTOS = listOf(
-            "ic_settings_notifications.xml", "ic_nav_profiles.xml",
-            "ic_shield_check.xml", "ic_star.xml",
+        /** Los cuatro que mezclan silueta rellena y detalle a trazo, y cuantos de cada uno. */
+        val TRAZOS_POR_ICONO = mapOf(
+            "ic_settings_notifications.xml" to 1,
+            "ic_nav_profiles.xml" to 3,
+            "ic_shield_check.xml" to 1,
+            "ic_star.xml" to 1,
         )
+
+        /** Holgura para las sumas de coordenadas relativas, no para dibujar fuera del cuadro. */
+        const val TOLERANCIA = 0.001
     }
 }

@@ -21,6 +21,20 @@
 5. **Cada `<path>` se escribe en una sola línea** y se cierra con `/>`. El contrato lo exige: `PATH = Regex("<path\s[^>]*?/>")` falla sobre un elemento partido en varias líneas o con hijos.
 6. **Los 7 iconos con color de estado no se tocan:** `ic_tile_shield_connected`, `ic_tile_shield_disconnected`, `ic_tile_shield_failed`, `ic_widget_power`, `ic_widget_power_failed`, `ic_widget_add`, `ic_widget_shield_check`. Tampoco `ic_logo_u.xml` ni `ic_launcher_foreground.xml`.
 7. **`IconSetStyleTest`: se reescribe su KDoc y se añaden tests. Ninguna aserción de los cuatro tests existentes se modifica.**
+
+> **Corrección del 2026-11-10 (revisión posterior al merge de las cinco tareas).** La
+> restricción 7 se incumplió a propósito, en un solo punto y solo para reforzar. La
+> aserción del negro opaco comparaba `relleno != "#FF000000"`, que es sensible a
+> mayúsculas: un trazado declarado `#ff000000` es el mismo negro opaco y pasaba en verde.
+> Ahora se compara ignorando mayúsculas. Es un endurecimiento, no un debilitamiento, y
+> ningún fichero del set usa minúsculas, así que el cambio no puede volver rojo lo que
+> estaba verde. Junto a eso, la Task 1 dejó tres agujeros más que se taparon el mismo día
+> sin tocar las aserciones anteriores: el KDoc Decía "tres tests siguientes" habiendo
+> cinco; el `fillType` se leía del fichero entero, cuando solo lo necesita el trazado que
+> abre agujeros; y los iconos mixtos mordían solo si perdían *todo* el trazo (`any {}`),
+> no si perdían alguno. Se añadió además una sexta guarda, `ningun icono dibuja fuera de
+> su viewport`, porque el paso de la cuadrícula de 24 a la de 16 es justo el sitio donde
+> una coordenada vieja pasa por número válido y recorta el glifo sin que el build lo vea.
 8. **No se toca la lógica del túnel** ni `MainActivity.kt` (`AGENTS.md`, paso 6).
 9. **Esta máquina no tiene JDK, ni Android SDK, ni Gradle, y no se instala nada.** El código se escribe y se comprueba leyendo ficheros; el veredicto es de la CI.
 10. **Nada se inventa** (`AGENTS.md`, paso 7): cada atributo, cada número y cada comando viene de la fuente de verdad, del spec o de un fichero del repo que se haya leído.

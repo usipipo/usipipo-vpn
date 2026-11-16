@@ -9,11 +9,13 @@ import android.view.View
 import android.widget.RemoteViews
 import com.usipipo.vpn.R
 import com.usipipo.vpn.quickconnect.QuickConnectState
+import com.usipipo.vpn.settings.AppSettings
 
 class UsipipoWidgetRenderer(context: Context) {
 
     private val appContext: Context = context.applicationContext
     private val appWidgetManager: AppWidgetManager = AppWidgetManager.getInstance(appContext)
+    private val settings: AppSettings = AppSettings.create(appContext)
 
     fun render(state: QuickConnectState, appWidgetIds: IntArray): Unit {
         if (appWidgetIds.isEmpty()) return
@@ -52,8 +54,8 @@ class UsipipoWidgetRenderer(context: Context) {
             R.id.widget_action,
             if (presentation.showProgress) View.INVISIBLE else View.VISIBLE,
         )
-        setOptionalText(remoteViews, R.id.widget_profile_name, presentation.profileName)
-        setOptionalText(remoteViews, R.id.widget_country, presentation.countryLabel)
+        setOptionalText(remoteViews, R.id.widget_profile_name, textoSi(presentation.profileName))
+        setOptionalText(remoteViews, R.id.widget_country, textoSi(presentation.countryLabel))
         applyTextColors(remoteViews, presentation.status)
         remoteViews.setOnClickPendingIntent(
             R.id.widget_action,
@@ -73,6 +75,10 @@ class UsipipoWidgetRenderer(context: Context) {
             R.layout.widget_usipipo
         }
     }
+
+    /** Vacío oculta la vista: setOptionalText ya lo trata como GONE. */
+    private fun textoSi(valor: String): String =
+        if (settings.widgetShowCountry) valor else ""
 
     private fun setOptionalText(
         remoteViews: RemoteViews,

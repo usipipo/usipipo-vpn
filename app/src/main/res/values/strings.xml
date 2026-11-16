@@ -40,6 +40,19 @@
     <string name="settings_updates">Actualizaciones</string>
     <string name="settings_backup">Copia de seguridad</string>
     <string name="settings_storage">Almacenamiento</string>
+
+    <!-- Pantalla inicial y panel -->
+    <string name="homescreen_title">Pantalla inicial y panel</string>
+    <string name="homescreen_widget_card">Widget de pantalla de inicio</string>
+    <string name="homescreen_widget_added">Añadido</string>
+    <string name="homescreen_widget_not_added">No añadido</string>
+    <string name="homescreen_show_country">Mostrar país y perfil</string>
+    <string name="homescreen_show_country_summary">Oculta el nombre del perfil y el país del widget.</string>
+    <string name="homescreen_pin_widget">Añadir widget a la pantalla de inicio</string>
+    <string name="homescreen_tile_card">Mosaico de Ajustes rápidos</string>
+    <string name="homescreen_shortcuts">Accesos directos del sistema</string>
+    <string name="homescreen_shortcuts_summary">Atajos del sistema para añadir el widget y el mosaico.</string>
+    <string name="homescreen_open_quick_settings">Abrir panel de Ajustes rápidos</string>
     <string name="settings_more">Más</string>
 
     <!-- Seguridad -->

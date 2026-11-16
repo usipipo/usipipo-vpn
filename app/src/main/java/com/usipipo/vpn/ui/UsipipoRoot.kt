@@ -52,6 +52,8 @@ import com.usipipo.vpn.ui.configs.ConfigsScreen
 import com.usipipo.vpn.ui.settings.SettingsRoute
 import com.usipipo.vpn.ui.settings.SettingsScreen
 import com.usipipo.vpn.ui.settings.SettingsViewModel
+import com.usipipo.vpn.ui.settings.homescreen.HomeScreenSettingsRoute
+import com.usipipo.vpn.ui.settings.homescreen.HomeScreenSettingsViewModel
 import com.usipipo.vpn.ui.settings.storage.StorageRoute
 import com.usipipo.vpn.ui.settings.storage.StorageSizes
 import com.usipipo.vpn.ui.settings.storage.StorageViewModel
@@ -210,7 +212,8 @@ fun UsipipoRoot(
                                         clicked == SettingsRoute.Notifications ||
                                         clicked == SettingsRoute.TrafficBubble ||
                                         clicked == SettingsRoute.Backup ||
-                                        clicked == SettingsRoute.Storage
+                                        clicked == SettingsRoute.Storage ||
+                                        clicked == SettingsRoute.HomeScreen
                                     ) {
                                         settingsRoute = clicked
                                     }
@@ -244,6 +247,11 @@ fun UsipipoRoot(
                         } else if (route == SettingsRoute.Storage) {
                             StorageRoute(
                                 viewModel = storageViewModel(container),
+                                onBack = { settingsRoute = null },
+                            )
+                        } else if (route == SettingsRoute.HomeScreen) {
+                            HomeScreenSettingsRoute(
+                                viewModel = homeScreenSettingsViewModel(container),
                                 onBack = { settingsRoute = null },
                             )
                         }
@@ -373,6 +381,13 @@ private fun backupViewModel(container: AppContainer): BackupViewModel = viewMode
  * Almacenamiento: el tamaño se mide al entrar, no en vivo. El registro y la caché
  * cambian cuando el usuario los borra, y eso ya refresca el resumen.
  */
+@Composable
+private fun homeScreenSettingsViewModel(container: AppContainer): HomeScreenSettingsViewModel = viewModel(
+    factory = viewModelFactory {
+        initializer { HomeScreenSettingsViewModel(container.appSettings) }
+    },
+)
+
 @Composable
 private fun storageViewModel(container: AppContainer): StorageViewModel = viewModel(
     factory = viewModelFactory {

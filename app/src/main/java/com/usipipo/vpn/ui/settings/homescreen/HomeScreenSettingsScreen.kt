@@ -165,6 +165,7 @@ private fun TarjetaWidget(
                 // El toggle lo gestiona la fila entera (accesibilidad): el Switch es solo visual.
                 Switch(checked = showCountry, onCheckedChange = null)
             }
+            Spacer(Modifier.height(8.dp))
             if (pinSupported) {
                 OutlinedButton(onClick = onPinWidget) {
                     Text(stringResource(R.string.homescreen_pin_widget))

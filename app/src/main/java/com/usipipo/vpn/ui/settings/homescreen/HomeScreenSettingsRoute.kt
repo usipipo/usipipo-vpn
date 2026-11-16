@@ -84,7 +84,7 @@ fun HomeScreenSettingsRoute(
                 )
             }
         },
-        onOpenQuickSettings = { context.startActivity(Intent(Settings.ACTION_SETTINGS)) },
+        onOpenQuickSettings = { context.startActivity(quickSettingsIntent(context)) },
         onMessageShown = { mensaje = null },
         onBack = onBack,
     )

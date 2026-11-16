@@ -100,3 +100,15 @@ private fun widgetPresente(context: Context): Boolean {
         .getAppWidgetIds(ComponentName(context, UsipipoWidgetProvider::class.java))
     return ids.isNotEmpty()
 }
+
+/** La acción de Ajustes rápidos no está en el SDK público: va como string. */
+private const val ACCION_AJUSTES_RAPIDOS = "android.settings.QUICK_SETTINGS_SETTINGS"
+
+private fun quickSettingsIntent(context: Context): Intent {
+    val directo = Intent(ACCION_AJUSTES_RAPIDOS).addCategory(Intent.CATEGORY_DEFAULT)
+    return if (directo.resolveActivity(context.packageManager) != null) {
+        directo
+    } else {
+        Intent(Settings.ACTION_SETTINGS)
+    }
+}

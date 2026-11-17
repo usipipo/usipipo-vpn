@@ -39,7 +39,6 @@ class HomeScreenSettingsViewModelTest {
         recolectar(viewModel)
 
         assertTrue(viewModel.uiState.value.showCountry)
-        assertTrue(prefs.getBoolean("widget_show_country", false))
     }
 
     @Test

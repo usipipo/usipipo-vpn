@@ -26,6 +26,7 @@ object BackupSettings {
         AppSettings.KEY_BUBBLE_ENABLED to settings.bubbleEnabled,
         AppSettings.KEY_BUBBLE_X to settings.bubbleX,
         AppSettings.KEY_BUBBLE_Y to settings.bubbleY,
+        AppSettings.KEY_WIDGET_SHOW_COUNTRY to settings.widgetShowCountry,
     )
 
     /**
@@ -46,6 +47,8 @@ object BackupSettings {
                 AppSettings.KEY_BUBBLE_ENABLED -> asBoolean(value)?.let { settings.bubbleEnabled = it }
                 AppSettings.KEY_BUBBLE_X -> asFloat(value)?.let { settings.bubbleX = it }
                 AppSettings.KEY_BUBBLE_Y -> asFloat(value)?.let { settings.bubbleY = it }
+                AppSettings.KEY_WIDGET_SHOW_COUNTRY ->
+                    asBoolean(value)?.let { settings.widgetShowCountry = it }
                 else -> Unit
             }
         }

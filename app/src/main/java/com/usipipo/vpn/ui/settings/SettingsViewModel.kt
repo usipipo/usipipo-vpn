@@ -23,7 +23,7 @@ class SettingsViewModel(
     fun summary(route: SettingsRoute): String = when (route) {
         SettingsRoute.Appearance -> "Tema: ${themeLabel()} · ${animationsLabel()} · ${paletteLabel()}"
         SettingsRoute.Security -> "Desactivado"
-        SettingsRoute.HomeScreen -> "Activado"
+        SettingsRoute.HomeScreen -> "—"
         SettingsRoute.TrafficBubble -> if (appSettings.bubbleEnabled) "Activada" else "Desactivada"
         SettingsRoute.Notifications -> if (appSettings.notificationsEnabled) "Activadas" else "Desactivadas"
         SettingsRoute.Updates -> "Activada"

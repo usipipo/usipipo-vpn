@@ -110,6 +110,11 @@ class AppSettings(private val prefs: SharedPreferences) {
         get() = prefs.getLong(KEY_BACKUP_LAST_AT, DEFAULT_BACKUP_LAST_AT)
         set(value) = prefs.edit().putLong(KEY_BACKUP_LAST_AT, value).apply()
 
+    /** Si el widget de pantalla de inicio muestra el perfil y el país. */
+    var widgetShowCountry: Boolean
+        get() = prefs.getBoolean(KEY_WIDGET_SHOW_COUNTRY, DEFAULT_WIDGET_SHOW_COUNTRY)
+        set(value) = prefs.edit().putBoolean(KEY_WIDGET_SHOW_COUNTRY, value).apply()
+
     companion object {
         const val KEY_THEME_MODE: String = "theme_mode"
         const val KEY_ANIMATIONS_ENABLED: String = "animations_enabled"
@@ -124,6 +129,7 @@ class AppSettings(private val prefs: SharedPreferences) {
         const val KEY_BUBBLE_X: String = "bubble_x"
         const val KEY_BUBBLE_Y: String = "bubble_y"
         const val KEY_BACKUP_LAST_AT: String = "backup_last_at"
+        const val KEY_WIDGET_SHOW_COUNTRY: String = "widget_show_country"
 
         /**
          * Visible fuera de la clase porque [com.usipipo.vpn.AppContainer] borra este
@@ -146,6 +152,9 @@ class AppSettings(private val prefs: SharedPreferences) {
 
         /** Sin copias todavía: la pantalla lo muestra como «Sin copias». */
         private const val DEFAULT_BACKUP_LAST_AT = 0L
+
+        /** El widget muestra perfil y país mientras el usuario no los oculte. */
+        private const val DEFAULT_WIDGET_SHOW_COUNTRY = true
 
         fun create(context: Context): AppSettings =
             AppSettings(context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
